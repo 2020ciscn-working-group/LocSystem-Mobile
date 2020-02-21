@@ -2,6 +2,7 @@
 #include <string>
 #include <android/log.h>
 #include "sm2_impl/sm3.h"
+#include "sm2_impl/sm2.h"
 
 #define LOG_TAG "System.out"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -76,6 +77,12 @@ Java_com_example_myapplication_Gm_1sm2_13_BYTE_1Point_1mul(JNIEnv *env, jobject 
 JNIEXPORT jstring JNICALL
 Java_com_example_myapplication_Gm_1sm2_13_getVersion(JNIEnv *env, jobject thiz) {
     // TODO: implement getVersion()
+    jclass strClass = env->FindClass("Ljava/lang/String;");
+    jmethodID ctorID = env->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
+    jbyteArray bytes = env->NewByteArray(strlen(getVersion()));
+    env->SetByteArrayRegion(bytes, 0, strlen(getVersion()), (jbyte*)getVersion());
+    jstring encoding = env->NewStringUTF("utf-8");
+    return (jstring)env->NewObject(strClass, ctorID, bytes, encoding);
 }extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_myapplication_Gm_1sm2_13_sm3(JNIEnv *env, jobject thiz, jbyteArray input,

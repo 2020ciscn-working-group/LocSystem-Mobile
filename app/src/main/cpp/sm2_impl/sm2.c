@@ -46,7 +46,7 @@
 #include "string.h"
 #include "GM_define.h"
 #include "time.h"
-
+#include "ctype.h"
 #ifdef _DEBUG
 const char * param_a= "787968B4FA32C3FD2417842E73BBFEFF2F3C848B6831D7E0EC65228B3937E498";
 const char * param_b= "63E4C6D3B23B0C849CF84241484BFE48F61D59A5B16BA06E6E12D1DA27C5249A";

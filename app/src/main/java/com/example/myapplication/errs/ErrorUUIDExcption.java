@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.errs;
 
 /*
  *作者：zyc14588

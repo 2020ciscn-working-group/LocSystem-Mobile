@@ -1527,7 +1527,7 @@ int GM_SM2Encrypt(unsigned char * encData, unsigned long * ulEncDataLen, unsigne
 
         if(ulEncDataLen<512)
 	{
-		memset(encData,0,ulEncDataLen);
+		memset(encData, 0, (size_t) ulEncDataLen);
 	}
 	else
 	{

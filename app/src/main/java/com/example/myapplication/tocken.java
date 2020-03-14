@@ -1,12 +1,14 @@
 package com.example.myapplication;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2019-08-19 23:14:39
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class tocken {
+public class tocken implements Serializable {
 
     private String token_uuid;
     private String Owner_uuid;

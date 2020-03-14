@@ -39,4 +39,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation files('libs/gson-2.8.5.jar')
+    implementation files('libs/bcprov-jdk15on-164.jar')
+    implementation files('libs/commons-codec-1.14.jar')
 }

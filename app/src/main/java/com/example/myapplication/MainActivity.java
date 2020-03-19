@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
+import com.example.myapplication.Utils.utils.Util;
 
 import java.util.Arrays;
 
@@ -26,6 +27,11 @@ public class MainActivity extends AppCompatActivity {
         // Example of a call to a native method
         TextView tv = findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
+
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
         Gm_sm2_3 gm=Gm_sm2_3.getInstance();
         byte []pub=new byte[64];
         byte []pri=new byte[32];
@@ -54,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         int len=gm.GetEncLen(src,src.length,pub);
         byte []enc=new byte[len];
         try{
-        ret=gm.GM_SM2Encrypt(enc,len,src,src.length,pub);}
+            ret=gm.GM_SM2Encrypt(enc,len,src,src.length,pub);}
         catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,7 +79,27 @@ public class MainActivity extends AppCompatActivity {
         else Log.e("decrpty", String.valueOf(ret));
         Gm_sm2_3 dec_ret=(Gm_sm2_3) ByteUtils.byteArrayToObject(dec);
         Log.d("decrpty", dec_ret.test);
-        //File externalFilesDir = Context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+
+        String externalFilesDir = MainActivity.this.getExternalCacheDir().toString();
+        owner_date own=new owner_date();
+        own.setUuid("72351398430564");
+        own.setInfo("fsdgwreyeturturtyuhgr");
+        own.setOther("dsgwqgsdfwfasdfqw");
+        own.setname("scdtx");
+        try {
+            Util.saveSm2Key(pub,pri,own,0,0,externalFilesDir);
+        } catch (RuntimeException e){
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("save error",e.getMessage());
+        }
+
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     /**

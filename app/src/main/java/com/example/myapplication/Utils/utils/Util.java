@@ -1,5 +1,16 @@
 package com.example.myapplication.Utils.utils;
 
+import android.util.Log;
+
+import com.example.myapplication.Guest;
+import com.example.myapplication.Loc;
+import com.example.myapplication.Utils.Gm_sm2_3;
+import com.example.myapplication.owner_date;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 
 public class Util {
@@ -613,5 +624,649 @@ public class Util {
             bt[i] = input[i + startIndex];
         }
         return bt;
+    }
+    public static void saveSm2Key(byte[] pubkey,byte[] prikey,Object entity,int type,int subtype,String filepath){
+        Gm_sm2_3 gm=Gm_sm2_3.getInstance();
+        switch (type){
+            case 0:{//owner的秘钥系列
+                byte []sm3ret=new byte[32];
+                owner_date owner=(owner_date)entity;
+                String info=owner.getname()+owner.getUuid()+owner.getInfo();
+                String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
+                switch (subtype){
+                    case 0:{//根密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_root_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("root_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_root_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("root_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    case 1:{//签名密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_sign_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("sign_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_sign_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("sign_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    case 2:{//绑定密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_bind_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("bind_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_bind_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("bind_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            case 1:{//loc的密钥集合
+                byte[]sm3ret=new byte[32];
+                Loc loc=(Loc)entity;
+                String info=loc.getHub_uuid()+loc.getLock_id()+loc.getLock_name();
+                String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
+                switch (subtype){
+                    case 0:{//根密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+"/"+keyname+"_root_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("root_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+"/"+keyname+"_root_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("root_prikey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    case 1:{//签名密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+"/"+keyname+"_sign_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("sign_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+"/"+keyname+"_sign_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("sign_prikey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    case 2:{//绑定密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+"/"+keyname+"_bind_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("bind_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+"/"+keyname+"_bind_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("bind_prikey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            case 2:{//guest的密钥集合
+                byte[]sm3ret=new byte[32];
+                Guest guest=(Guest)entity;
+                String info=guest.getName()+guest.getUuid()+guest.getInfo();
+                String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
+                switch (subtype){
+                    case 0:{//根密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_root_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("root_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_root_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("root_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    case 1:{//签名密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_sign_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("sign_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_sign_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("sign_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                    case 2:{//绑定密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_bind_pub";
+                        File pubkey_f=new File(filepath,keyname);
+                        File pub_dir=pubkey_f.getParentFile();
+                        if(pub_dir!=null&& !pub_dir.exists())
+                            pub_dir.mkdirs();
+                        if(!pubkey_f.exists()){
+                            try {
+                                pubkey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("bind_pubkey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pub;
+                        try{
+                            fileOutputStream_pub=new FileOutputStream(pubkey_f);
+                            fileOutputStream_pub.write(pubkey);
+                            fileOutputStream_pub.flush();
+                            fileOutputStream_pub.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_bind_pri";
+                        File prikey_f=new File(filepath,keyname);
+                        File pri_dir=prikey_f.getParentFile();
+                        if(pri_dir!=null&& !pri_dir.exists())
+                            pri_dir.mkdirs();
+                        if(!prikey_f.exists()){
+                            try {
+                                prikey_f.createNewFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Log.e("bind_prikey save error",e.toString());
+                            }
+                        }
+                        FileOutputStream fileOutputStream_pri;
+                        try{
+                            fileOutputStream_pri=new FileOutputStream(prikey_f);
+                            fileOutputStream_pri.write(prikey);
+                            fileOutputStream_pri.flush();
+                            fileOutputStream_pri.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+    }
+    public static void loadSm2Key(byte[] pubkey,byte[] prikey,Object entity,int type,int subtype,String filepath) throws IOException {
+        Gm_sm2_3 gm=Gm_sm2_3.getInstance();
+        switch (type){
+            case 0:{//owner的秘钥系列
+                byte []sm3ret=new byte[32];
+                owner_date owner=(owner_date)entity;
+                String info=owner.getname()+owner.getUuid()+owner.getInfo();
+                String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
+                switch (subtype){
+                    case 0:{//根密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_root_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_root_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                    case 1:{//签名密钥
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_sign_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_sign_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                    case 2:{
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_bind_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/ow/"+keyname+"_bind_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                }
+                break;
+            }
+            case 1:{
+                byte[]sm3ret=new byte[32];
+                Loc loc=(Loc)entity;
+                String info=loc.getHub_uuid()+loc.getLock_id()+loc.getLock_name();
+                String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
+                switch (subtype){
+                    case 0:{
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+"/"+keyname+"_root_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+keyname+"_root_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                    case 1:{
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+keyname+"_sign_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+keyname+"_sign_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                    case 2:{
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+keyname+"_bind_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/loc/"+loc.getHub_uuid()+keyname+"_bind_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                }
+                break;
+            }
+            case 2:{
+                byte[]sm3ret=new byte[32];
+                Guest guest=(Guest)entity;
+                String info=guest.getName()+guest.getUuid()+guest.getInfo();
+                String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
+                switch (subtype){
+                    case 0:{
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_root_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_root_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                    case 1:{
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_sign_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_sign_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                    case 2:{
+                        String keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_bind_pub";
+                        File pubkey_f=new File(filepath+keyname);
+                        FileInputStream fileInputStream=new FileInputStream(pubkey_f);
+                        fileInputStream.read(pubkey);
+                        fileInputStream.close();
+                        keyname=_keyname.substring(0,32);
+                        keyname="/Guest/"+guest.getUuid()+"/"+keyname+"_bind_pri";
+                        File prikey_f=new File(filepath+keyname);
+                        FileInputStream _fileInputStream=new FileInputStream(prikey_f);
+                        _fileInputStream.read(prikey);
+                        _fileInputStream.close();
+                        break;
+                    }
+                }
+                break;
+            }
+        }
     }
 }

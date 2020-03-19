@@ -1,17 +1,11 @@
 package com.example.myapplication;
 
-import android.app.job.JobWorkItem;
 import android.util.Log;
 
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class tcpsocket extends Thread{
     private String           threadname;
@@ -80,7 +74,6 @@ public class tcpsocket extends Thread{
     }
 
     public tcpsocket(String name){
-        jts=new jsontrans();
         threadname=name;
         write=false;
         flash=false;

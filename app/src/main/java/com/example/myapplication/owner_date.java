@@ -1,25 +1,52 @@
 package com.example.myapplication;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.UUID;
 
 /*
  *作者：zyc14588
  *github地址：https://github.com/zyc14588
- */public class owner_date extends Thread {
+ */public class owner_date extends Thread
+{
     private LinkedList<hub> hublist;
     private hub[]           achubs;
     private LinkedList<tocken>  tockens;
-    private UUID                uuid;
+    private String                uuid;
     private String              name;
     private LinkedList<Guest>   guests;
     private LinkedList<Aduit>   aduits;
-    private jsontrans           jts;
-    private String              json;
-    private int type =0;
-    private tcpsocket           tcp;
+    private String    json;
+    private int       type =0;
+    private tcpsocket tcp;
+    private String    info;
+    private String    other;
+
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setname(String name) {
+        this.name = name;
+    }
+
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+    }
+
     public void setType(int type) {
         this.type = type;
     }
@@ -35,8 +62,9 @@ import java.util.UUID;
 
         }
     }
+    public owner_date(){}
     public owner_date(tcpsocket tt){
-        jts=new jsontrans();tcp=tt;
+        tcp=tt;
     }
     public hub[] getAchubs() {
         return achubs;
@@ -47,7 +75,7 @@ import java.util.UUID;
     }
 
     public String getUuid() {
-        return uuid.toString();
+        return uuid;
     }
 
     public String getname() {

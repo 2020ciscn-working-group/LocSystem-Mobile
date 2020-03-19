@@ -145,7 +145,7 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1GenSM2keypair(JNIEnv *env, j
 
     sm3(pri,len,pri_sm3);
     env->SetByteArrayRegion(pri_re,0,(jsize)len,(jbyte*)pri);
-    pri_sm3_ret=(char*)calloc(len*2,sizeof(char));
+    pri_sm3_ret=(char*)calloc(len*2+1,sizeof(char));
     ByteToHexStr(pri_sm3,pri_sm3_ret,(int)len);
     return env->NewStringUTF(pri_sm3_ret);
     //以SM3结果为索引存储私钥
@@ -240,7 +240,7 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2Sign(JNIEnv *env, jobject
     GM_SM2Sign(sigd,&len_sig,src_in,(unsigned long)src_len,uid_name,(unsigned long)len_uid,prikey,len);
     //签名数据返还
     env->SetByteArrayRegion(signed_data,0,64,(jbyte *)sigd);
-    sigd_hex=(char*)calloc(128,sizeof(char));
+    sigd_hex=(char*)calloc(129,sizeof(char));
     ByteToHexStr(sigd,sigd_hex,64);
     return env->NewStringUTF(sigd_hex);
 }
@@ -369,8 +369,6 @@ JNIEXPORT jstring JNICALL
 Java_com_example_myapplication_Utils_Gm_1sm2_13_sm3(JNIEnv *env, jobject thiz, jbyteArray input,
                                               jlong ilen, jbyteArray output) {
     // TODO: implement sm3()
-    //jbyte *buf=env->GetByteArrayElements(input,0);
-    //unsigned char*chars=(unsigned char *)buf;
     unsigned char*chars=NULL;
     unsigned char ou[32];
     char *sigd_hex;
@@ -381,7 +379,7 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_sm3(JNIEnv *env, jobject thiz, j
     env->ReleaseByteArrayElements(input,bts,0);
     sm3(chars,(unsigned long)ilen,ou);
     env->SetByteArrayRegion(output,0,32,(jbyte *)ou);
-    sigd_hex=(char*)calloc(128,sizeof(char));
+    sigd_hex=(char*)calloc(129,sizeof(char));
     ByteToHexStr(ou,sigd_hex,64);
     return env->NewStringUTF(sigd_hex);
 }extern "C"

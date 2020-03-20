@@ -38,7 +38,17 @@ import android.database.sqlite.SQLiteDatabase;
     参数3  删除条件值数组
      */
     public void delete(String tabname, String whereClause,String[] whereAtgs){
-        mDatabase.delete(tabname,whereClause,whereAtgs);
+        mDatabase.beginTransaction();
+        try{
+            mDatabase.delete(tabname,whereClause,whereAtgs);
+            mDatabase.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            mDatabase.endTransaction();
+        }
+
     }
 
 
@@ -49,7 +59,17 @@ import android.database.sqlite.SQLiteDatabase;
     参数4  更新条件数组
      */
     public void update(String table,ContentValues values,String  whereClause, String[]  whereArgs){
-        mDatabase.update(table,values,whereClause,whereArgs);
+        mDatabase.beginTransaction();
+        try{
+            mDatabase.update(table,values,whereClause,whereArgs);
+            mDatabase.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            mDatabase.endTransaction();
+        }
+
     }
 
     /*
@@ -72,12 +92,33 @@ import android.database.sqlite.SQLiteDatabase;
     参数Cursor:返回值，相当于结果集ResultSet
      */
     public Cursor query(String table,String[] columns,String selection,String[]  selectionArgs,String groupBy,String having,String orderBy,String limit){
-        return mDatabase.query(table,columns,selection,selectionArgs,groupBy,having,orderBy);
+        mDatabase.beginTransaction();
+        try{
+            Cursor cursor=mDatabase.query(table,columns,selection,selectionArgs,groupBy,having,orderBy,limit);
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
+            return cursor;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            mDatabase.endTransaction();
+        }
+        return null;
     }
     /*
     参数tabname：要删除的表名
      */
     public void droptable(String tabname){
-        mDatabase.execSQL("DROP TABLE "+tabname);
+        mDatabase.beginTransaction();
+        try{
+            mDatabase.execSQL("DROP TABLE "+tabname);
+            mDatabase.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            mDatabase.endTransaction();
+        }
     }
 }

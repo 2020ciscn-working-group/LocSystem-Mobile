@@ -2,7 +2,7 @@ package com.example.myapplication.Utils.utils;
 
 import android.util.Log;
 
-import com.example.myapplication.Guest;
+import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.Loc;
 import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.owner_date;
@@ -945,7 +945,7 @@ public class Util {
             case 2:{//guest的密钥集合
                 byte[]sm3ret=new byte[32];
                 Guest guest=(Guest)entity;
-                String info=guest.getName()+guest.getUuid()+guest.getInfo();
+                String info=guest.getId()+guest.getUuid()+guest.getInfo();
                 String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
                 switch (subtype){
                     case 0:{//根密钥
@@ -1216,7 +1216,7 @@ public class Util {
             case 2:{
                 byte[]sm3ret=new byte[32];
                 Guest guest=(Guest)entity;
-                String info=guest.getName()+guest.getUuid()+guest.getInfo();
+                String info=guest.getId()+guest.getUuid()+guest.getInfo();
                 String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
                 switch (subtype){
                     case 0:{

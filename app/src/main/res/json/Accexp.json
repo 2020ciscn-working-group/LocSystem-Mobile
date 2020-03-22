@@ -1,0 +1,16 @@
+﻿{
+        "accreq": {
+            "accsee": "value",
+            "time": "value",
+            "info": "value",
+            "infolen": "value",
+            "signdate": "value",
+            "signdatelen": "value"
+        },
+        "PIK": "value",
+        "signkey": "value",
+        "info": "value",
+        "access": "value",
+        "acctime": "value",
+        "accendtime": "value"
+    }

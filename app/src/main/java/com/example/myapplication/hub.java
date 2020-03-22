@@ -1,63 +1,73 @@
 /**
-  * Copyright 2019 bejson.com 
-  */
+ * Copyright 2020 bejson.com
+ */
 package com.example.myapplication;
+import com.example.myapplication.DateStract.RemoteKey;
+
 import java.util.List;
 
 /**
- * Auto-generated: 2019-08-25 22:38:35
+ * Auto-generated: 2020-03-23 2:59:18
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
 public class hub {
 
-    private String Hub_uuid;
-    private String Hub_name;
-    private String Owner_uuid;
-    private int Lock_num;
-    private List<Key> key;
-    private List<Loc> loc;
-    public void setHub_uuid(String Hub_uuid) {
-         this.Hub_uuid = Hub_uuid;
-     }
-     public String getHub_uuid() {
-         return Hub_uuid;
-     }
+    private String                                               uuid;
+    private String                                               uuid_ow;
+    private String                                               id;
+    private String                                               info;
+    private String                                               desc;
+    private List<Integer>                                        locs;
+    private List<com.example.myapplication.DateStract.RemoteKey> RemoteKey;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+    public String getUuid() {
+        return uuid;
+    }
 
-    public void setHub_name(String Hub_name) {
-         this.Hub_name = Hub_name;
-     }
-     public String getHub_name() {
-         return Hub_name;
-     }
+    public void setUuid_ow(String uuid_ow) {
+        this.uuid_ow = uuid_ow;
+    }
+    public String getUuid_ow() {
+        return uuid_ow;
+    }
 
-    public void setOwner_uuid(String Owner_uuid) {
-         this.Owner_uuid = Owner_uuid;
-     }
-     public String getOwner_uuid() {
-         return Owner_uuid;
-     }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public String getId() {
+        return id;
+    }
 
-    public void setLock_num(int Lock_num) {
-         this.Lock_num = Lock_num;
-     }
-     public int getLock_num() {
-         return Lock_num;
-     }
+    public void setInfo(String info) {
+        this.info = info;
+    }
+    public String getInfo() {
+        return info;
+    }
 
-    public void setKey(List<Key> key) {
-         this.key = key;
-     }
-     public List<Key> getKey() {
-         return key;
-     }
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+    public String getDesc() {
+        return desc;
+    }
 
-    public void setLoc(List<Loc> loc) {
-         this.loc = loc;
-     }
-     public List<Loc> getLoc() {
-         return loc;
-     }
+    public void setLocs(List<Integer> locs) {
+        this.locs = locs;
+    }
+    public List<Integer> getLocs() {
+        return locs;
+    }
+
+    public void setRemoteKey(List<RemoteKey> RemoteKey) {
+        this.RemoteKey = RemoteKey;
+    }
+    public List<RemoteKey> getRemoteKey() {
+        return RemoteKey;
+    }
 
 }

@@ -2,6 +2,9 @@ package com.example.myapplication;
 
 import android.util.Log;
 
+import com.example.myapplication.DateStract.Tocken;
+import com.example.myapplication.Utils.jsontrans;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -36,7 +39,7 @@ public class tcpsocket extends Thread{
     public synchronized void sendObject(Object ob,int type){
         switch (type){
             case 1:{
-                tocken tt=(tocken) ob;
+                Tocken tt=(Tocken) ob;
                 json=jts.trans_tocken_to_json(tt);
                 write=true;
                 this.type=type;
@@ -57,7 +60,7 @@ public class tcpsocket extends Thread{
         owd.setType(type);
         switch (type){
             case 1:{
-                tocken tt=jts.trans_tocken_from_json(json);
+                Tocken tt=jts.trans_tocken_from_json(json);
                 owd.addTocken(tt);
                 break;
             }

@@ -1,5 +1,9 @@
 package com.example.myapplication;
 
+import com.example.myapplication.DateStract.Audit;
+import com.example.myapplication.DateStract.Guest;
+import com.example.myapplication.DateStract.Tocken;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -8,18 +12,18 @@ import java.util.LinkedList;
  *github地址：https://github.com/zyc14588
  */public class owner_date extends Thread
 {
-    private LinkedList<hub> hublist;
-    private hub[]           achubs;
-    private LinkedList<tocken>  tockens;
-    private String                uuid;
-    private String              name;
-    private LinkedList<Guest>   guests;
-    private LinkedList<Aduit>   aduits;
-    private String    json;
-    private int       type =0;
-    private tcpsocket tcp;
-    private String    info;
-    private String    other;
+    private LinkedList<hub>    hublist;
+    private hub[]              achubs;
+    private LinkedList<Tocken> tockens;
+    private String             uuid;
+    private String             name;
+    private LinkedList<Guest>  guests;
+    private LinkedList<Audit>  aduits;
+    private String             json;
+    private int                type =0;
+    private tcpsocket          tcp;
+    private String             info;
+    private String             other;
 
 
     public void setUuid(String uuid) {
@@ -70,7 +74,7 @@ import java.util.LinkedList;
         return achubs;
     }
 
-    public LinkedList<tocken> getTockens() {
+    public LinkedList<Tocken> getTockens() {
         return tockens;
     }
 
@@ -90,46 +94,46 @@ import java.util.LinkedList;
     public LinkedList<Guest> getGuests() {
         return guests;
     }
-    public Aduit getAduit(String tockenuuid){
-        for (Aduit ss:aduits) {
-            if(ss.getToken_uuid().contains(tockenuuid))return ss;
+    public Audit getAduit(String tockenuuid){
+        for (Audit ss:aduits) {
+            if(ss.getAuditexp().getUuid_Tocken().contains(tockenuuid))return ss;
         }
         return null;
     }
-    public Aduit[] getAudit(String gestuuid){
-        ArrayList<Aduit> at=new ArrayList<Aduit>();
-        for(Aduit ss:aduits){
-            if(ss.getGuest_uuid().contains(gestuuid))at.add(ss);
+    public Audit[] getAudit(String gestuuid){
+        ArrayList<Audit> at=new ArrayList<Audit>();
+        for(Audit ss:aduits){
+            if(ss.getAuditexp().getUuid_Tocken().contains(gestuuid))at.add(ss);
         }
-        Aduit[] ads=new Aduit[at.size()];
+        Audit[] ads=new Audit[at.size()];
         for(int s=0;s<at.size();s++){
             ads[s]=at.get(s);
         }
         return ads;
     }
-    public LinkedList<Aduit> getAduots() {
+    public LinkedList<Audit> getAduots() {
         return aduits;
     }
-    public void addTocken(tocken tk){
-        if(tk.getGuest_uuid().contains(uuid.toString()))
+    public void addTocken(Tocken tk){
+        if(tk.getUuid().contains(uuid.toString()))
             tockens.add(tk);
     }
     public void deleteTocken(String uuid){
-        for(tocken tt:tockens){
-           if(tt.getToken_uuid().contains(uuid))
+        for(Tocken tt:tockens){
+           if(tt.getUuid().contains(uuid))
                tockens.remove(tt);
         }
     }
-    public void deleteTocken(tocken tt){
+    public void deleteTocken(Tocken tt){
             tockens.remove(tt);
     }
-    public  void addAduit(Aduit ad){
+    public  void addAduit(Audit ad){
         aduits.add(ad);
     }
     public void addHub(hub[] h){
     //目前不需要做
     }
-    public void sendTocken(tocken t){
+    public void sendTocken(Tocken t){
         tcp.sendObject(t,1);
     }
 }

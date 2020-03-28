@@ -1,6 +1,6 @@
 package com.example.myapplication.Utils.utils.sm3;
 
-import com.example.myapplication.Utils.utils.Util;
+import com.example.myapplication.Utils.Util;
 
 import org.bouncycastle.crypto.digests.SM3Digest;
 import org.bouncycastle.util.encoders.Hex;

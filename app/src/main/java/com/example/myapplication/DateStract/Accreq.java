@@ -3,20 +3,22 @@
  */
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2020-03-23 3:43:46
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Accreq {
+public class Accreq implements Serializable {
 
     private String accsee;
     private String time;
     private String info;
-    private String infolen;
-    private String signdate;
-    private String signdatelen;
+    private long infolen;
+    private byte[] signdate;
+    private long signdatelen;
     public void setAccsee(String accsee) {
         this.accsee = accsee;
     }
@@ -38,24 +40,24 @@ public class Accreq {
         return info;
     }
 
-    public void setInfolen(String infolen) {
+    public void setInfolen(long infolen) {
         this.infolen = infolen;
     }
-    public String getInfolen() {
+    public long getInfolen() {
         return infolen;
     }
 
-    public void setSigndate(String signdate) {
+    public void setSigndate(byte[] signdate) {
         this.signdate = signdate;
     }
-    public String getSigndate() {
+    public byte[] getSigndate() {
         return signdate;
     }
 
-    public void setSigndatelen(String signdatelen) {
+    public void setSigndatelen(long signdatelen) {
         this.signdatelen = signdatelen;
     }
-    public String getSigndatelen() {
+    public long getSigndatelen() {
         return signdatelen;
     }
 

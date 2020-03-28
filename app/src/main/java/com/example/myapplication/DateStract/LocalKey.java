@@ -3,31 +3,33 @@
  */
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2020-03-22 2:58:55
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class LocalKey {
+public class LocalKey implements Serializable {
 
-    private String pubkey;
-    private String prikey;
+    private byte[] pubkey;
+    private byte[] prikey;
     private int type;
     private String info;
-    private String signdata;
-    private String certdata;
-    public void setPubkey(String pubkey) {
+    private byte[] signdata;
+    private byte[] certdata;
+    public void setPubkey(byte[] pubkey) {
         this.pubkey = pubkey;
     }
-    public String getPubkey() {
+    public byte[] getPubkey() {
         return pubkey;
     }
 
-    public void setPrikey(String prikey) {
+    public void setPrikey(byte[] prikey) {
         this.prikey = prikey;
     }
-    public String getPrikey() {
+    public byte[] getPrikey() {
         return prikey;
     }
 
@@ -45,17 +47,17 @@ public class LocalKey {
         return info;
     }
 
-    public void setSigndata(String signdata) {
+    public void setSigndata(byte[] signdata) {
         this.signdata = signdata;
     }
-    public String getSigndata() {
+    public byte[] getSigndata() {
         return signdata;
     }
 
-    public void setCertdata(String certdata) {
+    public void setCertdata(byte[] certdata) {
         this.certdata = certdata;
     }
-    public String getCertdata() {
+    public byte[] getCertdata() {
         return certdata;
     }
 

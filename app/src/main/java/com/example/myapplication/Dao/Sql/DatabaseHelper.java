@@ -10,7 +10,9 @@ import android.database.sqlite.SQLiteOpenHelper;
  *github地址：https://github.com/zyc14588
  */public class DatabaseHelper extends SQLiteOpenHelper {
      private static final String DB_NAME="LocSystem.db";
-     private static int version=1;
+     public static int version=1;
+
+
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -19,9 +21,29 @@ import android.database.sqlite.SQLiteOpenHelper;
 
     }
     @Override
+    //数据加密后通过文件形式存储，数据库存sm4密钥
     public void onCreate(SQLiteDatabase db) {
         //创建数据库sql语句 并 执行
-        String sql = "create table user(name varchar(20))";
+        String sql = "create table Tocken(" +
+                "uuid  varchar(32) primary key  not null," +
+                "dekey vchar(32)  not null" +
+                ");" +
+                "create table RemoteKey(" +
+                "uuid  varchar(32) primary key  not null," +
+                "dekey vchar(32)  not null" +
+                ");" +
+                "create table Audit(" +
+                "uuid  varchar(32) primary key  not null," +
+                "dekey vchar(32)  not null" +
+                ");"+
+                "create table Hub(" +
+                "uuid  varchar(32) primary key  not null," +
+                "dekey vchar(32)  not null" +
+                ");"+
+                "create table Guest(" +
+                "uuid  varchar(32) primary key  not null," +
+                "dekey vchar(32)  not null" +
+                ");";
         db.execSQL(sql);
     }
     @Override

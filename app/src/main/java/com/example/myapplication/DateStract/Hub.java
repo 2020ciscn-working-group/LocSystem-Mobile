@@ -1,9 +1,9 @@
 /**
  * Copyright 2020 bejson.com
  */
-package com.example.myapplication;
-import com.example.myapplication.DateStract.RemoteKey;
+package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,14 +12,14 @@ import java.util.List;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class hub {
+public class Hub implements Serializable {
 
     private String                                               uuid;
     private String                                               uuid_ow;
     private String                                               id;
     private String                                               info;
     private String                                               desc;
-    private List<Integer>                                        locs;
+    private List<Loc>                                            locs;
     private List<com.example.myapplication.DateStract.RemoteKey> RemoteKey;
     public void setUuid(String uuid) {
         this.uuid = uuid;
@@ -56,10 +56,10 @@ public class hub {
         return desc;
     }
 
-    public void setLocs(List<Integer> locs) {
+    public void setLocs(List<Loc> locs) {
         this.locs = locs;
     }
-    public List<Integer> getLocs() {
+    public List<Loc> getLocs() {
         return locs;
     }
 

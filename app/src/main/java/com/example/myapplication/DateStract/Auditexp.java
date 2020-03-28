@@ -3,13 +3,15 @@
  */
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2020-03-23 4:21:52
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Auditexp {
+public class Auditexp implements Serializable {
 
     private String uuid_Tocken;
     private String RNG;

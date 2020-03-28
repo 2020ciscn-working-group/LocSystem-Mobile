@@ -2,6 +2,8 @@
  * Copyright 2020 bejson.com
  */
 package com.example.myapplication.DateStract;
+
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,13 +12,23 @@ import java.util.List;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Guest {
+public class Guest implements Serializable {
 
     private String uuid;
     private String id;
     private String info;
     private String desc;
-    private List<RemoteKey> RemoteKey;
+    private List<RemoteKey> mRemoteKey;
+    private List<Hub> mHubs;
+
+    public List<Hub> getHubs() {
+        return mHubs;
+    }
+
+    public void setHubs(List<Hub> hubs) {
+        mHubs = hubs;
+    }
+
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
@@ -46,10 +58,10 @@ public class Guest {
     }
 
     public void setRemoteKey(List<RemoteKey> RemoteKey) {
-        this.RemoteKey = RemoteKey;
+        mRemoteKey = RemoteKey;
     }
     public List<RemoteKey> getRemoteKey() {
-        return RemoteKey;
+        return mRemoteKey;
     }
 
 }

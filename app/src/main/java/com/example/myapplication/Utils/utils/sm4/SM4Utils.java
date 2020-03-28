@@ -4,7 +4,9 @@ package com.example.myapplication.Utils.utils.sm4;
  * Created by $(USER) on $(DATE)
  */
 
-import com.example.myapplication.Utils.utils.Util;
+import android.util.Log;
+
+import com.example.myapplication.Utils.Util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -28,7 +30,9 @@ public class SM4Utils {
     public SM4Utils() {
     }
 
+static {
 
+}
 
     public String encryptData_ECB(String plainText) {
         try {
@@ -112,6 +116,30 @@ public class SM4Utils {
             return null;
         }
     }
+    public byte[] encryptData_CBC(byte[] plainText) {
+        try {
+            SM4_Context ctx = new SM4_Context();
+            ctx.isPadding = true;
+            ctx.mode = SM4.SM4_ENCRYPT;
+
+            byte[] keyBytes;
+            byte[] ivBytes;
+            if (hexString) {
+                keyBytes = Util.hexStringToBytes(secretKey);
+                ivBytes = Util.hexStringToBytes(iv);
+            } else {
+                keyBytes = secretKey.getBytes();
+                ivBytes = iv.getBytes();
+            }
+
+            SM4 sm4 = new SM4();
+            sm4.sm4_setkey_enc(ctx, keyBytes);
+            return sm4.sm4_crypt_cbc(ctx, ivBytes, plainText);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public String decryptData_CBC(String cipherText) {
         try {
@@ -150,9 +178,39 @@ public class SM4Utils {
         }
 
     }
+
+    public byte[] decryptData_CBC(byte[] encrypted) {
+        try {
+            SM4_Context ctx = new SM4_Context();
+            ctx.isPadding = true;
+            ctx.mode = SM4.SM4_DECRYPT;
+
+            byte[] keyBytes;
+            byte[] ivBytes;
+            if (hexString) {
+                keyBytes = Util.hexStringToBytes(secretKey);
+                ivBytes = Util.hexStringToBytes(iv);
+            } else {
+                keyBytes = secretKey.getBytes();
+                ivBytes = iv.getBytes();
+            }
+
+            SM4 sm4 = new SM4();
+            sm4.sm4_setkey_dec(ctx, keyBytes);
+            return sm4.sm4_crypt_cbc(ctx, ivBytes,encrypted);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
     public static byte[] genersm4key() throws Exception{
-        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
-            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        //Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME);
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null){
+            Log.i("sys","运行环境没有BouncyCastleProvider");
+            Security.addProvider(new BouncyCastleProvider());
         }
         KeyGenerator keyGenerator=KeyGenerator.getInstance("SM4", BouncyCastleProvider.PROVIDER_NAME);
         keyGenerator.init(DEFAULT_SM4KEY_SIZE,new SecureRandom());

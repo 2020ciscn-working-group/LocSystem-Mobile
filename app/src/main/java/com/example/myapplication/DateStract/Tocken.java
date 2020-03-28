@@ -3,17 +3,19 @@
  */
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2020-03-23 3:43:46
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Tocken {
+public class Tocken implements Serializable {
 
     private String uuid;
     private Accexp accexp;
-    private String signdate;
+    private byte[] signdate;
     private long singdatelen;
     public void setUuid(String uuid) {
         this.uuid = uuid;
@@ -29,10 +31,10 @@ public class Tocken {
         return accexp;
     }
 
-    public void setSigndate(String signdate) {
+    public void setSigndate(byte[] signdate) {
         this.signdate = signdate;
     }
-    public String getSigndate() {
+    public byte[] getSigndate() {
         return signdate;
     }
 

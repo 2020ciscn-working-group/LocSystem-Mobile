@@ -1,7 +1,7 @@
 package com.example.myapplication.Utils;
 
 import com.example.myapplication.DateStract.Tocken;
-import com.example.myapplication.hub;
+import com.example.myapplication.DateStract.Hub;
 import com.google.gson.Gson;
 
 /*
@@ -14,10 +14,10 @@ import com.google.gson.Gson;
      }
      private jsontrans(){
      }
-     public static hub[] trans_hublist_from_json(String hub_json){
-         return gson.fromJson(hub_json,hub[].class);
+     public static Hub[] trans_hublist_from_json(String hub_json){
+         return gson.fromJson(hub_json,Hub[].class);
      }
-     public static String trans_hublist_to_json(hub[] hbs){
+     public static String trans_hublist_to_json(Hub[] hbs){
          return gson.toJson(hbs);
      }
     public static Tocken trans_tocken_from_json(String tocken_json){

@@ -3,17 +3,29 @@
  */
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2020-03-23 4:21:52
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Audit {
+public class Audit implements Serializable {
 
+    private String uuid;
     private com.example.myapplication.DateStract.Auditexp Auditexp;
-    private String                             signdate;
-    private String                             signdatelen;
+    private byte[]                             signdate;
+    private long                             signdatelen;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     public void setAuditexp(com.example.myapplication.DateStract.Auditexp Auditexp) {
         this.Auditexp = Auditexp;
     }
@@ -21,17 +33,17 @@ public class Audit {
         return Auditexp;
     }
 
-    public void setSigndate(String signdate) {
+    public void setSigndate(byte[] signdate) {
         this.signdate = signdate;
     }
-    public String getSigndate() {
+    public byte[] getSigndate() {
         return signdate;
     }
 
-    public void setSigndatelen(String signdatelen) {
+    public void setSigndatelen(long signdatelen) {
         this.signdatelen = signdatelen;
     }
-    public String getSigndatelen() {
+    public long getSigndatelen() {
         return signdatelen;
     }
 

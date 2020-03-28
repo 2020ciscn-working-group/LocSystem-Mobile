@@ -4,7 +4,7 @@ package com.example.myapplication.Utils.utils.sm4;
  * Created by $(USER) on $(DATE)
  */
 
-import com.example.myapplication.Utils.utils.Util;
+import com.example.myapplication.Utils.Util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

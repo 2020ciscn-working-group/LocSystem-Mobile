@@ -3,17 +3,19 @@
  */
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2020-03-23 3:43:46
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Accexp {
+public class Accexp implements Serializable {
 
     private Accreq accreq;
-    private String PIK;
-    private String signkey;
+    private byte[] PIK;
+    private byte[] signkey;
     private String info;
     private String access;
     private String acctime;
@@ -25,17 +27,17 @@ public class Accexp {
         return accreq;
     }
 
-    public void setPIK(String PIK) {
+    public void setPIK(byte[] PIK) {
         this.PIK = PIK;
     }
-    public String getPIK() {
+    public byte[] getPIK() {
         return PIK;
     }
 
-    public void setSignkey(String signkey) {
+    public void setSignkey(byte[] signkey) {
         this.signkey = signkey;
     }
-    public String getSignkey() {
+    public byte[] getSignkey() {
         return signkey;
     }
 

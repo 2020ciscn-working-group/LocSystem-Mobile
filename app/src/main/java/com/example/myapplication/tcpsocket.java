@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.util.Log;
 
+import com.example.myapplication.DateStract.Hub;
 import com.example.myapplication.DateStract.Tocken;
 import com.example.myapplication.Utils.jsontrans;
 
@@ -46,7 +47,7 @@ public class tcpsocket extends Thread{
                 break;
             }
             case 2:{
-                hub[] tt=(hub[]) ob;
+                Hub[] tt=(Hub[]) ob;
                 json=jts.trans_hublist_to_json(tt);
                 write=true;
                 this.type=type;
@@ -65,7 +66,7 @@ public class tcpsocket extends Thread{
                 break;
             }
             case 2:{
-                hub[] hl=jts.trans_hublist_from_json(json);
+                Hub[] hl=jts.trans_hublist_from_json(json);
                 owd.addHub(hl);
                 break;
             }

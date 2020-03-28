@@ -6,7 +6,7 @@ import android.database.Cursor;
 
 import com.example.myapplication.Activities.MainActivity;
 import com.example.myapplication.Dao.Sql.AppSql;
-import com.example.myapplication.DateStract.Guest;
+import com.example.myapplication.DateStract.Audit;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Util;
 import com.example.myapplication.Utils.utils.sm4.SM4Utils;
@@ -21,15 +21,15 @@ import java.util.NoSuchElementException;
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class Dao_Guest {
-    private volatile static Dao_Guest sDao_guest;
+*/public class Dao_Audit {
+    private volatile static Dao_Audit sDao_Audit;
     private volatile static AppSql     mDatabase;
-    private Dao_Guest(){}
-    public static Dao_Guest getInstance(AppSql sqLiteDatabase){
-        if(sDao_guest==null){
-            synchronized (Dao_Guest.class){
-                if(sDao_guest==null)
-                    sDao_guest=new Dao_Guest();
+    private Dao_Audit(){}
+    public static Dao_Audit getInstance(AppSql sqLiteDatabase){
+        if(sDao_Audit==null){
+            synchronized (Dao_Audit.class){
+                if(sDao_Audit==null)
+                    sDao_Audit=new Dao_Audit();
             }
 
         }
@@ -37,47 +37,48 @@ import java.util.NoSuchElementException;
             throw new Resources.NotFoundException();
         }
         mDatabase=sqLiteDatabase;
-        return sDao_guest;
+        return sDao_Audit;
     }
-    public void InsertGuest(Guest guest) throws Exception {
+
+    public void InsertAudit(Audit audit) throws Exception {
         String key= Util.byteToHex(SM4Utils.genersm4key());
-        byte[] guest_byte= ByteUtils.objectToByteArray(guest);
+        byte[] Audit_byte= ByteUtils.objectToByteArray(audit);
         SM4Utils sm4=new SM4Utils();
         sm4.iv = "31313131313131313131313131313131";
         sm4.secretKey=key;
         sm4.hexString=true;
-        byte[] guest_inc=sm4.encryptData_CBC(guest_byte);
+        byte[] Audit_inc=sm4.encryptData_CBC(Audit_byte);
         String path= MainActivity.path;
-        String name="/Guest/"+new String(guest.getUuid());
-        File Guest=new File(path,name);
-        File dir= Guest.getParentFile();
+        String name="/Audit/"+new String(audit.getUuid());
+        File Audit=new File(path,name);
+        File dir=Audit.getParentFile();
         if(dir!=null&&!dir.exists())
             dir.mkdirs();
-        if(!Guest.exists())
+        if(!Audit.exists())
             try{
-                Guest.createNewFile();
+                Audit.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        //else throw new FileAlreadyExistsException("Tocken has existed!");
+        //else throw new FileAlreadyExistsException("Audit has existed!");
         FileOutputStream fileOutputStream;
         try{
-            fileOutputStream=new FileOutputStream(Guest);
-            fileOutputStream.write(guest_inc);
+            fileOutputStream=new FileOutputStream(Audit);
+            fileOutputStream.write(Audit_inc);
             fileOutputStream.flush();
             fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         ContentValues values=new ContentValues();
-        values.put("uuid", new String(guest.getUuid()));
+        values.put("uuid", audit.getUuid());
         values.put("dekey",key);
-        mDatabase.insert("Guest",values);
+        mDatabase.insert("Audit",values);
     }
-    public Guest SelectGuest(String uuid) throws IOException {
+    public Audit SelectAudit(String uuid) throws IOException {
         String[]selarg=new String[]{uuid};
         String key = null;
-        Cursor cursor=mDatabase.query("Guest",new String[]{"dekey"},"uuid=?",selarg,null,null,null);
+        Cursor cursor=mDatabase.query("Audit",new String[]{"dekey"},"uuid=?",selarg,null,null,null);
         boolean fist=cursor.moveToFirst();
         boolean isEmpty=cursor.getCount()==0;
         if(cursor!=null&&fist&&!isEmpty){
@@ -89,22 +90,22 @@ import java.util.NoSuchElementException;
         sm4.iv = "31313131313131313131313131313131";
         sm4.secretKey=key;
         sm4.hexString=true;
-        String name="/Guest/"+uuid.substring(0,16);
-        File Guest_file=new File(MainActivity.path+name);
-        if(!Guest_file.exists())
+        String name="/Audit/"+uuid.substring(0,16);
+        File Audit_file=new File(MainActivity.path+name);
+        if(!Audit_file.exists())
             throw new FileNotFoundException();
-        FileInputStream fileInputStream=new FileInputStream(Guest_file);
-        byte[] Guest_inc=new byte[fileInputStream.available()];
-        fileInputStream.read(Guest_inc);
-        byte[]Guest_byte=sm4.decryptData_CBC(Guest_inc);
-        return (Guest)ByteUtils.byteArrayToObject(Guest_byte);
+        FileInputStream fileInputStream=new FileInputStream(Audit_file);
+        byte[] Audit_inc=new byte[fileInputStream.available()];
+        fileInputStream.read(Audit_inc);
+        byte[]Audit_byte=sm4.decryptData_CBC(Audit_inc);
+        return (Audit) ByteUtils.byteArrayToObject(Audit_byte);
     }
-    public void DeleteGuest(String uuid) throws IOException {
-        mDatabase.delete("Guest","uuid=?",new String[]{uuid});
-        String name="/Guest/"+uuid.substring(0,16);
-        File Guest_file=new File(MainActivity.path+name);
-        if(!Guest_file.exists())
+    public void DeleteAudit(String uuid) throws IOException {
+        mDatabase.delete("Audit","uuid=?",new String[]{uuid});
+        String name="/Audit/"+uuid.substring(0,16);
+        File Audit_file=new File(MainActivity.path+name);
+        if(!Audit_file.exists())
             throw new FileNotFoundException();
-        Guest_file.delete();
+        Audit_file.delete();
     }
 }

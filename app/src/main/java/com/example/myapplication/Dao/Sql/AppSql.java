@@ -15,6 +15,9 @@ import android.database.sqlite.SQLiteDatabase;
         mDatabaseHelper=new DatabaseHelper(context);
         mDatabase=mDatabaseHelper.getWritableDatabase();
     }
+    public void onUpgrade(int version){
+        mDatabaseHelper.onUpgrade(mDatabase,DatabaseHelper.version,version);
+    }
     /*
     参数1  表名称，
     参数2  空列的默认值
@@ -91,19 +94,19 @@ import android.database.sqlite.SQLiteDatabase;
 
     参数Cursor:返回值，相当于结果集ResultSet
      */
-    public Cursor query(String table,String[] columns,String selection,String[]  selectionArgs,String groupBy,String having,String orderBy,String limit){
+    public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy){
         mDatabase.beginTransaction();
         try{
-            Cursor cursor=mDatabase.query(table,columns,selection,selectionArgs,groupBy,having,orderBy,limit);
+            String[] arg=selectionArgs;
+            Cursor cursor=mDatabase.query(table,columns,selection,arg,groupBy,having,orderBy,null);
             mDatabase.setTransactionSuccessful();
             mDatabase.endTransaction();
             return cursor;
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
             mDatabase.endTransaction();
         }
+
         return null;
     }
     /*

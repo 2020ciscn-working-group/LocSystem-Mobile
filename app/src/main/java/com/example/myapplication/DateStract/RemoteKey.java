@@ -3,23 +3,41 @@
  */
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2020-03-22 2:52:47
  *
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class RemoteKey {
+public class RemoteKey implements Serializable {
 
-    private String pubkey;
+    private String uuid;
+
+    //密钥公钥
+    private byte[] pubkey;
+    //该密钥类型
     private int type;
+    //密钥信息
     private String info;
-    private String signdata;
-    private String certdata;
-    public void setPubkey(String pubkey) {
+    //上级密钥签名的前三项数据,防造假
+    private byte[] signdata;
+    //该密钥私钥签名的前四项数据，完整性、密钥正确性保障
+    private byte[] certdata;
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setPubkey(byte[] pubkey) {
         this.pubkey = pubkey;
     }
-    public String getPubkey() {
+    public byte[] getPubkey() {
         return pubkey;
     }
 
@@ -37,17 +55,17 @@ public class RemoteKey {
         return info;
     }
 
-    public void setSigndata(String signdata) {
+    public void setSigndata(byte[] signdata) {
         this.signdata = signdata;
     }
-    public String getSigndata() {
+    public byte[] getSigndata() {
         return signdata;
     }
 
-    public void setCertdata(String certdata) {
+    public void setCertdata(byte[] certdata) {
         this.certdata = certdata;
     }
-    public String getCertdata() {
+    public byte[] getCertdata() {
         return certdata;
     }
 

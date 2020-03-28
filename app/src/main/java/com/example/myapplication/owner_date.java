@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import com.example.myapplication.DateStract.Audit;
 import com.example.myapplication.DateStract.Guest;
+import com.example.myapplication.DateStract.Hub;
 import com.example.myapplication.DateStract.Tocken;
 
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ import java.util.LinkedList;
  *github地址：https://github.com/zyc14588
  */public class owner_date extends Thread
 {
-    private LinkedList<hub>    hublist;
-    private hub[]              achubs;
+    private LinkedList<Hub>    hublist;
+    private Hub[]              achubs;
     private LinkedList<Tocken> tockens;
     private String             uuid;
     private String             name;
@@ -70,7 +71,7 @@ import java.util.LinkedList;
     public owner_date(tcpsocket tt){
         tcp=tt;
     }
-    public hub[] getAchubs() {
+    public Hub[] getAchubs() {
         return achubs;
     }
 
@@ -87,7 +88,7 @@ import java.util.LinkedList;
     }
     public Guest getGuest(String uuid){
         for (Guest ss:guests) {
-            if(ss.getUuid().contains(uuid))return ss;
+            if(new String(ss.getUuid()).contains(uuid))return ss;
         }
         return null;
     }
@@ -115,12 +116,12 @@ import java.util.LinkedList;
         return aduits;
     }
     public void addTocken(Tocken tk){
-        if(tk.getUuid().contains(uuid.toString()))
+        if(new String(tk.getUuid()).contains(uuid.toString()))
             tockens.add(tk);
     }
     public void deleteTocken(String uuid){
         for(Tocken tt:tockens){
-           if(tt.getUuid().contains(uuid))
+           if(new String(tt.getUuid()).contains(uuid))
                tockens.remove(tt);
         }
     }
@@ -130,7 +131,7 @@ import java.util.LinkedList;
     public  void addAduit(Audit ad){
         aduits.add(ad);
     }
-    public void addHub(hub[] h){
+    public void addHub(Hub[] h){
     //目前不需要做
     }
     public void sendTocken(Tocken t){

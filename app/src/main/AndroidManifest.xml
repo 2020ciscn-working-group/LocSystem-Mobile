@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
         tools:ignore="ProtectedPermissions" />
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+    <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.SUBSCRIBED_FEEDS_WRITE"/>
     <uses-permission android:name="android.permission.SUBSCRIBED_FEEDS_READ"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>

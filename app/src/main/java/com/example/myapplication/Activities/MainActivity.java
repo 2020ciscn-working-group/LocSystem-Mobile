@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity {
         byte[]src__=ByteUtils.objectToByteArray(accexp);
         tocken.setAccexp(accexp);
         tocken.setUuid(gm.GM_SM2Sign(sigd,src__,src__.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray() .length,pri).substring(0,16) );
-        tocken.setSigndate(sigd);
-        tocken.setSingdatelen(sigd.length);
+        tocken.setSigndata(sigd);
+        tocken.setSingdatalen(sigd.length);
 
         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
         try {

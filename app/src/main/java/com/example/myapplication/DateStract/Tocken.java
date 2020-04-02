@@ -15,8 +15,8 @@ public class Tocken implements Serializable {
 
     private String uuid;
     private Accexp accexp;
-    private byte[] signdate;
-    private long singdatelen;
+    private byte[] signdata;
+    private long singdatalen;
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
@@ -31,18 +31,18 @@ public class Tocken implements Serializable {
         return accexp;
     }
 
-    public void setSigndate(byte[] signdate) {
-        this.signdate = signdate;
+    public void setSigndata(byte[] signdata) {
+        this.signdata = signdata;
     }
     public byte[] getSigndate() {
-        return signdate;
+        return signdata;
     }
 
-    public void setSingdatelen(long singdatelen) {
-        this.singdatelen = singdatelen;
+    public void setSingdatalen(long singdatalen) {
+        this.singdatalen = singdatalen;
     }
-    public long getSingdatelen() {
-        return singdatelen;
+    public long getSingdatalen() {
+        return singdatalen;
     }
 
 }

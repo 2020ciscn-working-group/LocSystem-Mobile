@@ -19,6 +19,34 @@ public class Owner implements Serializable {
     private String desc;
     private List<LocalKey> Localkey;
     private List<Hub> Hub;
+    private List<Guest>Guests;
+    private List<Tocken>Tockens;
+    private List<Audit>Audits;
+
+    public List<Guest> getGuests() {
+        return Guests;
+    }
+
+    public void setGuests(List<Guest> guests) {
+        Guests = guests;
+    }
+
+    public List<Tocken> getTockens() {
+        return Tockens;
+    }
+
+    public void setTockens(List<Tocken> tockens) {
+        Tockens = tockens;
+    }
+
+    public List<Audit> getAudits() {
+        return Audits;
+    }
+
+    public void setAudits(List<Audit> audits) {
+        Audits = audits;
+    }
+
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }

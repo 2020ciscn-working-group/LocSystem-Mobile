@@ -25,6 +25,7 @@ add_subdirectory(libtommath-0.42.0)
 
 
 add_subdirectory(sm2_impl)
+add_subdirectory(crypto)
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
@@ -60,3 +61,9 @@ target_link_libraries( # Specifies the target library.
         # Links the target library to the log library
         # included in the NDK.
         Sm2_impl)
+target_link_libraries( # Specifies the target library.
+        gm_sm2_master
+
+        # Links the target library to the log library
+        # included in the NDK.
+        Crypto)

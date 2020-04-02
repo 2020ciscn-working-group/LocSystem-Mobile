@@ -38,5 +38,14 @@ import java.io.Serializable;
                       byte[] output );
     public  native int GetEncLen(byte [] Src, long SrcLen,byte [] szPubkey_XY);
     public  native int GetDecLen(byte [] Src, long SrcLen,byte [] pri_sm);
-
+    /*public native void sm4Encrypto(byte [] encData,
+                                   byte [] plain, long plainLen,
+                                   byte [] key);
+    public native void sm4Decrypto(byte [] decData,
+                                   byte [] plain, long plainLen,
+                                   byte [] key);
+    public native long Getsm4EncLen(byte [] plain, long plainLen,
+                                   byte [] key);
+    public native long Getsm4DecLen(byte [] plain, long plainLen,
+                                   byte [] key);*/
 }

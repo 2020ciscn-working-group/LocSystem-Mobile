@@ -1274,8 +1274,8 @@ public class Util {
         if(sign==null||bind==null)
             throw new NullPointerException();
         Gm_sm2_3 gm=Gm_sm2_3.getInstance();
-        sign=new LocalKey();
-        bind=new LocalKey();
+        //sign=new LocalKey();
+        //bind=new LocalKey();
         sign.setInfo(info);
         bind.setInfo(info);
         sign.setType(Defin_crypto.SIGN);
@@ -1301,8 +1301,8 @@ public class Util {
                 buf_sign[i]=Integer.valueOf(sign.getType()).byteValue();
             else buf_sign[i]=byte_info[i-sign_pub.length-1];
         }
-        byte[] sign_sign=new byte[32];
-        gm.GM_SM2Sign( sign_sign,buf_sign,buf_sign.length,id.toCharArray(),id.toCharArray().length,pik_pri);
+        byte[] sign_sign=new byte[64];
+        gm.GM_SM2Sign(sign_sign,buf_sign,buf_sign.length,id.toCharArray(),id.toCharArray().length,pik_pri);
         sign.setSigndata(sign_sign);
 
         byte[]buf_bind=new byte[byte_info.length+ bind_pri.length+ bind_pub.length];
@@ -1313,7 +1313,7 @@ public class Util {
                 buf_bind[i]=Integer.valueOf( bind.getType()).byteValue();
             else buf_bind[i]=byte_info[i- bind_pub.length-1];
         }
-        byte[] bind_sign=new byte[32];
+        byte[] bind_sign=new byte[64];
         gm.GM_SM2Sign( bind_sign,buf_bind,buf_bind.length,id.toCharArray(),id.toCharArray().length,pik_pri);
         bind.setSigndata(bind_sign);
 
@@ -1327,7 +1327,7 @@ public class Util {
                 buf_sign_cert[i]=byte_info[i- bind_pub.length-1];
             else buf_sign_cert[i]=sign_sign[i-1-byte_info.length-bind_pub.length];
         }
-        byte[] sign_sign_cert=new byte[32];
+        byte[] sign_sign_cert=new byte[64];
         gm.GM_SM2Sign( sign_sign_cert,buf_sign_cert,buf_sign_cert.length,id.toCharArray(),id.toCharArray().length,pik_pri);
         bind.setCertdata(sign_sign_cert);
 
@@ -1341,8 +1341,9 @@ public class Util {
                 buf_bind_cert[i]=byte_info[i- bind_pub.length-1];
             else buf_bind_cert[i]=bind_sign[i-1-byte_info.length-bind_pub.length];
         }
-        byte[] bind_sign_cert=new byte[32];
+        byte[] bind_sign_cert=new byte[64];
         gm.GM_SM2Sign( bind_sign_cert,buf_bind_cert,buf_bind_cert.length,id.toCharArray(),id.toCharArray().length,pik_pri);
         bind.setCertdata(sign_sign_cert);
     }
+
 }

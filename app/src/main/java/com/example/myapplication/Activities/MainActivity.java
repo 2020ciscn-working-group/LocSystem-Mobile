@@ -10,6 +10,7 @@ import com.example.myapplication.Dao.Dao_Tocken;
 import com.example.myapplication.Dao.Sql.AppSql;
 import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
+import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Tocken;
 import com.example.myapplication.R;
 import com.example.myapplication.Utils.ByteUtils;
@@ -150,11 +151,24 @@ public class MainActivity extends AppCompatActivity {
             String uuid=new String(tocken.getUuid());
             Tocken tkd=dao_tocken.SelectTocken(uuid);
             Log.d("info",new String(tkd.getAccexp().getInfo()));
+            /*String key= Util.byteToHex(SM4Utils.genersm4key());
+            byte[]tocken_byte=ByteUtils.objectToByteArray(tkd);
+            byte[]sec=new byte[(int)gm.Getsm4EncLen(tocken_byte,tocken_byte.length,Util.hexToByte(key))];
+            gm.sm4Encrypto(sec,tocken_byte,tocken_byte.length,Util.hexToByte(key));
+            byte[]decsm4=new byte[(int)gm.Getsm4DecLen(sec,sec.length,Util.hexToByte(key))];
+            gm.sm4Decrypto(decsm4,sec,sec.length,Util.hexToByte(key));
+            Tocken tk= (Tocken) ByteUtils.byteArrayToObject(decsm4);
+            Log.d("sm4dec:",tk.getAccexp().getInfo());*/
+            LocalKey sign=new LocalKey();
+            LocalKey bind=new LocalKey();
+            Util.Gen_LocalKey(sign,bind,"北京市通州区",pik_pri,"zyc14588");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         String json= jsontrans.trans_tocken_to_json(tocken);
         Log.d("json",json);
+
 
     }
     @Override

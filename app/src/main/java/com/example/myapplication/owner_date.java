@@ -11,7 +11,7 @@ import java.util.LinkedList;
 /*
  *作者：zyc14588
  *github地址：https://github.com/zyc14588
- */public class owner_date extends Thread
+ */public class owner_date
 {
     private LinkedList<Hub>    hublist;
     private Hub[]              achubs;

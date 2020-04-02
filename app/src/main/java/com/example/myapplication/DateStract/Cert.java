@@ -1,14 +1,16 @@
 package com.example.myapplication.DateStract;
 
+import java.io.Serializable;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class Cert {
+*/public class Cert implements Serializable {
     private String algo_key;
     private String  algo_hash;
     private String info;
     private byte[] signdate;
-    private long signdatelen;
+    private byte[] verfi_key;
 
     public String getAlgo_key() {
         return algo_key;
@@ -42,11 +44,11 @@ package com.example.myapplication.DateStract;
         this.signdate = signdate;
     }
 
-    public long getSigndatelen() {
-        return signdatelen;
+    public byte[] getVerfi_key() {
+        return verfi_key;
     }
 
-    public void setSigndatelen(long signdatelen) {
-        this.signdatelen = signdatelen;
+    public void setVerfi_key(byte[] verfi_key) {
+        this.verfi_key = verfi_key;
     }
 }

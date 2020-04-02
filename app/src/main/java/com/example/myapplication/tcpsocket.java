@@ -11,7 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class tcpsocket extends Thread{
+public class tcpsocket implements Runnable{
     private String           threadname;
     private Socket           socket;
     private jsontrans        jts;

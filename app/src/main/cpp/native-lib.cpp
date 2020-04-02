@@ -7,9 +7,10 @@
 #include "stdlib.h"
 #include "sm2_impl/sm3.h"
 #include "sm2_impl/sm2.h"
-#include "sm2_impl/tommath.h"
-#include "sm2_impl/tommath_class.h"
-#include "sm2_impl/tommath_superclass.h"
+#include "include/data_type.h"
+#include "include/alloc.h"
+#include "include/memfunc.h"
+#include "include/crypto_func.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -304,7 +305,7 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2Encrypt(JNIEnv *env, jobj
     unsigned long len=(unsigned long)ul_enc_data_len;
     //提取源
     buf_c=env->GetByteArrayElements(plain,nullptr);
-    src=(unsigned char*)calloc((size_t)plain_len*4,sizeof(unsigned char));
+    src=(unsigned char*)calloc((size_t)plain_len,sizeof(unsigned char));
     memcpy(src,buf_c,(size_t)plain_len);
     env->ReleaseByteArrayElements(plain,buf_c,0);
     //提取公钥
@@ -395,7 +396,7 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GetEncLen(JNIEnv *env, jobject t
     unsigned long len=(unsigned long)plain_len;
     //提取源
     buf_c=env->GetByteArrayElements(plain,nullptr);
-    src=(unsigned char*)calloc((size_t)plain_len*4,sizeof(unsigned char));
+    src=(unsigned char*)calloc((size_t)plain_len,sizeof(unsigned char));
     memcpy(src,buf_c,(size_t)plain_len);
     env->ReleaseByteArrayElements(plain,buf_c,0);
     //提取公钥
@@ -434,3 +435,135 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GetDecLen(JNIEnv *env, jobject t
     free(enc);
     return (jint)len;
 }
+/*extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_example_myapplication_Utils_Gm_1sm2_13_sm4Encrypto(JNIEnv *env, jobject thiz,
+                                                            jbyteArray enc_data, jbyteArray plain,
+                                                            jlong plain_len, jbyteArray key) {
+    // TODO: implement sm4Encrypto()
+    unsigned char**enc=NULL;
+    char*sm4key;
+    unsigned char*src;
+    jbyte *buf_c;
+    int ret;
+    unsigned long len=(unsigned long)plain_len;
+    //提取源
+    buf_c=env->GetByteArrayElements(plain,nullptr);
+    src=(unsigned char*)calloc((size_t)plain_len,sizeof(unsigned char));
+    memcpy(src,buf_c,(size_t)plain_len);
+    env->ReleaseByteArrayElements(plain,buf_c,0);
+    //提取公钥
+    buf_c=env->GetByteArrayElements(key,nullptr);
+    sm4key=(char*)calloc((size_t)32,sizeof(char));
+    memcpy(sm4key,buf_c,(size_t)32);
+    env->ReleaseByteArrayElements(key,buf_c,0);
+    //
+    sm4_data_prepare((int)plain_len, src, &ret, src);
+    ret=sm4_context_crypt(src,enc,ret,sm4key);
+    if(*enc==NULL){
+        (env)->ThrowNew((env)->FindClass( "java/lang/NullPointerException"),
+                        "Decrypt Error");
+        return -1;
+    }
+    env->SetByteArrayRegion(enc_data,0,ret,(jbyte*)*enc);
+    return ret;
+
+}extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_example_myapplication_Utils_Gm_1sm2_13_sm4Decrypto(JNIEnv *env, jobject thiz,
+                                                            jbyteArray dec_data, jbyteArray plain,
+                                                            jlong plain_len, jbyteArray key) {
+    // TODO: implement sm4Decrypto()
+    unsigned char**dec=NULL;
+    char*sm4key;
+    unsigned char*src;
+    jbyte *buf_c;
+    int ret;
+    unsigned long len=(unsigned long)plain_len;
+    //提取源
+    buf_c=env->GetByteArrayElements(plain,nullptr);
+    src=(unsigned char*)calloc((size_t)plain_len,sizeof(unsigned char));
+    memcpy(src,buf_c,(size_t)plain_len);
+    env->ReleaseByteArrayElements(plain,buf_c,0);
+    //提取公钥
+    buf_c=env->GetByteArrayElements(key,nullptr);
+    sm4key=(char*)calloc((size_t)32,sizeof(char));
+    memcpy(sm4key,buf_c,(size_t)32);
+    env->ReleaseByteArrayElements(key,buf_c,0);
+
+    sm4_context_decrypt(src,dec,(int)plain_len,sm4key);
+    sm4_data_recover((int)plain_len,src,&ret,src);
+
+    if(*dec==NULL){
+        (env)->ThrowNew((env)->FindClass( "java/lang/NullPointerException"),
+                        "Decrypt Error");
+        return -1;
+    }
+    env->SetByteArrayRegion(dec_data,0,ret,(jbyte*)*dec);
+    return ret;
+
+}extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_example_myapplication_Utils_Gm_1sm2_13_Getsm4EncLen(JNIEnv *env, jobject thiz,
+                                                             jbyteArray plain, jlong plain_len,
+                                                             jbyteArray key) {
+    // TODO: implement Getsm4EncLen()
+    unsigned char**enc=NULL;
+    char*sm4key;
+    unsigned char*src;
+    jbyte *buf_c;
+    int ret;
+    unsigned long len=(unsigned long)plain_len;
+    //提取源
+    buf_c=env->GetByteArrayElements(plain,nullptr);
+    src=(unsigned char*)calloc((size_t)plain_len,sizeof(unsigned char));
+    memcpy(src,buf_c,(size_t)plain_len);
+    env->ReleaseByteArrayElements(plain,buf_c,0);
+    //提取公钥
+    buf_c=env->GetByteArrayElements(key,nullptr);
+    sm4key=(char*)calloc((size_t)32,sizeof(char));
+    memcpy(sm4key,buf_c,(size_t)32);
+    env->ReleaseByteArrayElements(key,buf_c,0);
+    //
+    sm4_data_prepare((int)len,src,&ret,src);
+    ret=sm4_context_crypt(src,enc,ret,sm4key);
+    if(*enc==NULL){
+        (env)->ThrowNew((env)->FindClass( "java/lang/NullPointerException"),
+                        "Incrypt Error");
+        return -1;
+    }
+    return ret;
+}extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_example_myapplication_Utils_Gm_1sm2_13_Getsm4DecLen(JNIEnv *env, jobject thiz,
+                                                             jbyteArray plain, jlong plain_len,
+                                                             jbyteArray key) {
+    // TODO: implement Getsm4DecLen()
+    unsigned char**dec=NULL;
+    char*sm4key;
+    unsigned char*src;
+    jbyte *buf_c;
+    int ret;
+    int len=(int)plain_len;
+    //提取源
+    buf_c=env->GetByteArrayElements(plain,nullptr);
+    src=(unsigned char*)calloc((size_t)plain_len,sizeof(unsigned char));
+    memcpy(src,buf_c,(size_t)plain_len);
+    env->ReleaseByteArrayElements(plain,buf_c,0);
+    //提取公钥
+    buf_c=env->GetByteArrayElements(key,nullptr);
+    sm4key=(char*)calloc((size_t)32,sizeof(char));
+    memcpy(sm4key,buf_c,(size_t)32);
+    env->ReleaseByteArrayElements(key,buf_c,0);
+
+    ret=sm4_context_decrypt(src,dec,len,sm4key);
+
+
+    if(*dec==NULL){
+        (env)->ThrowNew((env)->FindClass( "java/lang/NullPointerException"),
+                        "Decrypt Error");
+        return -1;
+    }
+    ret=sm4_data_recover(ret,*dec,&ret,*dec);
+    return ret;
+}*/

@@ -50,6 +50,9 @@ import java.io.UnsupportedEncodingException;
                 Intent setNfc = new Intent(Settings.ACTION_NFC_SETTINGS);
                 activity.startActivity(setNfc);
             }
+            else if(!mNfcAdapter.isNdefPushEnabled()){
+                activity.startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
+            }
         }
         return mNfcAdapter;
     }
@@ -83,7 +86,7 @@ import java.io.UnsupportedEncodingException;
                 return readResult;
             }
         }
-        return "";
+        return null;
     }
 
 

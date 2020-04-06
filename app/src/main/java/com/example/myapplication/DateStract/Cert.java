@@ -9,7 +9,7 @@ import java.io.Serializable;
     private String algo_key;
     private String  algo_hash;
     private String info;
-    private byte[] signdate;
+    private byte[] signdata;
     private byte[] verfi_key;
 
     public String getAlgo_key() {
@@ -36,12 +36,12 @@ import java.io.Serializable;
         this.info = info;
     }
 
-    public byte[] getSigndate() {
-        return signdate;
+    public byte[] getsigndata() {
+        return signdata;
     }
 
-    public void setSigndate(byte[] signdate) {
-        this.signdate = signdate;
+    public void setsigndata(byte[] signdata) {
+        this.signdata = signdata;
     }
 
     public byte[] getVerfi_key() {

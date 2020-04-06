@@ -11,15 +11,15 @@ import java.io.Serializable;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Accexp implements Serializable {
+public class Accexp implements Serializable {//授权申请实例
 
-    private Accreq accreq;
-    private byte[] PIK;
-    private byte[] signkey;
-    private String info;
-    private String access;
-    private String acctime;
-    private String accendtime;
+    private Accreq accreq;//申请授权包
+    private byte[] PIK;//pik公钥
+    private byte[] signkey;//签名密钥
+    private String info;//个人信息
+    private String access;//授权范围
+    private String acctime;//授权时间
+    private String accendtime;//授权终止时间
     public void setAccreq(Accreq accreq) {
         this.accreq = accreq;
     }

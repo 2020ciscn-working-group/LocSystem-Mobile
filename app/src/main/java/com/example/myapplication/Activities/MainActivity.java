@@ -124,12 +124,12 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
         accreq.setTime(dateFormat.format(calendar.getTime()));
         accreq.setInfolen(accreq.getInfo().length());
-        accreq.setSigndatelen(0);
-        accreq.setSigndate(null);
+        accreq.setsigndatalen(0);
+        accreq.setsigndata(null);
         byte[] src_=ByteUtils.objectToByteArray(accreq);
         gm.GM_SM2Sign(sigd,src_,src_.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray().length ,sign_pri);
-        accreq.setSigndate(sigd);
-        accreq.setSigndatelen(sigd.length);
+        accreq.setsigndata(sigd);
+        accreq.setsigndatalen(sigd.length);
 
         accexp.setAccreq(accreq);
         accexp.setAccendtime(dateFormat.format(calendar.getTime()) );

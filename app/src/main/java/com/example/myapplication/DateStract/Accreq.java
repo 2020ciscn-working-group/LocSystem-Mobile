@@ -13,12 +13,12 @@ import java.io.Serializable;
  */
 public class Accreq implements Serializable {
 
-    private String accsee;
-    private String time;
-    private String info;
-    private long infolen;
-    private byte[] signdate;
-    private long signdatelen;
+    private String accsee;//授权范围
+    private String time;//授权时间
+    private String info;//个人信息
+    private long infolen;//个人信息长度
+    private byte[] signdata;//签名数据
+    private long signdatalen;//签名数据长度
     public void setAccsee(String accsee) {
         this.accsee = accsee;
     }
@@ -47,18 +47,18 @@ public class Accreq implements Serializable {
         return infolen;
     }
 
-    public void setSigndate(byte[] signdate) {
-        this.signdate = signdate;
+    public void setsigndata(byte[] signdata) {
+        this.signdata = signdata;
     }
-    public byte[] getSigndate() {
-        return signdate;
+    public byte[] getsigndata() {
+        return signdata;
     }
 
-    public void setSigndatelen(long signdatelen) {
-        this.signdatelen = signdatelen;
+    public void setsigndatalen(long signdatalen) {
+        this.signdatalen = signdatalen;
     }
-    public long getSigndatelen() {
-        return signdatelen;
+    public long getsigndatalen() {
+        return signdatalen;
     }
 
 }

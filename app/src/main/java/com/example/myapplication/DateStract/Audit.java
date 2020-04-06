@@ -11,12 +11,12 @@ import java.io.Serializable;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Audit implements Serializable {
+public class Audit implements Serializable {//审计
 
-    private String uuid;
-    private com.example.myapplication.DateStract.Auditexp Auditexp;
-    private byte[]                             signdate;
-    private long                             signdatelen;
+    private String uuid;//实例UUID
+    private com.example.myapplication.DateStract.Auditexp Auditexp;//审计实例
+    private byte[]                             signdata;//签名数据
+    private long                             signdatalen;//签名数据长度
 
     public String getUuid() {
         return uuid;
@@ -33,18 +33,18 @@ public class Audit implements Serializable {
         return Auditexp;
     }
 
-    public void setSigndate(byte[] signdate) {
-        this.signdate = signdate;
+    public void setsigndata(byte[] signdata) {
+        this.signdata = signdata;
     }
-    public byte[] getSigndate() {
-        return signdate;
+    public byte[] getsigndata() {
+        return signdata;
     }
 
-    public void setSigndatelen(long signdatelen) {
-        this.signdatelen = signdatelen;
+    public void setsigndatalen(long signdatalen) {
+        this.signdatalen = signdatalen;
     }
-    public long getSigndatelen() {
-        return signdatelen;
+    public long getsigndatalen() {
+        return signdatalen;
     }
 
 }

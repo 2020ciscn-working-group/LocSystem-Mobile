@@ -11,12 +11,12 @@ import java.io.Serializable;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Tocken implements Serializable {
+public class Tocken implements Serializable {//授权令牌
 
-    private String uuid;
-    private Accexp accexp;
-    private byte[] signdata;
-    private long singdatalen;
+    private String uuid;//令牌UUID
+    private Accexp accexp;//授权实例
+    private byte[] signdata;//签名数据
+    private long singdatalen;//签名数据长度
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
@@ -34,7 +34,7 @@ public class Tocken implements Serializable {
     public void setSigndata(byte[] signdata) {
         this.signdata = signdata;
     }
-    public byte[] getSigndate() {
+    public byte[] getsigndata() {
         return signdata;
     }
 

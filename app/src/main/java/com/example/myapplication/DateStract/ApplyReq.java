@@ -7,12 +7,12 @@ import java.io.Serializable;
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class ApplyReq implements Serializable {
-    private String info;
-    private String version;
-    private byte[] pik_pub;
-    private byte[] ca_pub;
-    private byte[] req;
+*/public class ApplyReq implements Serializable {//授权申请包
+    private String info;//个人信息
+    private String version;//版本
+    private byte[] pik_pub;//pik公钥
+    private byte[] ca_pub;//CA公钥
+    private byte[] req;//申请实例
 
     public ApplyReq(String info,String version,byte[]pik_pub,byte[]ca_pub){
         if(info==null||version==null||pik_pub==null||ca_pub==null)

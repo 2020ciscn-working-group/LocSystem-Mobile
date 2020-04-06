@@ -11,12 +11,12 @@ import java.io.Serializable;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Auditexp implements Serializable {
+public class Auditexp implements Serializable {//审计实例
 
-    private String uuid_Tocken;
-    private String RNG;
-    private String time;
-    private Accexp accexp;
+    private String uuid_Tocken;//对应的令牌UUID
+    private String RNG;//随机数
+    private String time;//生成时间
+    private Accexp accexp;//授权实例
     public void setUuid_Tocken(String uuid_Tocken) {
         this.uuid_Tocken = uuid_Tocken;
     }

@@ -20,6 +20,7 @@ import com.example.myapplication.Utils.Utils_nfc;
     protected void onStart() {
 
         super.onStart();
+
     }
 
     @Override
@@ -33,5 +34,11 @@ import com.example.myapplication.Utils.Utils_nfc;
         //当该Activity接收到NFC标签时，运行该方法
         //调用工具方法，读取NFC数据
 
+    }
+    @Override
+    protected void onPause() {
+
+        super.onPause();
+        Utils_nfc.mNfcAdapter.disableForegroundDispatch(this);
     }
 }

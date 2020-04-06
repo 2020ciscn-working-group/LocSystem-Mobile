@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Parcelable;
@@ -19,7 +21,8 @@ import java.io.UnsupportedEncodingException;
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class Utils_nfc {
+*/public class Utils_nfc implements
+        NfcAdapter.CreateBeamUrisCallback{
     private volatile static Utils_nfc      sUtils_nfc;
     public static           NfcAdapter     mNfcAdapter;
     public static           IntentFilter[] mIntentFilter  = null;
@@ -51,7 +54,8 @@ import java.io.UnsupportedEncodingException;
                 activity.startActivity(setNfc);
             }
             else if(!mNfcAdapter.isNdefPushEnabled()){
-                activity.startActivity(new Intent(Settings.ACTION_NFCSHARING_SETTINGS));
+                Intent setBeam=new Intent(Settings.ACTION_NFCSHARING_SETTINGS);
+                activity.startActivity(setBeam);
             }
         }
         return mNfcAdapter;
@@ -127,4 +131,10 @@ import java.io.UnsupportedEncodingException;
         }
         return out;
     }
+
+    @Override
+    public Uri[] createBeamUris(NfcEvent event) {
+        return new Uri[0];
+    }
+
 }

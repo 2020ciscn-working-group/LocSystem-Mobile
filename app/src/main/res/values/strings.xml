@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="service_name" >CardServer</string>
+    <string name="card_title">Tocken</string>>
 </resources>

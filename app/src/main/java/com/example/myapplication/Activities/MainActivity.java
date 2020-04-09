@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         String sigd_hex=gm.GM_SM2Sign(sigd,src,src.length,uid.toCharArray() ,uid.toCharArray().length,pri);
         Log.d("pub", Arrays.toString(pub));
         Log.d("pri", Arrays.toString(pri));
+        Log.d("pub", Util.byteToHex(pub));
+        Log.d("pri", Util.byteToHex(pri));
         Log.d("pri_sm",pri_sm3);
         Log.d("sign", Arrays.toString(src));
         Log.d("sign", sigd_hex);

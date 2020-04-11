@@ -2,7 +2,11 @@ package com.example.myapplication.Servers;
 
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.Arrays;
 
 /*
@@ -11,7 +15,7 @@ import java.util.Arrays;
 */public class CardServer extends HostApduService {
     private static final String TAG = "CardService";
     // AID for our loyalty card service.
-    private static final String SAMPLE_LOYALTY_CARD_AID = "F222222222";
+    private static final String SAMPLE_LOYALTY_CARD_AID = "F123466666";
     // ISO-DEP command HEADER for selecting an AID.
     // Format: [Class | Instruction | Parameter 1 | Parameter 2]
     private static final String SELECT_APDU_HEADER = "00A40400";
@@ -29,9 +33,67 @@ import java.util.Arrays;
     private static final byte[] WRITE_DATA_APDU = BuildWriteDataApdu();
     private static final byte[] READ_DATA_APDU = BuildReadDataApdu();
     private static String dataStr = null;
+
+    File          sdcard = Environment.getExternalStorageDirectory();
+    //File          file   = new File(sdcard,"file.txt");
+    StringBuilder text   = new StringBuilder();
+    int           pointer;
     @Override
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
-        return new byte[0];
+        Log.i(TAG, "Received APDU: " + ByteArrayToHexString(commandApdu));
+        byte[] cmd = null;
+        //length 6 is define by WRITE_DATA_APDU from read and emulatior
+        //长度由reader端及卡端的命令WRITE_DATA_APDU来协商的
+        if(commandApdu.length >= 6){
+            cmd = Arrays.copyOf(commandApdu,6);
+        }
+        // If the APDU matches the SELECT AID command for this service,
+        // send the loyalty card account number, followed by a SELECT_OK status trailer (0x9000).
+        if (Arrays.equals(SELECT_APDU, commandApdu)) {
+            String account = "some string random data";
+            byte[] accountBytes = account.getBytes();
+            Log.i(TAG, "Sending account number: " + account);
+            //readFromFile();
+            return ConcatArrays(accountBytes, SELECT_OK_SW);
+        } else if ((Arrays.equals(GET_DATA_APDU, commandApdu))) {
+            String stringToSend;
+            try {
+                stringToSend = text.toString().substring(pointer, pointer + 200);
+            } catch (IndexOutOfBoundsException e) {
+                Toast.makeText(this, "Reached the end of the file", Toast.LENGTH_SHORT).show();
+                stringToSend = "END";
+            }
+            pointer += 200;byte[] accountBytes = stringToSend.getBytes();
+            Log.i(TAG, "Sending substring, pointer : " + pointer + " , " + stringToSend);
+            return ConcatArrays(accountBytes, SELECT_OK_SW);
+        } else if (cmd != null && Arrays.equals(WRITE_DATA_APDU, cmd)){
+            //length 6 is define by WRITE_DATA_APDU from read and emulatior
+            //长度由reader端及卡端的命令WRITE_DATA_APDU来协商的
+            byte[] data = Arrays.copyOfRange(commandApdu,6,commandApdu.length);
+            try {
+                dataStr = new String(data, "UTF-8");
+                Log.i(TAG, "dataStr:" + dataStr);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            String account = "write success";
+            byte[] accountBytes = account.getBytes();
+            Log.i(TAG, "Sending account number: " + account);
+            return ConcatArrays(accountBytes, SELECT_OK_SW);
+        } else if (Arrays.equals(READ_DATA_APDU, cmd)){
+            if(dataStr!=null) {
+                byte[] accountBytes = dataStr.getBytes();
+                Log.i(TAG, "Sending account number: " + dataStr);
+                return ConcatArrays(accountBytes, SELECT_OK_SW);
+            }else {
+                byte[] accountBytes = "data error".getBytes();
+                Log.i(TAG, "Sending account number: " + dataStr);
+                return ConcatArrays(accountBytes, SELECT_OK_SW);
+            }
+        } else {
+            return UNKNOWN_CMD_SW;
+
+        }
     }
 
     @Override

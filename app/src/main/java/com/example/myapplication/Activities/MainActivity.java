@@ -6,12 +6,15 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+
+import com.example.myapplication.Activities.Models.thread.Pull;
 import com.example.myapplication.Dao.Dao_Tocken;
 import com.example.myapplication.Dao.Sql.AppSql;
 import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Tocken;
+import com.example.myapplication.Interfaces.PullCallBack;
 import com.example.myapplication.R;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
@@ -19,9 +22,13 @@ import com.example.myapplication.Utils.Util;
 import com.example.myapplication.Utils.jsontrans;
 import com.example.myapplication.owner_date;
 
+import java.nio.channels.NonReadableChannelException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
     public static String path;
@@ -170,8 +177,22 @@ public class MainActivity extends AppCompatActivity {
         }
         String json= jsontrans.trans_tocken_to_json(tocken);
         Log.d("json",json);
+        final Pull pull=new Pull("");
+        final LinkedList<String> pulls = new LinkedList<String>();
+        pull.setPullCallBack(new PullCallBack() {
+            @Override
+            public void onPullCallBackSuccessfully(Object data) {
+                pulls.add((String)data);
+            }
 
+            @Override
+            public void onPullCallBackFailed() {
+                throw new NonReadableChannelException();
+            }
 
+        });
+        pull.execute();
+        Log.d("socket:",pulls.pop());
     }
     @Override
     protected void onResume() {

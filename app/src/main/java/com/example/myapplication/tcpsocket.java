@@ -41,14 +41,14 @@ public class tcpsocket implements Runnable{
         switch (type){
             case 1:{
                 Tocken tt=(Tocken) ob;
-                json=jts.trans_tocken_to_json(tt);
+                json= jsontrans.trans_tocken_to_json(tt);
                 write=true;
                 this.type=type;
                 break;
             }
             case 2:{
                 Hub[] tt=(Hub[]) ob;
-                json=jts.trans_hublist_to_json(tt);
+                json= jsontrans.trans_hublist_to_json(tt);
                 write=true;
                 this.type=type;
                 break;
@@ -61,12 +61,12 @@ public class tcpsocket implements Runnable{
         owd.setType(type);
         switch (type){
             case 1:{
-                Tocken tt=jts.trans_tocken_from_json(json);
+                Tocken tt= jsontrans.trans_tocken_from_json(json);
                 owd.addTocken(tt);
                 break;
             }
             case 2:{
-                Hub[] hl=jts.trans_hublist_from_json(json);
+                Hub[] hl= jsontrans.trans_hublist_from_json(json);
                 owd.addHub(hl);
                 break;
             }
@@ -145,7 +145,7 @@ public class tcpsocket implements Runnable{
                    }
                    case 0:break;
                    default:{
-                       String me=new String();
+                       String me= "";
                        while ((len=re.read(arr))!=0)
                            me=me+arr.toString();
                        json=me;

@@ -11,6 +11,7 @@ import com.example.myapplication.Utils.Util;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.regex.Matcher;
@@ -50,7 +51,7 @@ static {
 
             SM4 sm4 = new SM4();
             sm4.sm4_setkey_enc(ctx, keyBytes);
-            byte[] encrypted = sm4.sm4_crypt_ecb(ctx, plainText.getBytes("UTF-8"));
+            byte[] encrypted = sm4.sm4_crypt_ecb(ctx, plainText.getBytes(StandardCharsets.UTF_8));
             return Util.byteToHex(encrypted);
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,7 +62,7 @@ static {
     public String decryptData_ECB(String cipherText) {
         try {
             byte[] encrypted = Util.hexToByte(cipherText);
-            cipherText=Base64.encodeBase64String(encrypted);;
+            cipherText=Base64.encodeBase64String(encrypted);
             //cipherText = new BASE64Encoder().encode(encrypted);
             if (cipherText != null && cipherText.trim().length() > 0) {
                 Pattern p = Pattern.compile("\\s*|\t|\r|\n");
@@ -84,7 +85,7 @@ static {
             sm4.sm4_setkey_dec(ctx, keyBytes);
             byte[] decrypted = sm4.sm4_crypt_ecb(ctx, Base64.decodeBase64(cipherText));
             //byte[] decrypted = sm4.sm4_crypt_ecb(ctx, new BASE64Decoder().decodeBuffer(cipherText));
-            return new String(decrypted, "UTF-8");
+            return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -109,7 +110,7 @@ static {
 
             SM4 sm4 = new SM4();
             sm4.sm4_setkey_enc(ctx, keyBytes);
-            byte[] encrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, plainText.getBytes("UTF-8"));
+            byte[] encrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, plainText.getBytes(StandardCharsets.UTF_8));
             return Util.byteToHex(encrypted);
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,7 +145,7 @@ static {
     public String decryptData_CBC(String cipherText) {
         try {
             byte[] encrypted = Util.hexToByte(cipherText);
-            cipherText=Base64.encodeBase64String(encrypted);;
+            cipherText=Base64.encodeBase64String(encrypted);
             //cipherText = new BASE64Encoder().encode(encrypted);
             if (cipherText != null && cipherText.trim().length() > 0) {
                 Pattern p = Pattern.compile("\\s*|\t|\r|\n");
@@ -171,7 +172,7 @@ static {
             byte[] decrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, Base64.decodeBase64(cipherText));
             /*String text = new String(decrypted, "UTF-8");
             return text.substring(0,text.length()-1);*/
-            return new String(decrypted, "UTF-8");
+            return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -237,17 +238,17 @@ static {
         System.out.println("ECB模式加密");
         String cipherText = sm4.encryptData_ECB(plainText);
         System.out.println("密文: " + cipherText);
-        System.out.println("");
+        System.out.println();
 
         String plainText2 = sm4.decryptData_ECB(cipherText);
         System.out.println("明文: " + plainText2);
-        System.out.println("");
+        System.out.println();
 
         System.out.println("CBC模式加密");
         sm4.iv = "31313131313131313131313131313131";
         String cipherText2 = sm4.encryptData_CBC(plainText);
         System.out.println("加密密文: " + cipherText2);
-        System.out.println("");
+        System.out.println();
 
         String plainText3 = sm4.decryptData_CBC(cipherText2);
         System.out.println("解密明文: " + plainText3);

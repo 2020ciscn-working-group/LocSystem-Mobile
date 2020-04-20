@@ -172,7 +172,7 @@ public class SM4 {
             return null;
         }
 
-        byte[] ret = (byte[]) null;
+        byte[] ret = null;
         if (mode == SM4_ENCRYPT) {
             //填充:hex必须是32的整数倍填充 ,填充的是80  00 00 00
             int p = 16 - input.length % 16;

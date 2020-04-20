@@ -88,7 +88,7 @@ import java.util.LinkedList;
     }
     public Guest getGuest(String uuid){
         for (Guest ss:guests) {
-            if(new String(ss.getUuid()).contains(uuid))return ss;
+            if(ss.getUuid().contains(uuid))return ss;
         }
         return null;
     }
@@ -116,12 +116,12 @@ import java.util.LinkedList;
         return aduits;
     }
     public void addTocken(Tocken tk){
-        if(new String(tk.getUuid()).contains(uuid.toString()))
+        if(tk.getUuid().contains(uuid))
             tockens.add(tk);
     }
     public void deleteTocken(String uuid){
         for(Tocken tt:tockens){
-           if(new String(tt.getUuid()).contains(uuid))
+           if(tt.getUuid().contains(uuid))
                tockens.remove(tt);
         }
     }

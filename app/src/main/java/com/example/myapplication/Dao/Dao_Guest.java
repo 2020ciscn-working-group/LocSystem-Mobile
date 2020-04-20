@@ -48,7 +48,7 @@ import java.util.NoSuchElementException;
         sm4.hexString=true;
         byte[] guest_inc=sm4.encryptData_CBC(guest_byte);
         String path= MainActivity.path;
-        String name="/Guest/"+new String(guest.getUuid());
+        String name="/Guest/"+ guest.getUuid();
         File Guest=new File(path,name);
         File dir= Guest.getParentFile();
         if(dir!=null&&!dir.exists())
@@ -70,7 +70,7 @@ import java.util.NoSuchElementException;
             e.printStackTrace();
         }
         ContentValues values=new ContentValues();
-        values.put("uuid", new String(guest.getUuid()));
+        values.put("uuid", guest.getUuid());
         values.put("dekey",key);
         mDatabase.insert("Guest",values);
     }

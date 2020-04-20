@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
         sm4.hexString=true;
         byte[] Hub_inc=sm4.encryptData_CBC(Hub_byte);
         String path= MainActivity.path;
-        String name="/Hub/"+new String(hub.getUuid());
+        String name="/Hub/"+ hub.getUuid();
         File Hub=new File(path,name);
         File dir=Hub.getParentFile();
         if(dir!=null&&!dir.exists())
@@ -71,7 +71,7 @@ import java.util.NoSuchElementException;
             e.printStackTrace();
         }
         ContentValues values=new ContentValues();
-        values.put("uuid", new String(hub.getUuid()));
+        values.put("uuid", hub.getUuid());
         values.put("dekey",key);
         mDatabase.insert("Hub",values);
     }

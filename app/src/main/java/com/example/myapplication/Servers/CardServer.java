@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /*
@@ -71,7 +72,7 @@ import java.util.Arrays;
             //长度由reader端及卡端的命令WRITE_DATA_APDU来协商的
             byte[] data = Arrays.copyOfRange(commandApdu,6,commandApdu.length);
             try {
-                dataStr = new String(data, "UTF-8");
+                dataStr = new String(data, StandardCharsets.UTF_8);
                 Log.i(TAG, "dataStr:" + dataStr);
             }catch (Exception e){
                 e.printStackTrace();

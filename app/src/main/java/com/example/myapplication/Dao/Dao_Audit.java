@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
         sm4.hexString=true;
         byte[] Audit_inc=sm4.encryptData_CBC(Audit_byte);
         String path= MainActivity.path;
-        String name="/Audit/"+new String(audit.getUuid());
+        String name="/Audit/"+ audit.getUuid();
         File Audit=new File(path,name);
         File dir=Audit.getParentFile();
         if(dir!=null&&!dir.exists())

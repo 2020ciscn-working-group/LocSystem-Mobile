@@ -1,7 +1,15 @@
 package com.example.myapplication.Activities;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +40,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
     public static String path;
+    private WebView webView;
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("gm_sm2_master");
@@ -48,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(stringFromJNI());
 
     }
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onStart() {
         super.onStart();
@@ -157,9 +167,9 @@ public class MainActivity extends AppCompatActivity {
         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
         try {
             dao_tocken.InsertTocken(tocken);
-            String uuid=new String(tocken.getUuid());
+            String uuid= tocken.getUuid();
             Tocken tkd=dao_tocken.SelectTocken(uuid);
-            Log.d("info",new String(tkd.getAccexp().getInfo()));
+            Log.d("info", tkd.getAccexp().getInfo());
             /*String key= Util.byteToHex(SM4Utils.genersm4key());
             byte[]tocken_byte=ByteUtils.objectToByteArray(tkd);
             byte[]sec=new byte[(int)gm.Getsm4EncLen(tocken_byte,tocken_byte.length,Util.hexToByte(key))];
@@ -177,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         }
         String json= jsontrans.trans_tocken_to_json(tocken);
         Log.d("json",json);
-        final Pull pull=new Pull("");
+        /*final Pull pull=new Pull("");
         final LinkedList<String> pulls = new LinkedList<String>();
         pull.setPullCallBack(new PullCallBack() {
             @Override
@@ -192,12 +202,54 @@ public class MainActivity extends AppCompatActivity {
 
         });
         pull.execute();
-        Log.d("socket:",pulls.pop());
+        Log.d("socket:",pulls.pop());*/
+        webView=findViewById(R.id.webview);
+        webView.setWebChromeClient(new WebChromeClient());
+        WebSettings ws= webView.getSettings();
+        //启用jsp脚本
+        ws.setJavaScriptEnabled(true);
+        ws.setLoadWithOverviewMode(true);
+        ws.setUseWideViewPort(true);
+        ws.setDefaultTextEncodingName("utf-8");
+        ws.setLoadsImagesAutomatically(true);
+        ws.setSupportZoom(false);
+        ws.setBuiltInZoomControls(false);
+        ws.setDomStorageEnabled(true);
+        ws.setAppCacheEnabled(true);
+        ws.setAllowFileAccess(true);
+        ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.setWebViewClient(new WebViewClient());
+        //添加jsp的安卓接口内部类
+        webView.addJavascriptInterface(new JavaScriptInterface(),"jspcallback");
+        webView.loadUrl("file:////android_asset/dist/login-form/index.html");
+        //webView.loadUrl("http://www.baidu.com");
+
     }
     @Override
     protected void onResume() {
         super.onResume();
 
+    }
+//安卓调用vue的jsp函数用的方法
+    private void androidJSBridge(String methodName) {
+        String url = "javascript:window." + methodName + "()";
+        switch(methodName){
+            case"back":{
+                webView.evaluateJavascript(url, new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        //此处为 js 返回的结果
+                    }
+                });
+                break;
+            }
+
+        }
+    }
+    @Override
+    public void onBackPressed() {
+//    super.onBackPressed();
+        androidJSBridge("back");
     }
 
     /**
@@ -205,4 +257,22 @@ public class MainActivity extends AppCompatActivity {
      * which is packaged with this application.
      */
     public native String stringFromJNI();
+    //jsp的安卓接口
+    private class JavaScriptInterface{
+        @JavascriptInterface
+        public void callAndroidMethod(int a, float b, String c, boolean d) {
+            if (d) {
+                String strMessage = "a+b+c=" + a + b + c;
+                Log.d("jspcallback:",strMessage);
+            }
+        }
+        @JavascriptInterface
+        public void finish(String ssss) {
+            MainActivity.this.finish();
+        }
+
+
+
+
+    }
 }

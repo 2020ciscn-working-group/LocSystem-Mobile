@@ -17,6 +17,7 @@ import android.provider.Settings;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /*
     作者：zyc14588
@@ -86,7 +87,7 @@ import java.io.UnsupportedEncodingException;
             NdefMessage mNdefMsg = (NdefMessage) rawArray[0];
             NdefRecord mNdefRecord = mNdefMsg.getRecords()[0];
             if (mNdefRecord != null) {
-                String readResult = new String(mNdefRecord.getPayload(), "UTF-8");
+                String readResult = new String(mNdefRecord.getPayload(), StandardCharsets.UTF_8);
                 return readResult;
             }
         }

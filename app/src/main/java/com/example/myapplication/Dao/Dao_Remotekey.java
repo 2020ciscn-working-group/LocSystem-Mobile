@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
         sm4.hexString=true;
         byte[] Remotekey_inc=sm4.encryptData_CBC(Remotekey_byte);
         String path= MainActivity.path;
-        String name="/Remotekey/"+new String(remotekey.getUuid());
+        String name="/Remotekey/"+ remotekey.getUuid();
         File Remotekey=new File(path,name);
         File dir=Remotekey.getParentFile();
         if(dir!=null&&!dir.exists())
@@ -71,7 +71,7 @@ import java.util.NoSuchElementException;
             e.printStackTrace();
         }
         ContentValues values=new ContentValues();
-        values.put("uuid", new String(remotekey.getUuid()));
+        values.put("uuid", remotekey.getUuid());
         values.put("dekey",key);
         mDatabase.insert("Remotekey",values);
     }

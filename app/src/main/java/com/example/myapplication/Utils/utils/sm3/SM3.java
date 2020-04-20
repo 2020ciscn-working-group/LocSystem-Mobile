@@ -124,8 +124,8 @@ public class SM3 {
 
     private static int[][] expand(int[] B)
     {
-        int W[] = new int[68];
-        int W1[] = new int[64];
+        int[] W = new int[68];
+        int[] W1 = new int[64];
         for (int i = 0; i < B.length; i++)
         {
             W[i] = B[i];
@@ -142,7 +142,7 @@ public class SM3 {
             W1[i] = W[i] ^ W[i + 4];
         }
 
-        int arr[][] = new int[][] { W, W1 };
+        int[][] arr = new int[][] { W, W1 };
         return arr;
     }
 

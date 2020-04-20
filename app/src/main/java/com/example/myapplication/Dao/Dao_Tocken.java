@@ -49,7 +49,7 @@ import java.util.NoSuchElementException;
         sm4.hexString=true;
         byte[] Tocken_inc=sm4.encryptData_CBC(tocken_byte);
         String path= MainActivity.path;
-        String name="/Tocken/"+new String(tocken.getUuid());
+        String name="/Tocken/"+ tocken.getUuid();
         File Tocken=new File(path,name);
         File dir=Tocken.getParentFile();
         if(dir!=null&&!dir.exists())
@@ -71,7 +71,7 @@ import java.util.NoSuchElementException;
             e.printStackTrace();
         }
         ContentValues values=new ContentValues();
-        values.put("uuid", new String(tocken.getUuid()));
+        values.put("uuid", tocken.getUuid());
         values.put("dekey",key);
         mDatabase.insert("Tocken",values);
     }

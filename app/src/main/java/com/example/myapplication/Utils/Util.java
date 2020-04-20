@@ -72,7 +72,7 @@ public class Util {
      * @return
      */
     public static byte[] byteConvert32Bytes(BigInteger n) {
-        byte tmpd[] = (byte[]) null;
+        byte[] tmpd = null;
         if (n == null) {
             return null;
         }
@@ -146,7 +146,7 @@ public class Util {
             }
             System.out.print("0x" + hex.toUpperCase() + ",");
         }
-        System.out.println("");
+        System.out.println();
     }
 
     /**
@@ -600,7 +600,7 @@ public class Util {
      * @param b byte[] 需要转换的字节数组
      * @return String 十六进制字符串
      */
-    public static String byteToHex(byte b[]) {
+    public static String byteToHex(byte[] b) {
         if (b == null) {
             throw new IllegalArgumentException(
                     "Argument b ( byte array ) is null! ");
@@ -789,7 +789,7 @@ public class Util {
             case 1:{//loc的密钥集合
                 byte[]sm3ret=new byte[32];
                 Loc loc=(Loc)entity;
-                String info=loc.getHub_uuid()+new String(loc.getDesc());
+                String info=loc.getHub_uuid()+ loc.getDesc();
                 String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
                 switch (subtype){
                     case 0:{//根密钥
@@ -946,7 +946,7 @@ public class Util {
             case 2:{//guest的密钥集合
                 byte[]sm3ret=new byte[32];
                 Guest guest=(Guest)entity;
-                String info=new String(guest.getId())+new String(guest.getUuid())+new String(guest.getInfo());
+                String info= guest.getId() + guest.getUuid() + guest.getInfo();
                 String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
                 switch (subtype){
                     case 0:{//根密钥
@@ -1163,7 +1163,7 @@ public class Util {
             case 1:{
                 byte[]sm3ret=new byte[32];
                 Loc loc=(Loc)entity;
-                String info=loc.getHub_uuid()+new String(loc.getDesc());
+                String info=loc.getHub_uuid()+ loc.getDesc();
                 String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
                 switch (subtype){
                     case 0:{
@@ -1217,7 +1217,7 @@ public class Util {
             case 2:{
                 byte[]sm3ret=new byte[32];
                 Guest guest=(Guest)entity;
-                String info=new String(guest.getId())+new String(guest.getUuid())+new String(guest.getInfo());
+                String info= guest.getId() + guest.getUuid() + guest.getInfo();
                 String _keyname=gm.sm3(info.getBytes(),info.getBytes().length,sm3ret);
                 switch (subtype){
                     case 0:{
@@ -1291,7 +1291,7 @@ public class Util {
         bind.setPubkey(bind_pub);
         bind.setPrikey(bind_pri);
 
-        byte[]byte_info=new String(info).getBytes();
+        byte[]byte_info= info.getBytes();
 
         byte[]buf_sign=new byte[byte_info.length+sign_pri.length+sign_pub.length];
         for(int i = 0; i<byte_info.length+1+sign_pub.length; i++){

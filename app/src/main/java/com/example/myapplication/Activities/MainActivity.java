@@ -15,14 +15,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-import com.example.myapplication.Activities.Models.thread.Pull;
+
 import com.example.myapplication.Dao.Dao_Tocken;
 import com.example.myapplication.Dao.Sql.AppSql;
 import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Tocken;
-import com.example.myapplication.Interfaces.PullCallBack;
 import com.example.myapplication.R;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
@@ -53,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         path=MainActivity.this.getFilesDir().toString();
         // Example of a call to a native method
-        TextView tv = findViewById(R.id.sample_text);
-        tv.setText(stringFromJNI());
 
     }
     @SuppressLint("SetJavaScriptEnabled")
@@ -221,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient());
         //添加jsp的安卓接口内部类
         webView.addJavascriptInterface(new JavaScriptInterface(),"jspcallback");
-        webView.loadUrl("file:////android_asset/dist/login-form/index.html");
+        webView.loadUrl("file:////android_asset/dist/index.html");
         //webView.loadUrl("http://www.baidu.com");
 
     }
@@ -256,7 +253,6 @@ public class MainActivity extends AppCompatActivity {
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
-    public native String stringFromJNI();
     //jsp的安卓接口
     private class JavaScriptInterface{
         @JavascriptInterface

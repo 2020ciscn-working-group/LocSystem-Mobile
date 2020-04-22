@@ -59,7 +59,7 @@
             android:permission="android.permission.BIND_NFC_SERVICE">
 
             <intent-filter>
-                z<action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
+                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 

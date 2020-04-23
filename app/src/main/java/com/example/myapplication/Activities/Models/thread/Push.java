@@ -43,7 +43,7 @@ import java.util.Objects;
             // 设置连接超时为5秒
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
-            // 设置请求类型为Get类型
+            // 设置请求类型为POST类型
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setDoInput(true);

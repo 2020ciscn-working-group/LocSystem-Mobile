@@ -167,39 +167,16 @@ public class MainActivity extends AppCompatActivity {
             String uuid= tocken.getUuid();
             Tocken tkd=dao_tocken.SelectTocken(uuid);
             Log.d("info", tkd.getAccexp().getInfo());
-            /*String key= Util.byteToHex(SM4Utils.genersm4key());
-            byte[]tocken_byte=ByteUtils.objectToByteArray(tkd);
-            byte[]sec=new byte[(int)gm.Getsm4EncLen(tocken_byte,tocken_byte.length,Util.hexToByte(key))];
-            gm.sm4Encrypto(sec,tocken_byte,tocken_byte.length,Util.hexToByte(key));
-            byte[]decsm4=new byte[(int)gm.Getsm4DecLen(sec,sec.length,Util.hexToByte(key))];
-            gm.sm4Decrypto(decsm4,sec,sec.length,Util.hexToByte(key));
-            Tocken tk= (Tocken) ByteUtils.byteArrayToObject(decsm4);
-            Log.d("sm4dec:",tk.getAccexp().getInfo());*/
             LocalKey sign=new LocalKey();
             LocalKey bind=new LocalKey();
             Util.Gen_LocalKey(sign,bind,"北京市通州区",pik_pri,"zyc14588");
-
+            String json= jsontrans.trans_tocken_to_json(tkd);
+            Log.d("json",json);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String json= jsontrans.trans_tocken_to_json(tocken);
-        Log.d("json",json);
-        /*final Pull pull=new Pull("");
-        final LinkedList<String> pulls = new LinkedList<String>();
-        pull.setPullCallBack(new PullCallBack() {
-            @Override
-            public void onPullCallBackSuccessfully(Object data) {
-                pulls.add((String)data);
-            }
 
-            @Override
-            public void onPullCallBackFailed() {
-                throw new NonReadableChannelException();
-            }
 
-        });
-        pull.execute();
-        Log.d("socket:",pulls.pop());*/
         webView=findViewById(R.id.webview);
         webView.setWebChromeClient(new WebChromeClient());
         WebSettings ws= webView.getSettings();

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
         this.url=url;
     }
 
-    public String getJson() {
+    public synchronized String getJson() {
         return json;
     }
 

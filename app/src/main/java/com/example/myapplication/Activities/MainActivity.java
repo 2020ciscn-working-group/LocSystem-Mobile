@@ -15,13 +15,18 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-
+import com.example.myapplication.Activities.Models.Internet.Friend;
+import com.example.myapplication.Activities.Models.Internet.Login;
+import com.example.myapplication.Activities.Models.Internet.User;
+import com.example.myapplication.Activities.Models.Model_User;
+import com.example.myapplication.Activities.Models.thread.Push;
 import com.example.myapplication.Dao.Dao_Tocken;
 import com.example.myapplication.Dao.Sql.AppSql;
 import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Tocken;
+import com.example.myapplication.Interfaces.PushCallBackListener;
 import com.example.myapplication.R;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
@@ -40,6 +45,7 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity {
     public static String path;
     private WebView webView;
+    private Model_User mModel_user;
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("gm_sm2_master");
@@ -52,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         path=MainActivity.this.getFilesDir().toString();
         // Example of a call to a native method
+        mModel_user=new Model_User();
 
     }
     @SuppressLint("SetJavaScriptEnabled")
@@ -197,6 +204,22 @@ public class MainActivity extends AppCompatActivity {
         webView.addJavascriptInterface(new JavaScriptInterface(),"jspcallback");
         webView.loadUrl("file:////android_asset/dist/index.html");
         //webView.loadUrl("http://www.baidu.com");
+        Push push=new Push("http://10.0.2.2:8080/login", new PushCallBackListener() {
+            @Override
+            public void onPushSuccessfully(String data) {
+                Log.d("POST",data);
+            }
+
+            @Override
+            public void onPushFailed(int code) {
+                Log.d("POST ERROR CODE",String.valueOf(code));
+            }
+        });
+        Login login=new Login();
+        login.setPassword("123");
+        login.setUid("17080213");
+        Log.d("login:",login.toJson());
+        push.execute(login.toJson());
 
     }
     @Override
@@ -220,16 +243,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    //调用vue的返回
     @Override
     public void onBackPressed() {
 //    super.onBackPressed();
         androidJSBridge("back");
     }
 
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
     //jsp的安卓接口
     private class JavaScriptInterface{
         @JavascriptInterface
@@ -240,11 +260,32 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         @JavascriptInterface
-        public void finish(String ssss) {
+        public void finish() {
             MainActivity.this.finish();
         }
-
-
+        @JavascriptInterface
+        public String getUser(String uid){
+            return mModel_user.getUser().toJson();
+        }
+        @JavascriptInterface
+        public String getFriend(String uid){
+            LinkedList<Friend> Friendlist=mModel_user.getFriends();
+            for(Friend ff:Friendlist){
+                if(ff.getUid().equals(uid))
+                    return ff.toJson();
+            }
+            return null;
+        }
+        @JavascriptInterface
+        public String getFriends(){
+            String friends="";
+            LinkedList<Friend> Friendlist=mModel_user.getFriends();
+            for(Friend ff:Friendlist){
+                friends=friends+"*"+ff.toJson();
+            }
+            friends=friends+"#";
+            return friends;
+        }
 
 
     }

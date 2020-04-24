@@ -11,7 +11,7 @@ import java.util.LinkedList;
     github地址:https://github.com/zyc14588
 */public class Model_User extends Model_Basic {
     private String UUID=null;
-    private User mUsers;
+    private User mUser;
     private LinkedList<Friend>mFriends;
     //private MessageDataBase mMessageDataBase;
     //private
@@ -22,5 +22,29 @@ import java.util.LinkedList;
         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
 
         return new byte[0];
+    }
+
+    public String getUUID() {
+        return UUID;
+    }
+
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
+    }
+
+    public User getUser() {
+        return mUser;
+    }
+
+    public void setUser(User users) {
+        mUser = users;
+    }
+
+    public LinkedList<Friend> getFriends() {
+        return mFriends;
+    }
+
+    public void setFriends(LinkedList<Friend> friends) {
+        mFriends = friends;
     }
 }

@@ -4,6 +4,7 @@ import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.jsontrans;
 import com.google.gson.Gson;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -58,9 +59,17 @@ public class User extends InternetBase{
     public List<String> getFriendUidList() {
         return friendUidList;
     }
+    public void addFriend(String fuid){
+        friendUidList.add(fuid);
+    }
 
-
-    public User(){}
+    public User(){
+        friendUidList= null;
+        password=null;
+        phoneNum=null;
+        uid=null;
+        username=null;
+    }
     public User(String uid, String username, String passwd, String phoneNum, List<String>friendUidList){
         this.friendUidList=friendUidList;
         this.password=passwd;

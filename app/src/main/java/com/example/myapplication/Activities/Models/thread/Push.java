@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /*
@@ -45,13 +46,15 @@ import java.util.Objects;
             conn.setReadTimeout(5000);
             // 设置请求类型为POST类型
             conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setUseCaches(false);
             // 判断请求Url是否成功
 
             OutputStream outputStream=conn.getOutputStream();
-            outputStream.write(voids[0].getBytes());
+            byte[]src=voids[0].getBytes(StandardCharsets.UTF_8);
+            outputStream.write(src);
             outputStream.flush();
             code=conn.getResponseCode();
             if ( code!= 200) {

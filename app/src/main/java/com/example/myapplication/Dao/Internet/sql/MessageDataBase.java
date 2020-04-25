@@ -1,9 +1,9 @@
-package com.example.myapplication.Dao.Sql;
+package com.example.myapplication.Dao.Internet.sql;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+
+import com.example.myapplication.Dao.Secret.Sql.DatabaseHelper;
+import com.example.myapplication.Dao.Secret.Sql.SqlBase;
 
 /*
     作者：zyc14588
@@ -15,6 +15,7 @@ import android.database.sqlite.SQLiteDatabase;
         super.setDatabase(mMessageDataBaseHelper.getWritableDatabase());;
     }
     public void onUpgrade(int version){
-        mMessageDataBaseHelper.onUpgrade(super.getDatabase(),DatabaseHelper.version,version);
+        mMessageDataBaseHelper.onUpgrade(super.getDatabase(), DatabaseHelper.version,version);
     }
+
 }

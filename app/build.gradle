@@ -41,4 +41,5 @@ dependencies {
     implementation files('libs/gson-2.8.5.jar')
     implementation files('libs/bcprov-jdk15on-164.jar')
     implementation files('libs/commons-codec-1.14.jar')
+    implementation "org.java-websocket:Java-WebSocket:1.4.0"
 }

@@ -28,6 +28,6 @@ import com.google.gson.Gson;
     public String toJson() {
         //Gson gson=new Gson();
         //return gson.toJson(this,Login.class);
-        return "{\" uid\"：\" "+uid+"\"\" password\"：\""+password+"\"，}";
+        return "{\"uid\":\""+uid+"\",\"password\":\""+password+"\"}";
     }
 }

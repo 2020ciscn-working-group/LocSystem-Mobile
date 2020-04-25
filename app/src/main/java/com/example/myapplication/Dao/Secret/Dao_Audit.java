@@ -1,11 +1,11 @@
-package com.example.myapplication.Dao;
+package com.example.myapplication.Dao.Secret;
 
 import android.content.ContentValues;
 import android.content.res.Resources;
 import android.database.Cursor;
 
 import com.example.myapplication.Activities.MainActivity;
-import com.example.myapplication.Dao.Sql.AppSql;
+import com.example.myapplication.Dao.Secret.Sql.AppSql;
 import com.example.myapplication.DateStract.Audit;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Util;

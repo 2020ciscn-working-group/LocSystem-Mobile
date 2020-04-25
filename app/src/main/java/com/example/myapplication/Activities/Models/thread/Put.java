@@ -2,7 +2,9 @@ package com.example.myapplication.Activities.Models.thread;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import com.example.myapplication.Interfaces.PushCallBackListener;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,23 +12,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class Push extends AsyncTask <String, Void, String>{
-    private String       url;
+*/public class Put extends AsyncTask<String, Void, String> {
+    private String               url;
     private PushCallBackListener mPushCallBackListener;
-    private boolean success;
-    private int code;
-    private String msg=null;
-
-    public Push(String url,PushCallBackListener pushCallBackListener){
-        mPushCallBackListener = pushCallBackListener;
-        this.url=url;
-    }
+    private boolean              success;
+    private int                  code;
+    private String               msg=null;
     @Override
-    protected String doInBackground(String... voids) {
+    protected String doInBackground(String... strings) {
         try {
             URL Url=new URL(url);
             HttpURLConnection conn = (HttpURLConnection) Url.openConnection();
@@ -34,19 +30,19 @@ import java.nio.charset.StandardCharsets;
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
             // 设置请求类型为POST类型
-            conn.setRequestMethod("POST");
+            conn.setRequestMethod("PUT");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");//设置参数类型是json格式
-            //conn.setRequestProperty("Connection", "Keep-Alive");
-            //conn.setRequestProperty("logType", "base");
+            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setRequestProperty("Content-Length",""+strings[0].getBytes(StandardCharsets.UTF_8).length );
 
             //conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setUseCaches(false);
+            //conn.setUseCaches(false);
             // 判断请求Url是否成功
             conn.connect();
             OutputStream outputStream=conn.getOutputStream();
-            byte[]src=voids[0].getBytes(StandardCharsets.UTF_8);
+            byte[]src=strings[0].getBytes(StandardCharsets.UTF_8);
             outputStream.write(src);
             outputStream.flush();
             outputStream.close();
@@ -76,12 +72,17 @@ import java.nio.charset.StandardCharsets;
                 msg = new String(message.toByteArray());
                 success=true;
             }
+            conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return msg;
     }
-
+    public Put(String url,PushCallBackListener pushCallBackListener){
+        mPushCallBackListener = pushCallBackListener;
+        this.url=url;
+    }
     //ui
     protected void onPostExecute(String json){
         if(success)
@@ -90,5 +91,4 @@ import java.nio.charset.StandardCharsets;
             mPushCallBackListener.onPushFailed(code,json);
     }
 
-    //
 }

@@ -67,7 +67,12 @@
                 android:name="android.nfc.cardemulation.host_apdu_service"
                 android:resource="@xml/aid_list" />
         </service>
-
+        <service android:name=".Servers.PullService" android:exported="true" android:process=":remote"
+            android:permission="android.permission.INTERNET">
+            <intent-filter >
+                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

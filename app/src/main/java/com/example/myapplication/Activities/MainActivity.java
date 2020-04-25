@@ -1,8 +1,12 @@
 package com.example.myapplication.Activities;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -10,42 +14,43 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.Login;
-import com.example.myapplication.Activities.Models.Internet.User;
 import com.example.myapplication.Activities.Models.Model_User;
 import com.example.myapplication.Activities.Models.thread.Push;
-import com.example.myapplication.Dao.Dao_Tocken;
-import com.example.myapplication.Dao.Sql.AppSql;
+import com.example.myapplication.Dao.Secret.Dao_Tocken;
+import com.example.myapplication.Dao.Secret.Sql.AppSql;
 import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Tocken;
 import com.example.myapplication.Interfaces.PushCallBackListener;
 import com.example.myapplication.R;
+import com.example.myapplication.Servers.PullService;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.Util;
 import com.example.myapplication.Utils.jsontrans;
 import com.example.myapplication.owner_date;
+import com.google.gson.Gson;
 
-import java.nio.channels.NonReadableChannelException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
     public static String path;
     private WebView webView;
     private Model_User mModel_user;
+    AppSql sql;
+    private ServiceConnection mServiceConnection;
+    private PullService       mService;
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("gm_sm2_master");
@@ -59,8 +64,23 @@ public class MainActivity extends AppCompatActivity {
         path=MainActivity.this.getFilesDir().toString();
         // Example of a call to a native method
         mModel_user=new Model_User();
+        mServiceConnection=new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                PullService.LocalBinder binder=(PullService.LocalBinder)service;
+                mService=binder.getService();
+            }
 
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService=null;
+            }
+        };
+        final Intent intent = new Intent(this,PullService.class);
+        bindService(intent,mServiceConnection, Service.BIND_AUTO_CREATE);
     }
+
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onStart() {
@@ -129,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             Log.e("save error",e.getMessage());
         }
-        AppSql sql=new AppSql(this);
+         sql=new AppSql(this);
 
         Tocken tocken=new Tocken();
         Accexp accexp=new Accexp();
@@ -211,13 +231,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPushFailed(int code) {
-                Log.d("POST ERROR CODE",String.valueOf(code));
+            public void onPushFailed(int code,String message) {
+                Log.d("POST ERROR CODE", message+code);
             }
         });
         Login login=new Login();
         login.setPassword("123");
-        login.setUid("17080213");
+        login.setUid("17080211");
         Log.d("login:",login.toJson());
         push.execute(login.toJson());
 
@@ -286,7 +306,13 @@ public class MainActivity extends AppCompatActivity {
             friends=friends+"#";
             return friends;
         }
-
+        @JavascriptInterface
+        public String getTocken(String uuid) throws IOException {
+            Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+            Tocken tocken=dao_tocken.SelectTocken(uuid);
+            Gson gson=new Gson();
+            return gson.toJson(tocken,tocken.getClass());
+        }
 
     }
 }

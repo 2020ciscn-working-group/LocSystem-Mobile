@@ -6,6 +6,6 @@ package com.example.myapplication.Interfaces;
 */public interface PushCallBackListener {
     void onPushSuccessfully(String data);
 
-    void onPushFailed(int code);
+    void onPushFailed(int code,String message);
 
 }

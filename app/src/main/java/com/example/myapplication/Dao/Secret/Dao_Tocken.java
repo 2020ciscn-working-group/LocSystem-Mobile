@@ -1,11 +1,11 @@
-package com.example.myapplication.Dao;
+package com.example.myapplication.Dao.Secret;
 
 import android.content.ContentValues;
 import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 
 import com.example.myapplication.Activities.MainActivity;
-import com.example.myapplication.Dao.Sql.AppSql;
+import com.example.myapplication.Dao.Secret.Sql.AppSql;
 import com.example.myapplication.DateStract.Tocken;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Util;
@@ -81,7 +81,7 @@ import java.util.NoSuchElementException;
         Cursor cursor=mDatabase.query("Tocken",new String[]{"dekey"},"uuid=?",selarg,null,null,null);
         boolean fist=cursor.moveToFirst();
         boolean isEmpty=cursor.getCount()==0;
-        if(cursor!=null&&fist&&!isEmpty){
+        if(fist && !isEmpty){
             key=cursor.getString(cursor.getColumnIndex("dekey"));
         }
         else throw new NoSuchElementException();

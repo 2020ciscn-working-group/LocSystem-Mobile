@@ -18,6 +18,6 @@ import com.example.myapplication.Utils.Gm_sm2_3;
         byte[] src=this.toJson().getBytes();
         byte[]output=new byte[32];
         return gm_sm2_3.sm3(src,src.length,output);
-    };
+    }
     public abstract String toJson();
 }

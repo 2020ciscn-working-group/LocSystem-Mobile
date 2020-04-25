@@ -25,6 +25,16 @@ public class User extends InternetBase{
     private String password;
     private String phoneNum;
     private List<String> friendUidList;
+    private List<String> MessagehashList;
+
+    public List<String> getMessagehashList() {
+        return MessagehashList;
+    }
+
+    public void setMessagehashList(List<String> messageList) {
+        MessagehashList = messageList;
+    }
+
     public void setUid(String uid) {
         this.uid = uid;
     }

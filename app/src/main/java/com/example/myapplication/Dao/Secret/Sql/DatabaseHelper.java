@@ -1,4 +1,4 @@
-package com.example.myapplication.Dao.Sql;
+package com.example.myapplication.Dao.Secret.Sql;
 
 import android.content.Context;
 import android.database.Cursor;

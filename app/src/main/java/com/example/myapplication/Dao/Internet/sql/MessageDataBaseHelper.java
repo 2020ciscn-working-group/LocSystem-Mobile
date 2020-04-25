@@ -1,13 +1,15 @@
-package com.example.myapplication.Dao.Sql;
+package com.example.myapplication.Dao.Internet.sql;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.myapplication.Dao.Secret.Sql.DatabaseHelper;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class MessageDataBaseHelper extends DatabaseHelper{
+*/public class MessageDataBaseHelper extends DatabaseHelper {
     private static final String DB_NAME="LocSystem.db";
     public static int version=1;
 

@@ -1,5 +1,7 @@
 package com.example.myapplication.Activities.Models.Internet;
 
+import com.google.gson.Gson;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
@@ -31,6 +33,7 @@ package com.example.myapplication.Activities.Models.Internet;
 
     @Override
     public String toJson() {
-        return null;
+        Gson gson=new Gson();
+        return gson.toJson(this,Friend.class);
     }
 }

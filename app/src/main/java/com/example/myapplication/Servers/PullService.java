@@ -15,7 +15,7 @@ public class PullService extends Service {
     private final String TAG = "pullservice";
     private boolean quit;
     private Thread thread;
-    private LocalBinder binder = new LocalBinder();
+    public LocalBinder binder = new LocalBinder();
 
     @Nullable
     @Override

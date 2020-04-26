@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         path=MainActivity.this.getFilesDir().toString();
         // Example of a call to a native method
-        mModel_user=new Model_User();
+        /*mModel_user=new Model_User();
         mServiceConnection=new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         final Intent intent = new Intent(this,PullService.class);
-        bindService(intent,mServiceConnection, Service.BIND_AUTO_CREATE);
+        bindService(intent,mServiceConnection, Service.BIND_AUTO_CREATE);*/
     }
 
 

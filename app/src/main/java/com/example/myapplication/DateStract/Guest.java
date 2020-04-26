@@ -20,6 +20,33 @@ public class Guest implements Serializable {
     private String desc;
     private List<RemoteKey> mRemoteKey;
     private List<Hub> mHubs;
+    private List<Audit>mAudits;
+    private List<Cert>mCerts;
+    private List<Tocken>mTockens;
+
+    public List<Tocken> getTockens() {
+        return mTockens;
+    }
+
+    public void setTockens(List<Tocken> tockens) {
+        mTockens = tockens;
+    }
+
+    public List<Cert> getCerts() {
+        return mCerts;
+    }
+
+    public void setCerts(List<Cert> certs) {
+        mCerts = certs;
+    }
+
+    public List<Audit> getAudits() {
+        return mAudits;
+    }
+
+    public void setAudits(List<Audit> audits) {
+        mAudits = audits;
+    }
 
     public List<Hub> getHubs() {
         return mHubs;

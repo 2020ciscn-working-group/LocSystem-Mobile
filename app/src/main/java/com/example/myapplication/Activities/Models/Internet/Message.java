@@ -2,10 +2,12 @@ package com.example.myapplication.Activities.Models.Internet;
 
 import com.google.gson.Gson;
 
+import java.io.Serializable;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class Message extends InternetBase {
+*/public class Message extends InternetBase implements Serializable {
     private String hash;
     private String frienduid;
     private String date;

@@ -20,14 +20,24 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.Login;
+import com.example.myapplication.Activities.Models.Internet.Message;
+import com.example.myapplication.Activities.Models.Internet.User;
+import com.example.myapplication.Activities.Models.Model_Crypto;
 import com.example.myapplication.Activities.Models.Model_User;
 import com.example.myapplication.Activities.Models.thread.Push;
+import com.example.myapplication.Dao.Secret.Dao_Audit;
+import com.example.myapplication.Dao.Secret.Dao_Hub;
+import com.example.myapplication.Dao.Secret.Dao_Remotekey;
 import com.example.myapplication.Dao.Secret.Dao_Tocken;
 import com.example.myapplication.Dao.Secret.Sql.AppSql;
 import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
+import com.example.myapplication.DateStract.Audit;
+import com.example.myapplication.DateStract.Hub;
 import com.example.myapplication.DateStract.LocalKey;
+import com.example.myapplication.DateStract.RemoteKey;
 import com.example.myapplication.DateStract.Tocken;
+import com.example.myapplication.Defin.Defin_internet;
 import com.example.myapplication.Interfaces.PushCallBackListener;
 import com.example.myapplication.R;
 import com.example.myapplication.Servers.PullService;
@@ -38,30 +48,39 @@ import com.example.myapplication.Utils.jsontrans;
 import com.example.myapplication.owner_date;
 import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     public static String path;
     private WebView webView;
     private Model_User mModel_user;
-    AppSql sql;
+    private Model_Crypto mModel_crypto;
+    private AppSql sql;
     private ServiceConnection mServiceConnection;
     private PullService       mService;
+    private String loginret;
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("gm_sm2_master");
     }
 
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         path=MainActivity.this.getFilesDir().toString();
+
         // Example of a call to a native method
         /*mModel_user=new Model_User();
         mServiceConnection=new ServiceConnection() {
@@ -78,10 +97,28 @@ public class MainActivity extends AppCompatActivity {
         };
         final Intent intent = new Intent(this,PullService.class);
         bindService(intent,mServiceConnection, Service.BIND_AUTO_CREATE);*/
+        webView=findViewById(R.id.webview);
+        webView.setWebChromeClient(new WebChromeClient());
+        WebSettings ws= webView.getSettings();
+        //启用jsp脚本
+        ws.setJavaScriptEnabled(true);
+        ws.setLoadWithOverviewMode(true);
+        ws.setUseWideViewPort(true);
+        ws.setDefaultTextEncodingName("utf-8");
+        ws.setLoadsImagesAutomatically(true);
+        ws.setSupportZoom(false);
+        ws.setBuiltInZoomControls(false);
+        ws.setDomStorageEnabled(true);
+        ws.setAppCacheEnabled(true);
+        ws.setAllowFileAccess(true);
+        ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.setWebViewClient(new WebViewClient());
+        //添加jsp的安卓接口内部类,VUE使用$APP符号即可调用给jsp的按安卓方法接口了
+        webView.addJavascriptInterface(new JavaScriptInterface(),"$App");
+        webView.loadUrl("file:////android_asset/dist/index.html");
     }
 
 
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onStart() {
         super.onStart();
@@ -135,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         Gm_sm2_3 dec_ret=(Gm_sm2_3) ByteUtils.byteArrayToObject(dec);
         Log.d("decrpty", dec_ret.test);
 
-        String externalFilesDir = MainActivity.this.getExternalCacheDir().toString();
+        String externalFilesDir = Objects.requireNonNull(MainActivity.this.getExternalCacheDir()).toString();
         owner_date own=new owner_date();
         own.setUuid("72351398430564");
         own.setInfo("fsdgwreyeturturtyuhgr");
@@ -144,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             Util.saveSm2Key(pub,pri,own,0,0,externalFilesDir);
         } catch (RuntimeException e){
-
+            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("save error",e.getMessage());
@@ -203,44 +240,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-        webView=findViewById(R.id.webview);
-        webView.setWebChromeClient(new WebChromeClient());
-        WebSettings ws= webView.getSettings();
-        //启用jsp脚本
-        ws.setJavaScriptEnabled(true);
-        ws.setLoadWithOverviewMode(true);
-        ws.setUseWideViewPort(true);
-        ws.setDefaultTextEncodingName("utf-8");
-        ws.setLoadsImagesAutomatically(true);
-        ws.setSupportZoom(false);
-        ws.setBuiltInZoomControls(false);
-        ws.setDomStorageEnabled(true);
-        ws.setAppCacheEnabled(true);
-        ws.setAllowFileAccess(true);
-        ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.setWebViewClient(new WebViewClient());
-        //添加jsp的安卓接口内部类,VUE使用$APP符号即可调用给jsp的按安卓方法接口了
-        webView.addJavascriptInterface(new JavaScriptInterface(),"$APP");
-        webView.loadUrl("file:////android_asset/dist/index.html");
-        //webView.loadUrl("http://www.baidu.com");
-        Push push=new Push("http://10.0.2.2:8080/login", new PushCallBackListener() {
-            @Override
-            public void onPushSuccessfully(String data) {
-                Log.d("POST",data);
-            }
-
-            @Override
-            public void onPushFailed(int code,String message) {
-                Log.d("POST ERROR CODE", message+code);
-            }
-        });
-        Login login=new Login();
-        login.setPassword("123");
-        login.setUid("17080211");
-        Log.d("login:",login.toJson());
-        push.execute(login.toJson());
-
     }
     @Override
     protected void onResume() {
@@ -279,12 +278,52 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("jspcallback:",strMessage);
             }
         }
+        public void login(final String uid, String passwd){
+            Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
+                @Override
+                public void onPushSuccessfully(String data) {
+                    Log.d("POST",data);
+                    loginret=data;
+                    //TODO:添加登陆成功后需要执行的的代码
+                    String name="/Model/Crypto"+uid;
+                    File Model_Crypto_file=new File(MainActivity.path+name);
+                    try {
+                        if(Model_Crypto_file.exists()){
+                            FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
+                            byte[] Model_Crypto_bytes=new byte[fileInputStream.available()];
+                            fileInputStream.read(Model_Crypto_bytes);
+                            mModel_crypto=(Model_Crypto) ByteUtils.byteArrayToObject(Model_Crypto_bytes);
+                        }else {
+
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onPushFailed(int code,String message) {
+                    //TODO：登陆失败的代码
+                    Log.d("POST ERROR CODE", message+code);
+                    loginret=code+message;
+                }
+            });
+            Login login=new Login();
+            login.setPassword(passwd);
+            login.setUid(uid);
+            Log.d("login:",login.toJson());
+            push.execute(login.toJson());
+        }
+        @JavascriptInterface
+        public String getLoginret(){
+            return loginret;
+        }
         @JavascriptInterface
         public void finish() {
             MainActivity.this.finish();
         }
         @JavascriptInterface
-        public String getUser(String uid){
+        public String getUser(){
             return mModel_user.getUser().toJson();
         }
         @JavascriptInterface
@@ -297,14 +336,26 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
         @JavascriptInterface
+        public String getMessages(String Frienduid){
+            List<Message> messages= mModel_user.getUser().getFriend(Frienduid).getMessagehashList();
+            StringBuffer json= new StringBuffer("[");
+            for(Message message:messages){
+                json.append(message.toJson()).append(",");
+            }
+            json = new StringBuffer(json.substring(0, json.length() - 1));
+            json.append("]");
+            return json.toString();
+        }
+        @JavascriptInterface
         public String getFriends(){
-            String friends="";
+            StringBuffer friends= new StringBuffer("[");
             LinkedList<Friend> Friendlist=mModel_user.getFriends();
             for(Friend ff:Friendlist){
-                friends=friends+"*"+ff.toJson();
+                friends.append(ff.toJson()).append(",");
             }
-            friends=friends+"#";
-            return friends;
+            friends = new StringBuffer(friends.substring(0, friends.length() - 1));
+            friends.append("]");
+            return friends.toString();
         }
         @JavascriptInterface
         public String getTocken(String uuid) throws IOException {
@@ -312,6 +363,27 @@ public class MainActivity extends AppCompatActivity {
             Tocken tocken=dao_tocken.SelectTocken(uuid);
             Gson gson=new Gson();
             return gson.toJson(tocken,tocken.getClass());
+        }
+        @JavascriptInterface
+        public String getAudit(String uuid) throws IOException {
+            Dao_Audit dao_audit=Dao_Audit.getInstance(sql);
+            Audit audit=dao_audit.SelectAudit(uuid);
+            Gson gson=new Gson();
+            return gson.toJson(audit,Audit.class);
+        }
+        @JavascriptInterface
+        public String getHub(String uuid) throws IOException {
+            Dao_Hub dao_hub=Dao_Hub.getInstance(sql);
+            Hub hub=dao_hub.SelectHub(uuid);
+            Gson gson=new Gson();
+            return gson.toJson(hub,Hub.class);
+        }
+        @JavascriptInterface
+        public String getRemoteKey(String uuid) throws IOException {
+            Dao_Remotekey dao_remotekey=Dao_Remotekey.getInstance(sql);
+            RemoteKey remoteKey=dao_remotekey.SelectRemotekey(uuid);
+            Gson gson=new Gson();
+            return gson.toJson(remoteKey,RemoteKey.class);
         }
 
     }

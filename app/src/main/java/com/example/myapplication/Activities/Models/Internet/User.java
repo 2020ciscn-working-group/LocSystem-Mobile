@@ -4,6 +4,7 @@ import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.jsontrans;
 import com.google.gson.Gson;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,22 +19,13 @@ import java.util.List;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class User extends InternetBase{
+public class User extends InternetBase implements Serializable {
 
     private String uid;
     private String username;
     private String password;
     private String phoneNum;
-    private List<String> friendUidList;
-    private List<String> MessagehashList;
-
-    public List<String> getMessagehashList() {
-        return MessagehashList;
-    }
-
-    public void setMessagehashList(List<String> messageList) {
-        MessagehashList = messageList;
-    }
+    private List<Friend> friendList;
 
     public void setUid(String uid) {
         this.uid = uid;
@@ -62,26 +54,33 @@ public class User extends InternetBase{
     public String getPhoneNum() {
         return phoneNum;
     }
+    public Friend getFriend(String uid){
+        for(Friend friend:friendList){
+            if(friend.getUid().equals(uid))
+                return friend;
+        }
+        return null;
+    }
 
-    public void setFriendUidList(List<String> friendUidList) {
-        this.friendUidList = friendUidList;
+    public void setFriendUidList(List<Friend> friendUidList) {
+        this.friendList = friendUidList;
     }
-    public List<String> getFriendUidList() {
-        return friendUidList;
+    public List<Friend> getFriendUidList() {
+        return friendList;
     }
-    public void addFriend(String fuid){
-        friendUidList.add(fuid);
+    public void addFriend(Friend fuid){
+        friendList.add(fuid);
     }
 
     public User(){
-        friendUidList= null;
+        friendList= null;
         password=null;
         phoneNum=null;
         uid=null;
         username=null;
     }
-    public User(String uid, String username, String passwd, String phoneNum, List<String>friendUidList){
-        this.friendUidList=friendUidList;
+    public User(String uid, String username, String passwd, String phoneNum, List<Friend>friendUidList){
+        this.friendList=friendUidList;
         this.password=passwd;
         this.phoneNum=phoneNum;
         this.uid=uid;

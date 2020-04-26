@@ -13,7 +13,6 @@ import java.util.LinkedList;
     private String UUID=null;
     private User mUser;
     private LinkedList<Friend>mFriends;
-    private LinkedList<String>MessageList;
     //private MessageDataBase mMessageDataBase;
     //private
 
@@ -48,12 +47,7 @@ import java.util.LinkedList;
     public void setFriends(LinkedList<Friend> friends) {
         mFriends = friends;
     }
-
-    public LinkedList<String> getMessageList() {
-        return MessageList;
-    }
-
-    public void setMessageList(LinkedList<String> messageList) {
-        MessageList = messageList;
+    public void addFriend(Friend friend){
+        if(!mFriends.contains(friend))mFriends.add(friend);
     }
 }

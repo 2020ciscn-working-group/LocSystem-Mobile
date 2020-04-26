@@ -2,10 +2,12 @@ package com.example.myapplication.Activities.Models.Internet;
 
 import com.example.myapplication.Utils.Gm_sm2_3;
 
+import java.io.Serializable;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public abstract class InternetBase {
+*/public abstract class InternetBase implements Serializable {
     public  byte[] getSM3(){
         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
         byte[] src=this.toJson().getBytes();

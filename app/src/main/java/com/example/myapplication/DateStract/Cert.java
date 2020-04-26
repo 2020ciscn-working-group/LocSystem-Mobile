@@ -9,8 +9,17 @@ import java.io.Serializable;
     private String algo_key;
     private String  algo_hash;
     private String info;
+    private byte[] pubkey;
     private byte[] signdata;
     private byte[] verfi_key;
+
+    public byte[] getPubkey() {
+        return pubkey;
+    }
+
+    public void setPubkey(byte[] pubkey) {
+        this.pubkey = pubkey;
+    }
 
     public String getAlgo_key() {
         return algo_key;

@@ -220,8 +220,8 @@ public class MainActivity extends AppCompatActivity {
         ws.setAllowFileAccess(true);
         ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.setWebViewClient(new WebViewClient());
-        //添加jsp的安卓接口内部类
-        webView.addJavascriptInterface(new JavaScriptInterface(),"jspcallback");
+        //添加jsp的安卓接口内部类,VUE使用$APP符号即可调用给jsp的按安卓方法接口了
+        webView.addJavascriptInterface(new JavaScriptInterface(),"$APP");
         webView.loadUrl("file:////android_asset/dist/index.html");
         //webView.loadUrl("http://www.baidu.com");
         Push push=new Push("http://10.0.2.2:8080/login", new PushCallBackListener() {

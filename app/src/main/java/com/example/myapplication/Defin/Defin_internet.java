@@ -5,7 +5,7 @@ package com.example.myapplication.Defin;
     github地址:https://github.com/zyc14588
 */public class Defin_internet {
     public static final String SeverAddress="10.0.2.2";
-    public static final String DebugSeverPort=":9000";
+    public static final String DebugSeverPort=":63342";
     public static final String AppServerPort=":8080";
     public static final String AppServerLogin="/login";
 }

@@ -20,7 +20,6 @@ public class Hub implements Serializable {
     private String                                               info;
     private String                                               desc;
     private List<Loc>                                            locs;
-    private List<com.example.myapplication.DateStract.RemoteKey> RemoteKey;
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
@@ -63,11 +62,5 @@ public class Hub implements Serializable {
         return locs;
     }
 
-    public void setRemoteKey(List<RemoteKey> RemoteKey) {
-        this.RemoteKey = RemoteKey;
-    }
-    public List<RemoteKey> getRemoteKey() {
-        return RemoteKey;
-    }
 
 }

@@ -4,6 +4,7 @@
 package com.example.myapplication.DateStract;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -14,37 +15,25 @@ import java.util.List;
  */
 public class Owner implements Serializable {
 
-    private String uuid;
-    private String info;
-    private String desc;
-    private List<LocalKey> Localkey;
-    private List<Hub> Hub;
-    private List<Guest>Guests;
-    private List<Tocken>Tockens;
-    private List<Audit>Audits;
+    private String               uuid;
+    private String               info;
+    private String               desc;
+    private LinkedList<LocalKey> Localkey;
+    private LinkedList<Hub>      Hub;
+    private LinkedList<Guest>    Guests;
+    private LinkedList<Tocken>   Tockens;
+    private LinkedList<Audit>    Audits;
 
     public List<Guest> getGuests() {
         return Guests;
-    }
-
-    public void setGuests(List<Guest> guests) {
-        Guests = guests;
     }
 
     public List<Tocken> getTockens() {
         return Tockens;
     }
 
-    public void setTockens(List<Tocken> tockens) {
-        Tockens = tockens;
-    }
-
     public List<Audit> getAudits() {
         return Audits;
-    }
-
-    public void setAudits(List<Audit> audits) {
-        Audits = audits;
     }
 
     public void setUuid(String uuid) {
@@ -67,19 +56,34 @@ public class Owner implements Serializable {
     public String getDesc() {
         return desc;
     }
-
-    public void setLocalkey(List<LocalKey> Localkey) {
-        this.Localkey = Localkey;
-    }
     public List<LocalKey> getLocalkey() {
         return Localkey;
     }
-
-    public void setHub(List<Hub> Hub) {
-        this.Hub = Hub;
-    }
     public List<Hub> getHub() {
         return Hub;
+    }
+    private Owner(){}
+    public Owner(String uuid,String info,String desc){
+        this.uuid=uuid;
+        this.info=info;
+        this.desc=desc;
+        Localkey=new LinkedList<>();
+        Hub=new LinkedList<>();
+        Guests=new LinkedList<>();
+        Tockens=new LinkedList<>();
+        Audits=new LinkedList<>();
+    }
+    public void addGuest(Guest guest){
+        Guests.add(guest);
+    }
+    public void addHub(Hub hub){
+        Hub.add(hub);
+    }
+    public void addTocken(Tocken tocken){
+        Tockens.add(tocken);
+    }
+    public void addLocalKey(LocalKey localKey){
+        Localkey.add(localKey);
     }
 
 }

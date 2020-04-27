@@ -14,10 +14,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import androidx.appcompat.app.AppCompatActivity;
-
-
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.Login;
 import com.example.myapplication.Activities.Models.Internet.Message;
@@ -47,7 +44,6 @@ import com.example.myapplication.Utils.Util;
 import com.example.myapplication.Utils.jsontrans;
 import com.example.myapplication.owner_date;
 import com.google.gson.Gson;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -115,7 +111,10 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient());
         //添加jsp的安卓接口内部类,VUE使用$APP符号即可调用给jsp的按安卓方法接口了
         webView.addJavascriptInterface(new JavaScriptInterface(),"$App");
-        webView.loadUrl("file:////android_asset/dist/index.html");
+        //dist文件夹
+        //webView.loadUrl("file:////android_asset/dist/index.html");
+        //vue调试的页面
+        webView.loadUrl("http://10.0.2.2:8081");
     }
 
 

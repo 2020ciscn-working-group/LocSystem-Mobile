@@ -21,10 +21,7 @@ public class RemoteKey implements Serializable {
     private int type;
     //密钥信息
     private String info;
-    //上级密钥签名的前三项数据,防造假
-    private byte[] signdata;
-    //该密钥私钥签名的前四项数据，完整性、密钥正确性保障
-    private byte[] certdata;
+
 
     public String getUuid() {
         return uuid;
@@ -54,19 +51,4 @@ public class RemoteKey implements Serializable {
     public String getInfo() {
         return info;
     }
-
-    public void setSigndata(byte[] signdata) {
-        this.signdata = signdata;
-    }
-    public byte[] getSigndata() {
-        return signdata;
-    }
-
-    public void setCertdata(byte[] certdata) {
-        this.certdata = certdata;
-    }
-    public byte[] getCertdata() {
-        return certdata;
-    }
-
 }

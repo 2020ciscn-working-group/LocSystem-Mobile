@@ -1,21 +1,29 @@
 package com.example.myapplication.Activities.Models;
 
+import android.app.Activity;
+
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.User;
+import com.example.myapplication.Dao.Internet.sql.MessageDataBase;
 import com.example.myapplication.Utils.Gm_sm2_3;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class Model_User extends Model_Basic {
-    private String UUID=null;
-    private User mUser;
-    private LinkedList<Friend>mFriends;
-    //private MessageDataBase mMessageDataBase;
-    //private
+*/public class Model_User extends Model_Basic implements Serializable {
+    private String             UUID=null;
+    private User               mUser;
+    private LinkedList<Friend> mFriends;
+    private MessageDataBase    mMessageDataBase;
+    private Activity           mActivity;
 
+    public Model_User(Activity activity){
+        mActivity=activity;
+        mMessageDataBase=new MessageDataBase(mActivity);
+    }
 
     @Override
     public byte[] getSM3() {

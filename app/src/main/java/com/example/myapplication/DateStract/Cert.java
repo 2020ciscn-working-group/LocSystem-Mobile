@@ -8,10 +8,20 @@ import java.io.Serializable;
 */public class Cert implements Serializable {
     private String algo_key;
     private String  algo_hash;
+    public  String UserId;
     private String info;
+    private int type;
     private byte[] pubkey;
     private byte[] signdata;
     private byte[] verfi_key;
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     public byte[] getPubkey() {
         return pubkey;
@@ -19,6 +29,14 @@ import java.io.Serializable;
 
     public void setPubkey(byte[] pubkey) {
         this.pubkey = pubkey;
+    }
+
+    public String getUserId() {
+        return UserId;
+    }
+
+    public void setUserId(String userId) {
+        UserId = userId;
     }
 
     public String getAlgo_key() {

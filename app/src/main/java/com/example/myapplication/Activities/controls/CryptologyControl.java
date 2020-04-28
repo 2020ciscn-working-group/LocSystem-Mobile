@@ -20,7 +20,7 @@ import java.util.LinkedList;
         mAuditList= new LinkedList<Audit>();
         mGuestList=new LinkedList<Guest>();
         mTockenList=new LinkedList<Tocken>();
-        mOwner=new Owner();
+        //mOwner=new Owner();
     }
     public static CryptologyControl getInstance(){
         if(sCryptologyControl==null){

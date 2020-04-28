@@ -1,9 +1,6 @@
 package com.example.myapplication.Activities;
 
 import android.annotation.SuppressLint;
-import android.app.Service;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -51,6 +48,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -64,11 +63,12 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConnection mServiceConnection;
     private PullService       mService;
     private String loginret;
+
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("gm_sm2_master");
     }
-
+//TODO:将USB数据交换activity换成serve
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -386,4 +386,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
+
 }

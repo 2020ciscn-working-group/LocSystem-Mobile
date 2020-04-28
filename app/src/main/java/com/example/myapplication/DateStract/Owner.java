@@ -17,7 +17,7 @@ public class Owner implements Serializable {
 
     private String               uuid;
     private String               info;
-    private String               desc;
+    private String               userid;
     private LinkedList<LocalKey> Localkey;
     private LinkedList<Hub>      Hub;
     private LinkedList<Guest>    Guests;
@@ -50,11 +50,11 @@ public class Owner implements Serializable {
         return info;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setuserid(String userid) {
+        this.userid = userid;
     }
-    public String getDesc() {
-        return desc;
+    public String getuserid() {
+        return userid;
     }
     public List<LocalKey> getLocalkey() {
         return Localkey;
@@ -63,10 +63,10 @@ public class Owner implements Serializable {
         return Hub;
     }
     private Owner(){}
-    public Owner(String uuid,String info,String desc){
+    public Owner(String uuid,String info,String userid){
         this.uuid=uuid;
         this.info=info;
-        this.desc=desc;
+        this.userid=userid;
         Localkey=new LinkedList<>();
         Hub=new LinkedList<>();
         Guests=new LinkedList<>();

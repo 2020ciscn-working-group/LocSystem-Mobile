@@ -7,13 +7,13 @@ import java.io.Serializable;
     github地址:https://github.com/zyc14588
 */public class Cert implements Serializable {
     private String algo_key;
-    private String  algo_hash;
-    public  String UserId;
+    private String algo_hash;
+    private String UserId;
     private String info;
-    private int type;
+    private int    type;
     private byte[] pubkey;
     private byte[] signdata;
-    private byte[] verfi_key;
+    private byte[] certdata;
 
     public int getType() {
         return type;
@@ -71,11 +71,11 @@ import java.io.Serializable;
         this.signdata = signdata;
     }
 
-    public byte[] getVerfi_key() {
-        return verfi_key;
+    public byte[] getcertdata() {
+        return certdata;
     }
 
-    public void setVerfi_key(byte[] verfi_key) {
-        this.verfi_key = verfi_key;
+    public void setcertdata(byte[] certdata) {
+        this.certdata = certdata;
     }
 }

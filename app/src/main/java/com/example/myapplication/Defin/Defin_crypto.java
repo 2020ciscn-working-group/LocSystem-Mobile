@@ -9,5 +9,10 @@ package com.example.myapplication.Defin;
     public static final int ROOT=40;
     public static final int SIGN=30;
     public static final int BIND=10;
+    public static String info="test";
+    public static void changeInfo(String newinfo){
+        info=newinfo;
+    }
+
 
 }

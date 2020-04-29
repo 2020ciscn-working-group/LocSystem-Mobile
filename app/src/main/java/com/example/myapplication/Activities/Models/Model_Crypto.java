@@ -2,6 +2,7 @@ package com.example.myapplication.Activities.Models;
 
 import android.app.Activity;
 import android.graphics.Paint;
+import android.hardware.usb.UsbDevice;
 
 import com.example.myapplication.Dao.Secret.Sql.AppSql;
 import com.example.myapplication.DateStract.Cert;
@@ -10,8 +11,10 @@ import com.example.myapplication.DateStract.Hub;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Owner;
 import com.example.myapplication.DateStract.RemoteKey;
+import com.example.myapplication.DateStract.RootReq;
 import com.example.myapplication.Defin.Defin_crypto;
 import com.example.myapplication.Utils.Gm_sm2_3;
+import com.example.myapplication.Utils.UsbHelper;
 import com.example.myapplication.errs.NoSuchGuestException;
 import com.example.myapplication.errs.NoSuchKeyException;
 import com.google.gson.Gson;
@@ -19,11 +22,7 @@ import com.google.gson.Gson;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
+
 
 /*
     作者：zyc14588
@@ -32,15 +31,12 @@ import java.util.concurrent.FutureTask;
     private       Owner             mOwner;
     private       LinkedList<Guest> mGuests;
     private       AppSql            mAppSql;
-    private final byte[]            CApub;
-    private RemoteKey PIK,RootKey;
-    private Cert   PIK_cert, Rootkey_cert;
-
-    Model_Crypto(Activity activity, String uuid, String info, String desc, byte[] cApub)  {
-        CApub = cApub;
+    private       UsbHelper         mUsbHelper;
+    Model_Crypto(Activity activity, String uuid, String info, String desc)  {
         mOwner=new Owner(uuid, info, desc);
         mGuests= new LinkedList<>();
         mAppSql=new AppSql(activity);
+        mUsbHelper=new UsbHelper(activity);
     }
     public void addOwHub(Hub hub){
         mOwner.addHub(hub);
@@ -88,7 +84,7 @@ import java.util.concurrent.FutureTask;
                     byte[] expub=null;
                     switch (cert.getType()){
                         case Defin_crypto.PIK:{
-                            expub=CApub;break;
+                            expub=Defin_crypto.CApub;break;
                         }
                         case Defin_crypto.ROOT:{
                             assert guest != null;
@@ -149,7 +145,7 @@ import java.util.concurrent.FutureTask;
             if(localKey1.getType()==Defin_crypto.ROOT)
                 expri=localKey1.getPrikey();
             byte[]signdata=new byte[32];
-            gm_sm2_3.GM_SM2Sign(signdata,src,src.length,mOwner.getuserid().toCharArray(),mOwner.getuserid().toCharArray().length,pri);
+            gm_sm2_3.GM_SM2Sign(signdata,src,src.length,mOwner.getuserid().toCharArray(),mOwner.getuserid().toCharArray().length,expri);
             localKey.setSigndata(signdata);
             byte[]src_cert=new byte[src.length+signdata.length];
             for(int i=0;i<src_cert.length;i++){
@@ -175,20 +171,50 @@ import java.util.concurrent.FutureTask;
         cert.setAlgo_hash("SM3");
         return cert;
     }
-    public void RootKeyGen() {
-        String[] jsons=null;//确保拿到的json字符串顺序为PIK/PIKCERT/ROOTKEY/ROOTKEYCERT
-        if(!mOwner.getLocalkey().isEmpty())
-            for(LocalKey localKey:mOwner.getLocalkey())
-                if(localKey.getType()==Defin_crypto.ROOT)
-                    return;
-        //TODO:在这里调用usb与树莓派连接获取rootkey与其密钥证明和pik及其密钥证明
-
-        Gson gson=new Gson();
-        assert jsons != null;
-        PIK=gson.fromJson(jsons[0],RemoteKey.class);
-        PIK_cert=gson.fromJson(jsons[1],Cert.class);
-        RootKey=gson.fromJson(jsons[2],RemoteKey.class);
-        Rootkey_cert=gson.fromJson(jsons[3],Cert.class);
+    public void RootKeyGen( ) {
+        //生成rootkey的本地密钥，做成remotekey给板子，板子出证明+pik及pik证书
+        //确保拿到的json字符串顺序为PIK/PIKCERT/ROOTKEYCERT
+        Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                if(!mOwner.getLocalkey().isEmpty())
+                    for(LocalKey localKey1:mOwner.getLocalkey())
+                        if(localKey1.getType()==Defin_crypto.ROOT)
+                            return;
+                Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+                byte[]pub=new byte[64];
+                byte[]pri=new byte[32];
+                gm_sm2_3.GM_GenSM2keypair(pub,pri);
+                LocalKey localKey=new LocalKey();
+                localKey.setPrikey(pri);
+                localKey.setPubkey(pub);
+                localKey.setType(Defin_crypto.ROOT);
+                localKey.setInfo(Defin_crypto.info);
+                RootReq req=new RootReq();
+                req.setPubkey(pub);
+                req.setPrikey(pri);
+                req.setType(Defin_crypto.ROOT);
+                req.setInfo(Defin_crypto.info);
+                req.setUserid(mOwner.getuserid());
+                Gson gson=new Gson();
+                String json_req=gson.toJson(req,RootReq.class);
+                List<UsbDevice>list=mUsbHelper.getUsbDevice();
+                mUsbHelper.connection(list.get(0).getVendorId(),list.get(0).getProductId());
+                mUsbHelper.sendData(json_req.getBytes());
+                String json=mUsbHelper.readFromUsb();
+                String[]jsons=json.split("\n");
+                RemoteKey PIK = gson.fromJson(jsons[0], RemoteKey.class);
+                Cert PIK_cert = gson.fromJson(jsons[1], Cert.class);
+                Cert rootkey_cert = gson.fromJson(jsons[2], Cert.class);
+                localKey.setSigndata(rootkey_cert.getsigndata());
+                localKey.setCertdata(rootkey_cert.getcertdata());
+                mOwner.getLocalkey().add(localKey);
+                mOwner.setPIK(PIK);
+                mOwner.setPIK_cert(PIK_cert);
+            }
+        };
+        Thread thread=new Thread(runnable);
+        thread.start();
     }
 
     @Override

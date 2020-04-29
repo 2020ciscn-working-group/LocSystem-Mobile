@@ -23,6 +23,8 @@ public class Owner implements Serializable {
     private LinkedList<Guest>    Guests;
     private LinkedList<Tocken>   Tockens;
     private LinkedList<Audit>    Audits;
+    private RemoteKey PIK;
+    private Cert PIK_cert;
 
     public List<Guest> getGuests() {
         return Guests;
@@ -62,6 +64,23 @@ public class Owner implements Serializable {
     public List<Hub> getHub() {
         return Hub;
     }
+
+    public RemoteKey getPIK() {
+        return PIK;
+    }
+
+    public void setPIK(RemoteKey PIK) {
+        this.PIK = PIK;
+    }
+
+    public Cert getPIK_cert() {
+        return PIK_cert;
+    }
+
+    public void setPIK_cert(Cert PIK_cert) {
+        this.PIK_cert = PIK_cert;
+    }
+
     private Owner(){}
     public Owner(String uuid,String info,String userid){
         this.uuid=uuid;

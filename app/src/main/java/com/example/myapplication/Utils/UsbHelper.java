@@ -1,18 +1,18 @@
-package com.example.myapplication.Activities;
+package com.example.myapplication.Utils;
 
-import android.app.PendingIntent;
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.hardware.usb.UsbRequest;
 import android.util.Log;
 
-import com.example.myapplication.Activities.BaseActivity;
-
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,23 +21,31 @@ import java.util.List;
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class UsbActivity extends BaseActivity {
+*/public class UsbHelper {
     private UsbManager   usbManager;
     private UsbDevice    usbDevice;
     private UsbInterface mUsbInterface;
     private UsbEndpoint  in,out,ctl,intin,intout;
     private UsbDeviceConnection conn;
+    private Activity mActivity;
+
+    private UsbHelper(){}
+    public UsbHelper(Activity activity){
+        mActivity=activity;
+    }
+
+    public void setUsbDevice(UsbDevice usbDevice) {
+        this.usbDevice = usbDevice;
+    }
 
 
-    public UsbDevice findUSB(int VENDORID, int PRODUCTID) {
+    private UsbDevice findUSB(int VENDORID, int PRODUCTID) {
         //1)创建usbManager
-        usbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);
+        usbManager = (UsbManager) mActivity.getSystemService(Context.USB_SERVICE);
         //2)获取到所有设备 选择出满足的设备
         assert usbManager != null;
         HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-        while (deviceIterator.hasNext()) {
-            UsbDevice device = deviceIterator.next();
+        for (UsbDevice device : deviceList.values()) {
             //Log.e(TAG, "vendorID--" + device.getVendorId() + "ProductId--" + device.getProductId());
             if (device.getVendorId() == VENDORID && device.getProductId() == PRODUCTID) {
                 return device; // 获取USBDevice
@@ -46,10 +54,10 @@ import java.util.List;
         //statue = USBContent.usb_find_this_fail;
         return null;
     }
-    public List<UsbDevice> getUsbDevice(int vendorId, int productId) {
+    public List<UsbDevice> getUsbDevice() {
         //1)创建usbManager
         if (usbManager == null)
-            usbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);
+            usbManager = (UsbManager) mActivity.getSystemService(Context.USB_SERVICE);
         //2)获取到所有设备 选择出满足的设备
         HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
@@ -62,8 +70,9 @@ import java.util.List;
         }
         return lists;
     }
+
     public int connection(int vendorId, int productId) {
-        usbDevice = (UsbDevice) getUsbDevice(vendorId, productId);
+        usbDevice = (UsbDevice) findUSB(vendorId, productId);
 
         //3)查找设备接口
         if (usbDevice == null) {
@@ -71,13 +80,10 @@ import java.util.List;
             return 0;
         }
         UsbInterface usbInterface = null;
-        for (int i = 0; i < usbDevice.getInterfaceCount(); i++) {
-            //一个设备上面一般只有一个接口，有两个端点，分别接受和发送数据
-            usbInterface = usbDevice.getInterface(i);
-            Log.e("USBHelper","usbInterface.getEndpointCount()="+usbInterface.getEndpointCount());
-            break;
-        }
 
+            //一个设备上面一般只有一个接口，有两个端点，分别接受和发送数据
+            usbInterface = usbDevice.getInterface(0);
+            Log.e("USBHelper","usbInterface.getEndpointCount()="+usbInterface.getEndpointCount());
         //4)获取usb设备的通信通道endpoint
         for (int i = 0; i < usbInterface.getEndpointCount(); i++) {
             UsbEndpoint ep = usbInterface.getEndpoint(i);
@@ -119,14 +125,14 @@ import java.util.List;
             //statue = USBContent.usb_open_fail;
             return 0;
         }
-
         //打开设备
         if (conn.claimInterface(usbInterface, true)) {
-            if (conn != null)// 到此你的android设备已经连上设备
+            if (conn != null){// 到此你的android设备已经连上设备
                 Log.e("TAG", "open设备成功！");
             final String mySerial = conn.getSerial();
             //Log.e(TAG, "设备serial number：" + mySerial);
             //statue = USBContent.usb_ok;
+                }
         } else {
             //Log.e(TAG, "无法打开连接通道。");
             //statue = USBContent.usb_passway_fail;
@@ -158,7 +164,7 @@ import java.util.List;
         byte[] buffer = new byte[15];
         if (conn.bulkTransfer(in, buffer, buffer.length,
                 2000) < 0)
-           Log.d("usb","bulkIn返回输出为  负数");
+            Log.d("usb","bulkIn返回输出为  负数");
         else {
             Log.d("usb","Receive Message Succese！"
                     // + "数据返回"
@@ -168,4 +174,23 @@ import java.util.List;
         }
         return buffer;
     }
+
+    public String readFromUsb() {
+        //读取数据2
+        int inMax = in.getMaxPacketSize();
+        byte[] retData=null;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(inMax);
+        UsbRequest usbRequest = new UsbRequest();
+        usbRequest.initialize(conn, in);
+        usbRequest.queue(byteBuffer);
+        while(true){
+            if (conn.requestWait() == usbRequest) {
+                retData = byteBuffer.array();
+                break;
+            }
+        }
+        return new String(retData);
+    }
+
+
 }

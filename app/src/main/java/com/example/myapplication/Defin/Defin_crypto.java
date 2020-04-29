@@ -13,6 +13,7 @@ package com.example.myapplication.Defin;
     public static void changeInfo(String newinfo){
         info=newinfo;
     }
+    public static final byte[] CApub={};
 
 
 }

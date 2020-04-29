@@ -37,6 +37,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.Servers.PullService;
 import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
+import com.example.myapplication.Utils.UsbHelper;
 import com.example.myapplication.Utils.Util;
 import com.example.myapplication.Utils.jsontrans;
 import com.example.myapplication.owner_date;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private PullService       mService;
     private String loginret;
 
+
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("gm_sm2_master");
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         path=MainActivity.this.getFilesDir().toString();
+
 
         // Example of a call to a native method
         /*mModel_user=new Model_User();

@@ -11,7 +11,7 @@ import java.net.URI;
     github地址:https://github.com/zyc14588
 */public class LocWebSocketClient extends WebSocketClient {
     public LocWebSocketClient(URI serverUri){
-        super(serverUri, new Draft_6455());
+        super(serverUri);
     }
     @Override
     public void onOpen(ServerHandshake handshakedata) {

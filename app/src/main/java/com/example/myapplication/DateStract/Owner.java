@@ -17,7 +17,6 @@ public class Owner implements Serializable {
 
     private String               uuid;
     private String               info;
-    private String               userid;
     private LinkedList<LocalKey> Localkey;
     private LinkedList<Hub>      Hub;
     private LinkedList<Guest>    Guests;
@@ -51,13 +50,6 @@ public class Owner implements Serializable {
     public String getInfo() {
         return info;
     }
-
-    public void setuserid(String userid) {
-        this.userid = userid;
-    }
-    public String getuserid() {
-        return userid;
-    }
     public List<LocalKey> getLocalkey() {
         return Localkey;
     }
@@ -81,11 +73,7 @@ public class Owner implements Serializable {
         this.PIK_cert = PIK_cert;
     }
 
-    private Owner(){}
-    public Owner(String uuid,String info,String userid){
-        this.uuid=uuid;
-        this.info=info;
-        this.userid=userid;
+    public Owner(){
         Localkey=new LinkedList<>();
         Hub=new LinkedList<>();
         Guests=new LinkedList<>();

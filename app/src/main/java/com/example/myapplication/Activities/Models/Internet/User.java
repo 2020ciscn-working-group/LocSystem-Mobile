@@ -79,8 +79,8 @@ public class User extends InternetBase implements Serializable {
         uid=null;
         username=null;
     }
-    public User(String uid, String username, String passwd, String phoneNum, List<Friend>friendUidList){
-        this.friendList=friendUidList;
+    public User(String uid, String username, String passwd, String phoneNum){
+        this.friendList= new LinkedList<>();
         this.password=passwd;
         this.phoneNum=phoneNum;
         this.uid=uid;

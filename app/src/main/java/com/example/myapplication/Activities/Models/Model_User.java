@@ -1,6 +1,7 @@
 package com.example.myapplication.Activities.Models;
 
 import android.app.Activity;
+import android.se.omapi.Session;
 
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.User;
@@ -19,6 +20,7 @@ import java.util.LinkedList;
     private LinkedList<Friend> mFriends;
     private MessageDataBase    mMessageDataBase;
     private Activity           mActivity;
+    private Session mSession;
 
     public Model_User(Activity activity){
         mActivity=activity;
@@ -30,6 +32,14 @@ import java.util.LinkedList;
         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
 
         return new byte[0];
+    }
+
+    public Session getSession() {
+        return mSession;
+    }
+
+    public void setSession(Session session) {
+        mSession = session;
     }
 
     public String getUUID() {

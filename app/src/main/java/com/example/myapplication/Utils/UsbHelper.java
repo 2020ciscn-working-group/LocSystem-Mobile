@@ -11,7 +11,6 @@ import android.hardware.usb.UsbManager;
 import android.hardware.usb.UsbRequest;
 import android.util.Log;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,13 +70,13 @@ import java.util.List;
         return lists;
     }
 
-    public int connection(int vendorId, int productId) {
+    public void connection(int vendorId, int productId) {
         usbDevice = (UsbDevice) findUSB(vendorId, productId);
 
         //3)查找设备接口
         if (usbDevice == null) {
             //Log.e(TAG, "未找到目标设备，请确保供应商ID" + vendorId + "和产品ID" + productId + "是否配置正确");
-            return 0;
+            return;
         }
         UsbInterface usbInterface = null;
 
@@ -123,7 +122,7 @@ import java.util.List;
         if (null == conn) {
             //Log.e(TAG, "不能连接到设备");
             //statue = USBContent.usb_open_fail;
-            return 0;
+            return;
         }
         //打开设备
         if (conn.claimInterface(usbInterface, true)) {
@@ -138,7 +137,6 @@ import java.util.List;
             //statue = USBContent.usb_passway_fail;
             conn.close();
         }
-        return 1;
     }
     public void sendData(byte[] buffer) {
         if (conn == null || out == null) return;

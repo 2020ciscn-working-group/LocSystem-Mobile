@@ -16,9 +16,19 @@ public class Accreq implements Serializable {
     private String accsee;//授权范围
     private String time;//授权时间
     private String info;//个人信息
+    private String hubuuid;
     private long infolen;//个人信息长度
     private byte[] signdata;//签名数据
     private long signdatalen;//签名数据长度
+
+    public String getHubuuid() {
+        return hubuuid;
+    }
+
+    public void setHubuuid(String hubuuid) {
+        this.hubuuid = hubuuid;
+    }
+
     public void setAccsee(String accsee) {
         this.accsee = accsee;
     }

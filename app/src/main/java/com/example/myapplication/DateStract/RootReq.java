@@ -13,14 +13,14 @@ package com.example.myapplication.DateStract;
     //密钥信息
     private String info;
 
-    private String userid;
+    private String useruuid;
 
-    public String getUserid() {
-        return userid;
+    public String getuseruuid() {
+        return useruuid;
     }
 
-    public void setUserid(String userid) {
-        this.userid = userid;
+    public void setuseruuid(String useruuid) {
+        this.useruuid = useruuid;
     }
 
     public byte[] getPrikey() {

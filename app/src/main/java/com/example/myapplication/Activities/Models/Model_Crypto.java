@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.graphics.Paint;
 import android.hardware.usb.UsbDevice;
 
+import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Dao.Secret.Sql.AppSql;
 import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.DateStract.Hub;
+import com.example.myapplication.DateStract.Loc;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Owner;
 import com.example.myapplication.DateStract.RemoteKey;
@@ -18,6 +20,9 @@ import com.example.myapplication.Utils.UsbHelper;
 import com.example.myapplication.errs.NoSuchGuestException;
 import com.example.myapplication.errs.NoSuchKeyException;
 import com.google.gson.Gson;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -32,11 +37,12 @@ import java.util.List;
     private       LinkedList<Guest> mGuests;
     private       AppSql            mAppSql;
     private       UsbHelper         mUsbHelper;
-    Model_Crypto(Activity activity, String uuid, String info, String desc)  {
-        mOwner=new Owner(uuid, info, desc);
+    public Model_Crypto(Activity activity,SignUp signUp)  {
+        mOwner=new Owner();
         mGuests= new LinkedList<>();
         mAppSql=new AppSql(activity);
         mUsbHelper=new UsbHelper(activity);
+        OwnerInit(signUp);
     }
     public void addOwHub(Hub hub){
         mOwner.addHub(hub);
@@ -61,13 +67,13 @@ import java.util.List;
     public void addLocalKey(LocalKey localKey){
         mOwner.addLocalKey(localKey);
     }
-    public boolean VerifyRemoteKey(RemoteKey remoteKey, Cert cert,String Gustuuid) {
+    public boolean VerifyRemoteKey(@NotNull RemoteKey remoteKey, @NotNull Cert cert) {
         if(remoteKey.getPubkey()==cert.getPubkey())
             if(remoteKey.getInfo().equals(cert.getInfo()))
                 if(remoteKey.getType()==cert.getType()){
                     Guest guest=null;
                     for(Guest guest1:mGuests){
-                        if(guest1.getUuid().equals(Gustuuid))
+                        if(guest1.getUuid().equals(cert.getuuid()))
                             guest=guest1;
                         else
                             return false;
@@ -106,7 +112,7 @@ import java.util.List;
                             return false;
                         }
                     }
-                    int ret=gm_sm2_3.GM_SM2VerifySig(cert.getsigndata(),src,src.length,cert.getUserId().toCharArray(),cert.getUserId().toCharArray().length,expub);
+                    int ret=gm_sm2_3.GM_SM2VerifySig(cert.getsigndata(),src,src.length,cert.getuuid().toCharArray(),cert.getuuid().toCharArray().length,expub);
                     byte[]src_cert=new byte[src.length+cert.getsigndata().length];
                     for(int i=0;i<src_cert.length;i++){
                         if(i<src.length)
@@ -114,12 +120,13 @@ import java.util.List;
                         else
                             src_cert[i]=cert.getsigndata()[i-src.length];
                     }
-                    int ret_cert=gm_sm2_3.GM_SM2VerifySig(cert.getcertdata(),src_cert,src_cert.length,cert.getUserId().toCharArray(),cert.getUserId().toCharArray().length,expub);
+                    int ret_cert=gm_sm2_3.GM_SM2VerifySig(cert.getcertdata(),src_cert,src_cert.length,cert.getuuid().toCharArray(),cert.getuuid().toCharArray().length,pub);
                     return ret == 0&&ret_cert==0;
                 }
         return false;
     }
-    public LocalKey LocalKeyGen(int type){
+    @Nullable
+    private LocalKey LocalKeyGen(int type){
         if(type==Defin_crypto.ROOT)
             return null;
         LocalKey localKey=null;
@@ -145,7 +152,7 @@ import java.util.List;
             if(localKey1.getType()==Defin_crypto.ROOT)
                 expri=localKey1.getPrikey();
             byte[]signdata=new byte[32];
-            gm_sm2_3.GM_SM2Sign(signdata,src,src.length,mOwner.getuserid().toCharArray(),mOwner.getuserid().toCharArray().length,expri);
+            gm_sm2_3.GM_SM2Sign(signdata,src,src.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,expri);
             localKey.setSigndata(signdata);
             byte[]src_cert=new byte[src.length+signdata.length];
             for(int i=0;i<src_cert.length;i++){
@@ -155,23 +162,23 @@ import java.util.List;
                     src_cert[i]=signdata[i-src.length];
             }
             byte[] certdata=new byte[32];
-            gm_sm2_3.GM_SM2Sign(certdata,src_cert,src_cert.length,mOwner.getuserid().toCharArray(),mOwner.getuserid().toCharArray().length,pri);
+            gm_sm2_3.GM_SM2Sign(certdata,src_cert,src_cert.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,pri);
             localKey.setCertdata(certdata);
             return localKey;
     }
-    public Cert GenCert(LocalKey localKey){
+    public Cert GenCert(@NotNull LocalKey localKey){
         Cert cert=new Cert();
         cert.setInfo(localKey.getInfo());
         cert.setPubkey(localKey.getPubkey());
         cert.setType(localKey.getType());
-        cert.setUserId(mOwner.getuserid());
+        cert.setuuid(mOwner.getUuid());
         cert.setsigndata(localKey.getSigndata());
         cert.setcertdata(localKey.getCertdata());
         cert.setAlgo_key("SM2");
         cert.setAlgo_hash("SM3");
         return cert;
     }
-    public void RootKeyGen( ) {
+    private void RootKeyGen() {
         //生成rootkey的本地密钥，做成remotekey给板子，板子出证明+pik及pik证书
         //确保拿到的json字符串顺序为PIK/PIKCERT/ROOTKEYCERT
         Runnable runnable=new Runnable() {
@@ -195,10 +202,11 @@ import java.util.List;
                 req.setPrikey(pri);
                 req.setType(Defin_crypto.ROOT);
                 req.setInfo(Defin_crypto.info);
-                req.setUserid(mOwner.getuserid());
+                req.setuseruuid(mOwner.getUuid());
                 Gson gson=new Gson();
                 String json_req=gson.toJson(req,RootReq.class);
                 List<UsbDevice>list=mUsbHelper.getUsbDevice();
+                if(list.size()==0)throw new NullPointerException();
                 mUsbHelper.connection(list.get(0).getVendorId(),list.get(0).getProductId());
                 mUsbHelper.sendData(json_req.getBytes());
                 String json=mUsbHelper.readFromUsb();
@@ -217,6 +225,12 @@ import java.util.List;
         thread.start();
     }
 
+    private void OwnerInit(@NotNull SignUp signUp){
+        mOwner.setUuid(signUp.getSM3str());
+        RootKeyGen();
+        mOwner.addLocalKey(LocalKeyGen(Defin_crypto.SIGN));
+        mOwner.addLocalKey(LocalKeyGen(Defin_crypto.BIND));
+    }
     @Override
     public byte[] getSM3() {
         return new byte[0];

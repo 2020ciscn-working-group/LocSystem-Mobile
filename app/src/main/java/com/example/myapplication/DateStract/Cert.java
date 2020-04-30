@@ -8,7 +8,7 @@ import java.io.Serializable;
 */public class Cert implements Serializable {
     private String algo_key;
     private String algo_hash;
-    private String UserId;
+    private String uuid;
     private String info;
     private int    type;
     private byte[] pubkey;
@@ -31,12 +31,12 @@ import java.io.Serializable;
         this.pubkey = pubkey;
     }
 
-    public String getUserId() {
-        return UserId;
+    public String getuuid() {
+        return uuid;
     }
 
-    public void setUserId(String userId) {
-        UserId = userId;
+    public void setuuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getAlgo_key() {

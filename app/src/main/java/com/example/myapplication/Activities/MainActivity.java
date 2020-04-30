@@ -1,6 +1,7 @@
 package com.example.myapplication.Activities;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.Login;
 import com.example.myapplication.Activities.Models.Internet.Message;
+import com.example.myapplication.Activities.Models.Internet.PullMessage;
+import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Activities.Models.Internet.User;
 import com.example.myapplication.Activities.Models.Model_Crypto;
 import com.example.myapplication.Activities.Models.Model_User;
@@ -31,6 +34,7 @@ import com.example.myapplication.DateStract.Hub;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.RemoteKey;
 import com.example.myapplication.DateStract.Tocken;
+import com.example.myapplication.Defin.Defin_crypto;
 import com.example.myapplication.Defin.Defin_internet;
 import com.example.myapplication.Interfaces.PushCallBackListener;
 import com.example.myapplication.R;
@@ -248,6 +252,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
 //安卓调用vue的jsp函数用的方法
     private void androidJSBridge(String methodName) {
         String url = "javascript:window." + methodName + "()";
@@ -280,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("jspcallback:",strMessage);
             }
         }
+        @JavascriptInterface
         public void login(final String uid, String passwd){
             Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
                 @Override
@@ -290,17 +300,14 @@ public class MainActivity extends AppCompatActivity {
                     String name="/Model/Crypto"+uid;
                     File Model_Crypto_file=new File(MainActivity.path+name);
                     try {
-                        if(Model_Crypto_file.exists()){
-                            FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
-                            byte[] Model_Crypto_bytes=new byte[fileInputStream.available()];
-                            fileInputStream.read(Model_Crypto_bytes);
-                            mModel_crypto=(Model_Crypto) ByteUtils.byteArrayToObject(Model_Crypto_bytes);
-                        }else {
-
-                        }
+                        FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
+                        byte[] Model_Crypto_bytes=new byte[fileInputStream.available()];
+                        fileInputStream.read(Model_Crypto_bytes);
+                        mModel_crypto=(Model_Crypto) ByteUtils.byteArrayToObject(Model_Crypto_bytes);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    androidJSBridge("login_success");
                 }
 
                 @Override
@@ -308,6 +315,12 @@ public class MainActivity extends AppCompatActivity {
                     //TODO：登陆失败的代码
                     Log.d("POST ERROR CODE", message+code);
                     loginret=code+message;
+                    AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("登陆失败")//标题
+                            .setMessage(loginret)//内容
+                            .setIcon(R.mipmap.ic_launcher)//图标
+                            .create();
+                    alertDialog1.show();
                 }
             });
             Login login=new Login();
@@ -316,6 +329,63 @@ public class MainActivity extends AppCompatActivity {
             Log.d("login:",login.toJson());
             push.execute(login.toJson());
         }
+        @JavascriptInterface
+        public void signup(final String uid, String uname, String passwd, String phnum){
+            final SignUp signUp=new SignUp(uid,uname,passwd,phnum);
+            Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
+                @Override
+                public void onPushSuccessfully(String data) {
+                    Log.d("POST",data);
+                    loginret=data;
+                    //TODO:添加注册成功后需要执行的的代码
+                    mModel_crypto=new Model_Crypto(MainActivity.this,signUp);
+                    androidJSBridge("signup_success");
+                }
+
+                @Override
+                public void onPushFailed(int code,String message) {
+                    //TODO：注册失败的代码
+                    Log.d("POST ERROR CODE", message+code);
+                    loginret=code+message;
+                    AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("注册失败")//标题
+                            .setMessage(loginret)//内容
+                            .setIcon(R.mipmap.ic_launcher)//图标
+                            .create();
+                    alertDialog1.show();
+                }
+            });
+
+            push.execute(signUp.toJson());
+        }
+        @JavascriptInterface
+        public void pullmessage(String hostid,String guestid){
+            PullMessage pullMessage=new PullMessage(hostid,guestid);
+            Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
+                @Override
+                public void onPushSuccessfully(String data) {
+                    Log.d("POST",data);
+                    loginret=data;
+                    //TODO:添加查询成功后需要执行的的代码
+                    androidJSBridge("pullmessage_success");
+                }
+
+                @Override
+                public void onPushFailed(int code,String message) {
+                    //TODO：查询失败的代码
+                    Log.d("POST ERROR CODE", message+code);
+                    loginret=code+message;
+                    AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("获取消息失败")//标题
+                            .setMessage(loginret)//内容
+                            .setIcon(R.mipmap.ic_launcher)//图标
+                            .create();
+                    alertDialog1.show();
+                }
+            });
+            push.execute(pullMessage.toJson());
+        }
+
         @JavascriptInterface
         public String getLoginret(){
             return loginret;

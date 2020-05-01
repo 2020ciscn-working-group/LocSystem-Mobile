@@ -12,6 +12,7 @@ import java.util.List;
     private String        uid;
     private String        firend_uid;
     private List<Message> MessagehashList;
+    private String sm4key;
     public Friend(){}
     public Friend(String uid,String firend_uid){
         this.firend_uid=firend_uid;
@@ -41,13 +42,14 @@ import java.util.List;
         this.firend_uid = firend_uid;
     }
 
-    public Message getMessage(String hash){
-        for(Message message:MessagehashList){
-            if(message.getHash().equals(hash))
-                return message;
-        }
-        return null;
+    public String getSm4key() {
+        return sm4key;
     }
+
+    public void setSm4key(String sm4key) {
+        this.sm4key = sm4key;
+    }
+
     @Override
     public String toJson() {
         Gson gson=new Gson();

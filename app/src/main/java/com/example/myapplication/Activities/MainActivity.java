@@ -297,13 +297,20 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("POST",data);
                     loginret=data;
                     //TODO:添加登陆成功后需要执行的的代码
-                    String name="/Model/Crypto"+uid;
-                    File Model_Crypto_file=new File(MainActivity.path+name);
+                    String name_c="/Model/Crypto"+uid;
+                    String name_u="/Model/User"+uid;
+                    File Model_Crypto_file=new File(MainActivity.path+name_c);
+                    File Model_user_file=new File(MainActivity.path+name_u);
                     try {
                         FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
                         byte[] Model_Crypto_bytes=new byte[fileInputStream.available()];
                         fileInputStream.read(Model_Crypto_bytes);
                         mModel_crypto=(Model_Crypto) ByteUtils.byteArrayToObject(Model_Crypto_bytes);
+
+                        fileInputStream=new FileInputStream(Model_user_file);
+                        byte[] Model_User_bytes=new byte[fileInputStream.available()];
+                        fileInputStream.read(Model_User_bytes);
+                        mModel_user=(Model_User)ByteUtils.byteArrayToObject(Model_User_bytes);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -330,7 +337,10 @@ public class MainActivity extends AppCompatActivity {
             push.execute(login.toJson());
         }
         @JavascriptInterface
-        public void signup(final String uid, String uname, String passwd, String phnum){
+        public void signup(final String email, String uname, String passwd, String phnum){
+            Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+            byte[] src=(email+uname+passwd+phnum).getBytes();
+            String uid=gm_sm2_3.sm3(src,src.length,new byte[32]);
             final SignUp signUp=new SignUp(uid,uname,passwd,phnum);
             Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
                 @Override
@@ -338,7 +348,9 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("POST",data);
                     loginret=data;
                     //TODO:添加注册成功后需要执行的的代码
+                    Defin_crypto.changeInfo(email);
                     mModel_crypto=new Model_Crypto(MainActivity.this,signUp);
+                    mModel_user=new Model_User(MainActivity.this,signUp);
                     androidJSBridge("signup_success");
                 }
 
@@ -365,7 +377,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onPushSuccessfully(String data) {
                     Log.d("POST",data);
-                    loginret=data;
+                    Gson gson=new Gson();
+                    Message message=gson.fromJson(data,Message.class);
+                    for(Friend friend:mModel_user.getUser().getFriendUidList()){
+                        if(friend.getUid().equals(message.gethosi_id()))
+                            friend.getMessagehashList().add(message);
+                    }
                     //TODO:添加查询成功后需要执行的的代码
                     androidJSBridge("pullmessage_success");
                 }
@@ -400,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
         }
         @JavascriptInterface
         public String getFriend(String uid){
-            LinkedList<Friend> Friendlist=mModel_user.getFriends();
+            List<Friend> Friendlist=mModel_user.getUser().getFriendUidList();
             for(Friend ff:Friendlist){
                 if(ff.getUid().equals(uid))
                     return ff.toJson();
@@ -421,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public String getFriends(){
             StringBuffer friends= new StringBuffer("[");
-            LinkedList<Friend> Friendlist=mModel_user.getFriends();
+            List<Friend> Friendlist=mModel_user.getUser().getFriendUidList();
             for(Friend ff:Friendlist){
                 friends.append(ff.toJson()).append(",");
             }

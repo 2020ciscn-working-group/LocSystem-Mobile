@@ -8,34 +8,47 @@ import java.io.Serializable;
     作者：zyc14588
     github地址:https://github.com/zyc14588
 */public class Message extends InternetBase implements Serializable {
-    private String hash;
-    private String frienduid;
-    private String date;
+    private String hosi_id;
+    private String guest_id;
+    //private String date;
+    private int msg_type;
     private String message;
 
     public Message(){}
-    public Message(String hash,String frienduid,String date,String message){
-        this.date=date;
-        this.frienduid=frienduid;
-        this.hash=hash;
+    public Message(String hosi_id,String guest_id,
+                   //String date,
+                   String message,int msg_type){
+        //this.date=date;
+        this.guest_id=guest_id;
+        this.hosi_id=hosi_id;
         this.message=message;
-    }
-    public String getHash() {
-        return hash;
+        this.msg_type=msg_type;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
+    public int getmsg_type() {
+        return msg_type;
     }
 
-    public String getFrienduid() {
-        return frienduid;
+    public void setmsg_type(int msg_type) {
+        this.msg_type = msg_type;
     }
 
-    public void setFrienduid(String frienduid) {
-        this.frienduid = frienduid;
+    public String gethosi_id() {
+        return hosi_id;
     }
 
+    public void sethosi_id(String hosi_id) {
+        this.hosi_id = hosi_id;
+    }
+
+    public String getguest_id() {
+        return guest_id;
+    }
+
+    public void setguest_id(String guest_id) {
+        this.guest_id = guest_id;
+    }
+/*
     public String getDate() {
         return date;
     }
@@ -43,7 +56,7 @@ import java.io.Serializable;
     public void setDate(String date) {
         this.date = date;
     }
-
+*/
     public String getMessage() {
         return message;
     }

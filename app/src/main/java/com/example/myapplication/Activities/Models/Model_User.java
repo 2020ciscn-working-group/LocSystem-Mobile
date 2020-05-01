@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.se.omapi.Session;
 
 import com.example.myapplication.Activities.Models.Internet.Friend;
+import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Activities.Models.Internet.User;
 import com.example.myapplication.Dao.Internet.sql.MessageDataBase;
 import com.example.myapplication.Utils.Gm_sm2_3;
@@ -17,14 +18,14 @@ import java.util.LinkedList;
 */public class Model_User extends Model_Basic implements Serializable {
     private String             UUID=null;
     private User               mUser;
-    private LinkedList<Friend> mFriends;
     private MessageDataBase    mMessageDataBase;
     private Activity           mActivity;
     private Session mSession;
 
-    public Model_User(Activity activity){
+    public Model_User(Activity activity, SignUp signUp){
         mActivity=activity;
         mMessageDataBase=new MessageDataBase(mActivity);
+        Model_userInit(signUp);
     }
 
     @Override
@@ -58,14 +59,11 @@ import java.util.LinkedList;
         mUser = users;
     }
 
-    public LinkedList<Friend> getFriends() {
-        return mFriends;
-    }
-
-    public void setFriends(LinkedList<Friend> friends) {
-        mFriends = friends;
-    }
     public void addFriend(Friend friend){
-        if(!mFriends.contains(friend))mFriends.add(friend);
+        if(!mUser.getFriendUidList().contains(friend))mUser.getFriendUidList().add(friend);
+    }
+    private void Model_userInit(SignUp signUp){
+        UUID=signUp.getUid();
+        mUser=new User(signUp.getUid(),signUp.getUsername(),signUp.getPassword(),signUp.getPhoneNum());
     }
 }

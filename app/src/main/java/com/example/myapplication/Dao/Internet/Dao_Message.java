@@ -33,26 +33,28 @@ import java.util.NoSuchElementException;
     }
     public void InsertMessage(Message message){
         ContentValues values=new ContentValues();
-        values.put("hash", message.getHash());
-        values.put("frienduid",message.getFrienduid());
-        values.put("date",message.getDate());
+        values.put("host_id", message.gethosi_id());
+        values.put("guest_id",message.getguest_id());
+        values.put("msg_type",message.getmsg_type());
         values.put("message",message.getMessage());
         mDatabase.insert("Message",values);
     }
     public Message SelectMessage(String hash){
-        String frienduid;
-        String date;
+        String host_id;
+        String guest_id;
+        int type;
         String message;
         Cursor cursor=mDatabase.query("Message",new String[]{"hash"},"hash=?",new String[]{hash},null,null,null);
         boolean fist=cursor.moveToFirst();
         boolean isEmpty=cursor.getCount()==0;
         if(fist && !isEmpty){
-            frienduid=cursor.getString(cursor.getColumnIndex("frienduid"));
-            date=cursor.getString(cursor.getColumnIndex("date"));
+            host_id=cursor.getString(cursor.getColumnIndex("host_id"));
+            guest_id=cursor.getString(cursor.getColumnIndex("guest_id"));
+            type=cursor.getInt(cursor.getColumnIndex("msg_type"));
             message=cursor.getString(cursor.getColumnIndex("message"));
         }
         else throw new NoSuchElementException();
-        return new Message(hash,frienduid,date,message);
+        return new Message(host_id,guest_id,message,type);
     }
     public void DeleteMessage(String hash){
         mDatabase.delete("Message","hash=?",new String[]{hash});

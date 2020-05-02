@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @website http://www.bejson.com/java2pojo/
  */
 public class RemoteKey implements Serializable {
-
+    //远程用户的uuid
     private String uuid;
 
     //密钥公钥

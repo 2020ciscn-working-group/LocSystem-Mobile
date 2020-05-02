@@ -8,19 +8,19 @@ import java.io.Serializable;
     作者：zyc14588
     github地址:https://github.com/zyc14588
 */public class Message extends InternetBase implements Serializable {
-    private String hosi_id;
+    private String host_id;
     private String guest_id;
     //private String date;
     private int msg_type;
     private String message;
 
     public Message(){}
-    public Message(String hosi_id,String guest_id,
+    public Message(String host_id,String guest_id,
                    //String date,
                    String message,int msg_type){
         //this.date=date;
         this.guest_id=guest_id;
-        this.hosi_id=hosi_id;
+        this.host_id=host_id;
         this.message=message;
         this.msg_type=msg_type;
     }
@@ -33,12 +33,12 @@ import java.io.Serializable;
         this.msg_type = msg_type;
     }
 
-    public String gethosi_id() {
-        return hosi_id;
+    public String gethost_id() {
+        return host_id;
     }
 
-    public void sethosi_id(String hosi_id) {
-        this.hosi_id = hosi_id;
+    public void sethost_id(String host_id) {
+        this.host_id = host_id;
     }
 
     public String getguest_id() {

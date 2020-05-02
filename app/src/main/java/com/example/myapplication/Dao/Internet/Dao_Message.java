@@ -33,22 +33,20 @@ import java.util.NoSuchElementException;
     }
     public void InsertMessage(Message message){
         ContentValues values=new ContentValues();
-        values.put("host_id", message.gethosi_id());
+        values.put("host_id", message.gethost_id());
         values.put("guest_id",message.getguest_id());
         values.put("msg_type",message.getmsg_type());
         values.put("message",message.getMessage());
         mDatabase.insert("Message",values);
     }
-    public Message SelectMessage(String hash){
-        String host_id;
+    public Message SelectMessage(String host_id){
         String guest_id;
         int type;
         String message;
-        Cursor cursor=mDatabase.query("Message",new String[]{"hash"},"hash=?",new String[]{hash},null,null,null);
+        Cursor cursor=mDatabase.query("Message",new String[]{"host_id"},"host_id=?",new String[]{host_id},null,null,null);
         boolean fist=cursor.moveToFirst();
         boolean isEmpty=cursor.getCount()==0;
         if(fist && !isEmpty){
-            host_id=cursor.getString(cursor.getColumnIndex("host_id"));
             guest_id=cursor.getString(cursor.getColumnIndex("guest_id"));
             type=cursor.getInt(cursor.getColumnIndex("msg_type"));
             message=cursor.getString(cursor.getColumnIndex("message"));
@@ -56,7 +54,7 @@ import java.util.NoSuchElementException;
         else throw new NoSuchElementException();
         return new Message(host_id,guest_id,message,type);
     }
-    public void DeleteMessage(String hash){
-        mDatabase.delete("Message","hash=?",new String[]{hash});
+    public void DeleteMessage(String host_id){
+        mDatabase.delete("Message","host_id=?",new String[]{host_id});
     }
 }

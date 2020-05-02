@@ -3,6 +3,8 @@
  */
 package com.example.myapplication.DateStract;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 
 /**
@@ -46,5 +48,8 @@ public class Audit implements Serializable {//审计
     public long getsigndatalen() {
         return signdatalen;
     }
-
+    public String toJson(){
+        Gson gson=new Gson();
+        return gson.toJson(this,Audit.class);
+    }
 }

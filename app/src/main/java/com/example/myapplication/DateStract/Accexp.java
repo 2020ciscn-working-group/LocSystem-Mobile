@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class Accexp implements Serializable {//授权申请实例
 
     private Accreq accreq;//申请授权包
-    private byte[] PIK;//pik公钥
+    private byte[] RootKey;//RootKey公钥
     private byte[] signkey;//签名密钥
     private String info;//个人信息
     private String access;//授权范围
@@ -27,11 +27,11 @@ public class Accexp implements Serializable {//授权申请实例
         return accreq;
     }
 
-    public void setPIK(byte[] PIK) {
-        this.PIK = PIK;
+    public void setRootKey(byte[] RootKey) {
+        this.RootKey = RootKey;
     }
-    public byte[] getPIK() {
-        return PIK;
+    public byte[] getRootKey() {
+        return RootKey;
     }
 
     public void setSignkey(byte[] signkey) {

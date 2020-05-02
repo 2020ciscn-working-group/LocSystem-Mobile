@@ -14,6 +14,6 @@ package com.example.myapplication.Defin;
         info=newinfo;
     }
     public static final byte[] CApub={};
-
+    public static final int time_shot=1;
 
 }

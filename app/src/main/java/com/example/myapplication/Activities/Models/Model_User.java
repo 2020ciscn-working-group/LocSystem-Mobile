@@ -63,7 +63,9 @@ import java.util.LinkedList;
         if(!mUser.getFriendUidList().contains(friend))mUser.getFriendUidList().add(friend);
     }
     private void Model_userInit(SignUp signUp){
-        UUID=signUp.getUid();
+        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+        byte[] src=(signUp.getUid()+signUp.getUsername()+signUp.getPassword()+signUp.getPhoneNum()).getBytes();
+        UUID=gm_sm2_3.sm3(src,src.length,new byte[32]);
         mUser=new User(signUp.getUid(),signUp.getUsername(),signUp.getPassword(),signUp.getPhoneNum());
     }
 }

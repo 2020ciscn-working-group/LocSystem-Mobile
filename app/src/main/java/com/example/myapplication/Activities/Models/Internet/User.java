@@ -56,7 +56,7 @@ public class User extends InternetBase implements Serializable {
     }
     public Friend getFriend(String uid){
         for(Friend friend:friendList){
-            if(friend.getUid().equals(uid))
+            if(friend.getFirend_uid().equals(uid))
                 return friend;
         }
         return null;

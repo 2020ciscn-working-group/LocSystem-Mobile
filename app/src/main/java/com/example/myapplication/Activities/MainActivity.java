@@ -53,6 +53,7 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -103,6 +104,13 @@ public class MainActivity extends AppCompatActivity {
         };
         final Intent intent = new Intent(this,PullService.class);
         bindService(intent,mServiceConnection, Service.BIND_AUTO_CREATE);*/
+
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         webView=findViewById(R.id.webview);
         webView.setWebChromeClient(new WebChromeClient());
         WebSettings ws= webView.getSettings();
@@ -120,17 +128,13 @@ public class MainActivity extends AppCompatActivity {
         ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.setWebViewClient(new WebViewClient());
         //添加jsp的安卓接口内部类,VUE使用$APP符号即可调用给jsp的按安卓方法接口了
-        webView.addJavascriptInterface(new JavaScriptInterface(),"$App");
+        webView.addJavascriptInterface(new JavaScriptInterface(),"$APP");
         //dist文件夹
         //webView.loadUrl("file:////android_asset/dist/index.html");
         //vue调试的页面
         webView.loadUrl("http://10.0.2.2:8081");
-    }
+/*
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         Gm_sm2_3 gm=Gm_sm2_3.getInstance();
         byte []pub=new byte[64];
         byte []pri=new byte[32];
@@ -248,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+*/
     }
     @Override
     protected void onResume() {
@@ -258,13 +262,51 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        String name_c="/Model/Crypto/"+mModel_user.getUser().getUid();
+        String name_u="/Model/User/"+mModel_user.getUser().getUid();
+        File Model_Crypto_file=new File(MainActivity.path+name_c);
+        File Model_user_file=new File(MainActivity.path+name_u);
+        File cr_dir=Model_Crypto_file.getParentFile();
+        File us_dir=Model_user_file.getParentFile();
+        if(cr_dir!=null&&!cr_dir.exists())
+            cr_dir.mkdirs();
+        if(us_dir!=null&&!us_dir.exists())
+            us_dir.mkdirs();
+        if(!Model_Crypto_file.exists()){
+            try {
+                Model_Crypto_file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if(!Model_user_file.exists()){
+            try {
+                Model_user_file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        FileOutputStream fileOutputStream;
+        try{
+            fileOutputStream=new FileOutputStream(Model_Crypto_file);
+            fileOutputStream.write(ByteUtils.objectToByteArray(mModel_crypto));
+            fileOutputStream.flush();
+            fileOutputStream.close();
+            fileOutputStream=new FileOutputStream(Model_user_file);
+            fileOutputStream.write(ByteUtils.objectToByteArray(mModel_user));
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 //安卓调用vue的jsp函数用的方法
     private void androidJSBridge(String methodName) {
         String url = "javascript:window." + methodName + "()";
         switch(methodName){
-            case"back":{
+            case"back":
+            case"signin_success":
+            case"signup_success":{
                 webView.evaluateJavascript(url, new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
@@ -273,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
                 });
                 break;
             }
-
         }
     }
     //调用vue的返回
@@ -304,21 +345,23 @@ public class MainActivity extends AppCompatActivity {
                     String name_u="/Model/User/"+uid;
                     File Model_Crypto_file=new File(MainActivity.path+name_c);
                     File Model_user_file=new File(MainActivity.path+name_u);
-                    try {
-                        FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
-                        byte[] Model_Crypto_bytes=new byte[fileInputStream.available()];
-                        fileInputStream.read(Model_Crypto_bytes);
-                        mModel_crypto=(Model_Crypto) ByteUtils.byteArrayToObject(Model_Crypto_bytes);
+                    if(Model_Crypto_file.exists()&&Model_user_file.exists()){
+                        try {
+                            FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
+                            byte[] Model_Crypto_bytes=new byte[fileInputStream.available()];
+                            fileInputStream.read(Model_Crypto_bytes);
+                            mModel_crypto=(Model_Crypto) ByteUtils.byteArrayToObject(Model_Crypto_bytes);
 
-                        fileInputStream=new FileInputStream(Model_user_file);
-                        byte[] Model_User_bytes=new byte[fileInputStream.available()];
-                        fileInputStream.read(Model_User_bytes);
-                        mModel_user=(Model_User)ByteUtils.byteArrayToObject(Model_User_bytes);
-                        androidJSBridge("login_success");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                            fileInputStream=new FileInputStream(Model_user_file);
+                            byte[] Model_User_bytes=new byte[fileInputStream.available()];
+                            fileInputStream.read(Model_User_bytes);
+                            mModel_user=(Model_User)ByteUtils.byteArrayToObject(Model_User_bytes);
+                            androidJSBridge("login_success");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    androidJSBridge("login_success");
+                    androidJSBridge("signin_success");
                 }
 
                 @Override
@@ -343,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void signup(final String email, String uname, String passwd, String phnum){
             final SignUp signUp=new SignUp(email,uname,passwd,phnum);
-            Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
+            Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerSignin, new PushCallBackListener() {
                 @Override
                 public void onPushSuccessfully(String data) {
                     Log.d("POST",data);
@@ -425,97 +468,66 @@ public class MainActivity extends AppCompatActivity {
                         }
                         case Defin_internet.accreq:{
                             final Accreq accreq=gson.fromJson(message.getMessage(),Accreq.class);
-                            for(final Guest guest1:mModel_crypto.getOwner().getGuests()){
-                                if(guest1.getUuid().equals(friend.getGuestid())) {
-                                    for(RemoteKey remoteKey:guest1.getRemoteKey()){
-                                        if(remoteKey.getType()==Defin_crypto.SIGN)
-                                            if(mModel_crypto.AccereqVerify(accreq,remoteKey)) {
-                                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                                builder.setTitle("门禁授权申请");// 设置标题
-                                                // builder.setIcon(R.drawable.ic_launcher);//设置图标
-                                                builder.setMessage(friend.getFirend_uid()+"("+accreq.getInfo()+")"+"正在申请"+accreq.getAccsee()+"于北京时间"+accreq.getTime());// 为对话框设置内容
-                                                // 为对话框设置取消按钮
-                                                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface arg0, int arg1) {
-                                                        // TODO Auto-generated method stub
-                                                    }
-                                                });
-                                                // 为对话框设置确定按钮
-                                                final Friend finalFriend = friend;
-                                                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface arg0, int arg1) {
-                                                        // TODO Auto-generated method stub
-                                                       Accexp accexp=new Accexp();
-                                                       accexp.setAccreq(accreq);
-                                                       Calendar calendar= Calendar.getInstance();
-                                                       calendar.add(Calendar.MONTH,1);
-                                                       SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
-                                                       accexp.setAccendtime(dateFormat.format(calendar.getTime()));
-                                                       calendar.add(Calendar.DATE,Defin_crypto.time_shot);
-                                                       accexp.setAccendtime(dateFormat.format(calendar.getTime()));
-                                                       accexp.setInfo(mModel_crypto.getOwner().getInfo());
-                                                       accexp.setAccess(accreq.getAccsee());
-                                                       byte[] sign=null;
-                                                       for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
-                                                           if(localKey.getType()==Defin_crypto.ROOT)
-                                                                accexp.setRootKey(localKey.getPubkey());
-                                                       }
-                                                       for(LocalKey localkey2:mModel_crypto.getOwner().getLocalkey()){
-                                                            if(localkey2.getType()==Defin_crypto.SIGN){
-                                                                accexp.setRootKey(localkey2.getPubkey());
-                                                                sign=localkey2.getPrikey();
-                                                            }
-                                                       }
-                                                       Tocken tocken=new Tocken();
-                                                       tocken.setAccexp(accexp);
-                                                       Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
-                                                       byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
-                                                       tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
-                                                       byte[]signd=new byte[32];
-                                                       if(sign==null)throw new NoSuchElementException();
-                                                       gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
-                                                       tocken.setSigndata(signd);
-                                                       tocken.setSingdatalen(64);
-                                                       //TODO:添加发送令牌的代码
-                                                        SendMessage sendMessage=new SendMessage();
-                                                        sendMessage.setGuest_id( finalFriend.getFirend_uid());
-                                                        sendMessage.setHost_id(mModel_user.getUUID());
-                                                        sendMessage.setMessage(gson.toJson(tocken,Tocken.class));
-                                                        sendMessage.setMsg_type(Defin_internet.tocken);
-                                                        Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerSend, new PushCallBackListener() {
-                                                            @Override
-                                                            public void onPushSuccessfully(String data) {
-
-                                                            }
-
-                                                            @Override
-                                                            public void onPushFailed(int code, String message) {
-                                                                //TODO：查询失败的代码
-                                                                Log.d("POST ERROR CODE", message+code);
-                                                                loginret=code+message;
-                                                                AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
-                                                                        .setTitle("获取消息失败")//标题
-                                                                        .setMessage(loginret)//内容
-                                                                        .setIcon(R.mipmap.ic_launcher)//图标
-                                                                        .create();
-                                                                alertDialog1.show();
-                                                            }
-                                                        });
-                                                        push1.execute(sendMessage.toJson());
-                                                       Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
-                                                        try {
-                                                            dao_tocken.InsertTocken(tocken);
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                });
-                                                builder.create().show();// 使用show()方法显示对话框
-                                            }
+                            if(mModel_crypto.AccreqVerfi(accreq,friend)) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setTitle("门禁授权申请");// 设置标题
+                                // builder.setIcon(R.drawable.ic_launcher);//设置图标
+                                builder.setMessage(friend.getFirend_uid()+"("+accreq.getInfo()+")"+"正在申请"+accreq.getAccsee()+"于北京时间"+accreq.getTime());// 为对话框设置内容
+                                // 为对话框设置取消按钮
+                                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface arg0, int arg1) {
+                                        // TODO Auto-generated method stub
                                     }
-                                }
+                                });
+                                // 为对话框设置确定按钮
+                                final Friend finalFriend = friend;
+                                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface arg0, int arg1) {
+                                        // TODO Auto-generated method stub
+                                        Accexp accexp=new Accexp();
+                                        accexp.setAccreq(accreq);
+                                        Calendar calendar= Calendar.getInstance();
+                                        calendar.add(Calendar.MONTH,1);
+                                        SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
+                                        accexp.setAccendtime(dateFormat.format(calendar.getTime()));
+                                        calendar.add(Calendar.DATE,Defin_crypto.time_shot);
+                                        accexp.setAccendtime(dateFormat.format(calendar.getTime()));
+                                        accexp.setInfo(mModel_crypto.getOwner().getInfo());
+                                        accexp.setAccess(accreq.getAccsee());
+                                        byte[] sign=null;
+                                        for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                            if(localKey.getType()==Defin_crypto.ROOT)
+                                                accexp.setRootKey(localKey.getPubkey());
+                                        }
+                                        for(LocalKey localkey2:mModel_crypto.getOwner().getLocalkey()){
+                                            if(localkey2.getType()==Defin_crypto.SIGN){
+                                                accexp.setRootKey(localkey2.getPubkey());
+                                                sign=localkey2.getPrikey();
+                                            }
+                                        }
+                                        Tocken tocken=new Tocken();
+                                        tocken.setAccexp(accexp);
+                                        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+                                        byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
+                                        tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
+                                        byte[]signd=new byte[32];
+                                        if(sign==null)throw new NoSuchElementException();
+                                        gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
+                                        tocken.setSigndata(signd);
+                                        tocken.setSingdatalen(64);
+                                        //TODO:添加发送令牌的代码
+                                        mModel_user.sendMessage(gson.toJson(tocken,Tocken.class),Defin_internet.tocken,finalFriend.getFirend_uid());
+                                        Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+                                        try {
+                                            dao_tocken.InsertTocken(tocken);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                                builder.create().show();// 使用show()方法显示对话框
                             }
                             break;
                         }

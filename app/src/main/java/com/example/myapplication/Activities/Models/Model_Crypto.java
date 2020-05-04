@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.graphics.Paint;
 import android.hardware.usb.UsbDevice;
 
+import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Dao.Secret.Sql.AppSql;
+import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
@@ -26,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -158,7 +161,7 @@ import java.util.List;
         for(LocalKey localKey1:mOwner.getLocalkey())
             if(localKey1.getType()==Defin_crypto.ROOT)
                 expri=localKey1.getPrikey();
-            byte[]signdata=new byte[32];
+            byte[]signdata=new byte[64];
             gm_sm2_3.GM_SM2Sign(signdata,src,src.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,expri);
             localKey.setSigndata(signdata);
             byte[]src_cert=new byte[src.length+signdata.length];
@@ -168,7 +171,7 @@ import java.util.List;
                 else
                     src_cert[i]=signdata[i-src.length];
             }
-            byte[] certdata=new byte[32];
+            byte[] certdata=new byte[64];
             gm_sm2_3.GM_SM2Sign(certdata,src_cert,src_cert.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,pri);
             localKey.setCertdata(certdata);
             return localKey;
@@ -231,15 +234,61 @@ import java.util.List;
         Thread thread=new Thread(runnable);
         thread.start();
     }
-    public boolean AccereqVerify(Accreq accreq,RemoteKey remoteKey){
-
-        return false;
+    private void rootkeytest(){
+        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+        byte[]pub=new byte[64];
+        byte[]pri=new byte[32];
+        gm_sm2_3.GM_GenSM2keypair(pub,pri);
+        LocalKey localKey=new LocalKey();
+        localKey.setPrikey(pri);
+        localKey.setPubkey(pub);
+        localKey.setType(Defin_crypto.ROOT);
+        localKey.setInfo(Defin_crypto.info);
+        byte[]signdata=new byte[64];
+        byte[]src_info=(localKey.getInfo()+localKey.getType()).getBytes();
+        byte[]src=new byte[localKey.getPubkey().length+src_info.length];
+        for(int i=0;i<pub.length+src_info.length;i++){
+            if(i<pub.length)
+                src[i]=pub[i];
+            else src[i]=src_info[i-pub.length];
+        }
+        gm_sm2_3.GM_SM2Sign(signdata,src,src.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,pri);
+        localKey.setSigndata(signdata);
+        byte[]src_cert=new byte[src.length+signdata.length];
+        for(int i=0;i<src_cert.length;i++){
+            if(i<src.length)
+                src_cert[i]=src[i];
+            else
+                src_cert[i]=signdata[i-src.length];
+        }
+        byte[] certdata=new byte[64];
+        gm_sm2_3.GM_SM2Sign(certdata,src_cert,src_cert.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,pri);
+        localKey.setCertdata(certdata);
+        mOwner.addLocalKey(localKey);
     }
     private void OwnerInit(@NotNull SignUp signUp){
-        mOwner.setUuid(signUp.getSM3str());
-        RootKeyGen();
+        mOwner.setUuid(signUp.getUid());
+        //RootKeyGen();
+        rootkeytest();
         mOwner.addLocalKey(LocalKeyGen(Defin_crypto.SIGN));
         mOwner.addLocalKey(LocalKeyGen(Defin_crypto.BIND));
+    }
+
+    public boolean AccreqVerfi(Accreq accreq, Friend friend){
+        for(Guest guest:mGuests){
+            if(guest.getUuid().equals(friend.getGuestid())) {
+                for(RemoteKey remoteKey:guest.getRemoteKey()){
+                    if(remoteKey.getType()==Defin_crypto.SIGN){
+                        byte[] src=(accreq.getInfo()+accreq.getTime()+accreq.getAccsee()+accreq.getAccsee()).getBytes();
+                        byte[]pub=remoteKey.getPubkey();
+                        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+                        int ret=gm_sm2_3.GM_SM2VerifySig(accreq.getsigndata(),src,src.length,guest.getUuid().toCharArray(),guest.getUuid().toCharArray().length,pub);
+                        return ret==0;
+                    }
+                }
+            }
+        }
+        return false;
     }
     @Override
     public byte[] getSM3() {

@@ -7,6 +7,8 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -15,11 +17,14 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.myapplication.Activities.Models.Internet.Friend;
+import com.example.myapplication.Activities.Models.Internet.FriendQuery;
 import com.example.myapplication.Activities.Models.Internet.Login;
 import com.example.myapplication.Activities.Models.Internet.Message;
+import com.example.myapplication.Activities.Models.Internet.NewFriend;
 import com.example.myapplication.Activities.Models.Internet.PullMessage;
 import com.example.myapplication.Activities.Models.Internet.SendMessage;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
+import com.example.myapplication.Activities.Models.Internet.Sm4ex;
 import com.example.myapplication.Activities.Models.Internet.User;
 import com.example.myapplication.Activities.Models.Model_Crypto;
 import com.example.myapplication.Activities.Models.Model_User;
@@ -35,6 +40,7 @@ import com.example.myapplication.DateStract.Audit;
 import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.DateStract.Hub;
+import com.example.myapplication.DateStract.Loc;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.RemoteKey;
 import com.example.myapplication.DateStract.Tocken;
@@ -86,6 +92,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
+        //无title
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //全屏
+        getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN , WindowManager.LayoutParams. FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
         path=MainActivity.this.getFilesDir().toString();
         // Example of a call to a native method
@@ -356,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
                             byte[] Model_User_bytes=new byte[fileInputStream.available()];
                             fileInputStream.read(Model_User_bytes);
                             mModel_user=(Model_User)ByteUtils.byteArrayToObject(Model_User_bytes);
-                            androidJSBridge("login_success");
+                            androidJSBridge("signin_success");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -371,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
                     loginret=code+message;
                     AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
                             .setTitle("登陆失败")//标题
-                            .setMessage(loginret)//内容
+                            .setMessage("状态码:"+message+"push代码："+code)//内容
                             .setIcon(R.mipmap.ic_launcher)//图标
                             .create();
                     alertDialog1.show();
@@ -384,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
             push.execute(login.toJson());
         }
         @JavascriptInterface
-        public void signup(final String email, String uname, String passwd, String phnum){
+        public void signup(final String email, String uname, String passwd, final String phnum){
             final SignUp signUp=new SignUp(email,uname,passwd,phnum);
             Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerSignin, new PushCallBackListener() {
                 @Override
@@ -392,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("POST",data);
                     loginret=data;
                     //TODO:添加注册成功后需要执行的的代码
-                    Defin_crypto.changeInfo(email);
+                    Defin_crypto.changeInfo(phnum);
                     mModel_crypto=new Model_Crypto(MainActivity.this,signUp);
                     mModel_user=new Model_User(MainActivity.this,signUp);
                     androidJSBridge("signup_success");
@@ -415,9 +427,9 @@ public class MainActivity extends AppCompatActivity {
             push.execute(signUp.toJson());
         }
         @JavascriptInterface
-        public void pullmessage(String hostid,String guestid){
+        public void pullmessage(String hostid, final String guestid){
             PullMessage pullMessage=new PullMessage(hostid,guestid);
-            Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
+            Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerGetMsg, new PushCallBackListener() {
                 @Override
                 public void onPushSuccessfully(String data) {
                     Log.d("POST",data);
@@ -440,9 +452,32 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                         case Defin_internet.nego_req:{
+                            byte[] pri=null;
+                            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                if(localKey.getType()==Defin_crypto.BIND)
+                                    pri=localKey.getPrikey();
+                            }
+                            Sm4ex sm4ex=gson.fromJson(Util.sm2dec(message.getMessage(),pri),Sm4ex.class);
+                            friend.setSm4key(sm4ex.getSm4k());
+                            friend.setSm4iv(sm4ex.getSm4iv());
+                            message.setmsg_type(Defin_internet.nego_apl);
+                            byte[]pub=null;
+                            for(RemoteKey remoteKey:mModel_crypto.getGuest(friend.getGuestid()).getRemoteKey())
+                                if(remoteKey.getType()==Defin_crypto.BIND)
+                                    pub=remoteKey.getPubkey();
+                            message.setMessage(Util.sm2inc(Util.sm2dec(message.getMessage(),pri),pub));
+                            sendMessage(message.toJson(),Defin_internet.nego_apl,friend.getFirend_uid());
                             break;
                         }
                         case Defin_internet.nego_apl:{
+                            byte[] pri=null;
+                            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                if(localKey.getType()==Defin_crypto.BIND)
+                                    pri=localKey.getPrikey();
+                            }
+                            Sm4ex sm4ex=gson.fromJson(Util.sm2dec(message.getMessage(),pri),Sm4ex.class);
+                            friend.setSm4key(sm4ex.getSm4k());
+                            friend.setSm4iv(sm4ex.getSm4iv());
                             break;
                         }
                         case Defin_internet.remotekey:{
@@ -490,10 +525,9 @@ public class MainActivity extends AppCompatActivity {
                                         accexp.setAccreq(accreq);
                                         Calendar calendar= Calendar.getInstance();
                                         calendar.add(Calendar.MONTH,1);
-                                        SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
-                                        accexp.setAccendtime(dateFormat.format(calendar.getTime()));
+                                        accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
                                         calendar.add(Calendar.DATE,Defin_crypto.time_shot);
-                                        accexp.setAccendtime(dateFormat.format(calendar.getTime()));
+                                        accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
                                         accexp.setInfo(mModel_crypto.getOwner().getInfo());
                                         accexp.setAccess(accreq.getAccsee());
                                         byte[] sign=null;
@@ -518,7 +552,9 @@ public class MainActivity extends AppCompatActivity {
                                         tocken.setSigndata(signd);
                                         tocken.setSingdatalen(64);
                                         //TODO:添加发送令牌的代码
-                                        mModel_user.sendMessage(gson.toJson(tocken,Tocken.class),Defin_internet.tocken,finalFriend.getFirend_uid());
+                                        String json=gson.toJson(tocken,Tocken.class);
+                                        byte[] enc=Util.sm4inc(json.getBytes(),finalFriend.getSm4key(),finalFriend.getSm4iv());
+                                        sendMessage(Util.byteToHex(enc),Defin_internet.tocken,finalFriend.getFirend_uid());
                                         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
                                         try {
                                             dao_tocken.InsertTocken(tocken);
@@ -550,6 +586,74 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             push.execute(pullMessage.toJson());
+        }
+        @JavascriptInterface
+        public void addFriend(final String friuenduid){
+            NewFriend newFriend=new NewFriend(mModel_user.getUUID(),friuenduid);
+            final Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerFindFriend, new PushCallBackListener() {
+                @Override
+                public void onPushSuccessfully(String data) {
+                    Log.d("POST",data);
+                    loginret=data;
+                    //TODO:添加注册成功后需要执行的的代码
+                    Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerQueryFriend, new PushCallBackListener() {
+                        @Override
+                        public void onPushSuccessfully(String data) {
+                            Gson gson=new Gson();
+                            FriendQuery friendQuery=gson.fromJson(data,FriendQuery.class);
+                            Friend friend=new Friend(friendQuery.getFriend_uid(),friendQuery.getPhoneNum(),friendQuery.getUsername());
+                            mModel_user.getUser().addFriend(friend);
+                            androidJSBridge("addFriend_success");
+                        }
+
+                        @Override
+                        public void onPushFailed(int code, String message) {
+
+                        }
+                    });
+                    push1.execute("{\"friend_uid\":\""+friuenduid+"\"}");
+                }
+
+                @Override
+                public void onPushFailed(int code,String message) {
+                    Log.d("POST ERROR CODE", message+code);
+                    loginret=code+message;
+                    AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("添加好友失败")//标题
+                            .setMessage(loginret)//内容
+                            .setIcon(R.mipmap.ic_launcher)//图标
+                            .create();
+                    alertDialog1.show();
+                }
+            });
+            push.execute(newFriend.toJson());
+        }
+        @JavascriptInterface
+        public void sendMessage(String mess,int type,String frienduid){
+            SendMessage sendMessage=new SendMessage();
+            sendMessage.setGuest_id(frienduid);
+            sendMessage.setHost_id(mModel_user.getUUID());
+            sendMessage.setMessage(mess);
+            sendMessage.setMsg_type(type);
+            Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerSend, new PushCallBackListener() {
+                @Override
+                public void onPushSuccessfully(String data) {
+                    Log.d("sendmessage:",data);
+                }
+
+                @Override
+                public void onPushFailed(int code, String message) {
+                    //TODO：查询失败的代码
+                    Log.d("POST ERROR CODE", message+code);
+                    AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("获取消息失败")//标题
+                            .setMessage(message+code)//内容
+                            .setIcon(R.mipmap.ic_launcher)//图标
+                            .create();
+                    alertDialog1.show();
+                }
+            });
+            push1.execute(sendMessage.toJson());
         }
         @JavascriptInterface
         public void finish() {

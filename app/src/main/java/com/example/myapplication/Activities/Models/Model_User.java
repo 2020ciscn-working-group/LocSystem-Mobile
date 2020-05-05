@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.myapplication.Activities.MainActivity;
 import com.example.myapplication.Activities.Models.Internet.Friend;
+import com.example.myapplication.Activities.Models.Internet.Message;
 import com.example.myapplication.Activities.Models.Internet.SendMessage;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Activities.Models.Internet.User;
@@ -71,31 +72,35 @@ import java.util.LinkedList;
     public void addFriend(Friend friend){
         if(!mUser.getFriendUidList().contains(friend))mUser.getFriendUidList().add(friend);
     }
-    public void sendMessage(String mess,int type,String frienduid){
-        SendMessage sendMessage=new SendMessage();
-        sendMessage.setGuest_id(frienduid);
-        sendMessage.setHost_id(mUser.getUid());
-        sendMessage.setMessage(mess);
-        sendMessage.setMsg_type(type);
-        Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerSend, new PushCallBackListener() {
+
+    public void sendMessage( String friuenduid,String mes,int type){
+        Message message=new Message();
+        message.setguest_id(friuenduid);
+        message.sethost_id(UUID);
+        message.setMessage(mes);
+        message.setmsg_type(type);
+        Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerSend, new PushCallBackListener() {
             @Override
             public void onPushSuccessfully(String data) {
-                Log.d("sendmessage:",data);
+                Log.d("POST",data);
+                //TODO:添加注册成功后需要执行的的代码
             }
 
             @Override
-            public void onPushFailed(int code, String message) {
-                //TODO：查询失败的代码
+            public void onPushFailed(int code,String message) {
+                //TODO：注册失败的代码
                 Log.d("POST ERROR CODE", message+code);
+                String loginret=code+message;
                 AlertDialog alertDialog1 = new AlertDialog.Builder(mActivity)
-                        .setTitle("获取消息失败")//标题
-                        .setMessage(message+code)//内容
+                        .setTitle("消息发送失败")//标题
+                        .setMessage(loginret)//内容
                         .setIcon(R.mipmap.ic_launcher)//图标
                         .create();
                 alertDialog1.show();
             }
         });
-        push1.execute(sendMessage.toJson());
+        push.execute(message.toJson());
+
     }
     private void Model_userInit(SignUp signUp){
         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();

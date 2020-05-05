@@ -12,6 +12,7 @@ package com.example.myapplication.Defin;
     public static final String AppServerFindFriend="/findfriend";
     public static final String AppServerSend ="/send";
     public static final String AppServerGetMsg ="/getMsg";
+    public static final String AppServerQueryFriend="/queryFriend";
     public static final int    str            =100;
     public static final int    friendreq=101;
     public static final int    tocken       =200;

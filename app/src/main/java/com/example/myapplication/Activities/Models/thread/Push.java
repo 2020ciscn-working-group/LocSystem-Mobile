@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 */public class Push extends AsyncTask <String, Void, String>{
     private String       url;
     private PushCallBackListener mPushCallBackListener;
-    private boolean success;
+    private boolean success=false;
     private int code;
     private String msg=null;
 
@@ -51,11 +51,8 @@ import java.nio.charset.StandardCharsets;
             outputStream.flush();
             outputStream.close();
             code=conn.getResponseCode();
-            if ( code!= 200) {
-                success=false;
-                msg=conn.getResponseMessage();
-                Log.d("loninerr",msg+code);
-            }else{
+            Log.d("push log:",String.valueOf(code));
+            if ( code== 200) {
                 // 获取响应的输入流对象
                 InputStream is = conn.getInputStream();
                 // 创建字节输出流对象
@@ -74,7 +71,12 @@ import java.nio.charset.StandardCharsets;
                 message.close();
                 // 返回字符串
                 msg = new String(message.toByteArray());
-                success=true;
+                if(msg.equals("200"))
+                    success=true;
+            }else{
+                success=false;
+                msg=conn.getResponseMessage();
+                Log.d("pusherr",msg+code);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -84,8 +86,13 @@ import java.nio.charset.StandardCharsets;
 
     //ui
     protected void onPostExecute(String json){
-        if(success)
-            mPushCallBackListener.onPushSuccessfully(json);
+        if(success) {
+            try {
+                mPushCallBackListener.onPushSuccessfully(json);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         else
             mPushCallBackListener.onPushFailed(code,json);
     }

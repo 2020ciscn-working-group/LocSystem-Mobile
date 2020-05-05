@@ -18,6 +18,7 @@ public class Accreq implements Serializable {
     private String info;//个人信息
     private String hubuuid;
     private long infolen;//个人信息长度
+    private byte[]pub;
     private byte[] signdata;//签名数据
     private long signdatalen;//签名数据长度
 
@@ -27,6 +28,14 @@ public class Accreq implements Serializable {
 
     public void setHubuuid(String hubuuid) {
         this.hubuuid = hubuuid;
+    }
+
+    public byte[] getPub() {
+        return pub;
+    }
+
+    public void setPub(byte[] pub) {
+        this.pub = pub;
     }
 
     public void setAccsee(String accsee) {

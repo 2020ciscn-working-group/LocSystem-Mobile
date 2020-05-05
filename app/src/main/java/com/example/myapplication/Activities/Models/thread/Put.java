@@ -85,8 +85,13 @@ import java.nio.charset.StandardCharsets;
     }
     //ui
     protected void onPostExecute(String json){
-        if(success)
-            mPushCallBackListener.onPushSuccessfully(json);
+        if(success) {
+            try {
+                mPushCallBackListener.onPushSuccessfully(json);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         else
             mPushCallBackListener.onPushFailed(code,json);
     }

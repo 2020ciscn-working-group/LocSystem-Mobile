@@ -3,6 +3,7 @@ package com.example.myapplication.Activities.Models;
 import android.app.Activity;
 import android.graphics.Paint;
 import android.hardware.usb.UsbDevice;
+import android.util.Log;
 
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
@@ -20,6 +21,8 @@ import com.example.myapplication.DateStract.RootReq;
 import com.example.myapplication.Defin.Defin_crypto;
 import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.UsbHelper;
+import com.example.myapplication.Utils.Util;
+import com.example.myapplication.Utils.utils.sm4.SM4Utils;
 import com.example.myapplication.errs.NoSuchGuestException;
 import com.example.myapplication.errs.NoSuchKeyException;
 import com.google.gson.Gson;
@@ -28,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,12 +42,11 @@ import java.util.List;
     github地址:https://github.com/zyc14588
 */public class Model_Crypto extends Model_Basic implements Serializable {
     private       Owner             mOwner;
-    private       LinkedList<Guest> mGuests;
     private       AppSql            mAppSql;
     private       UsbHelper         mUsbHelper;
+
     public Model_Crypto(Activity activity,SignUp signUp)  {
         mOwner=new Owner();
-        mGuests= new LinkedList<>();
         mAppSql=new AppSql(activity);
         mUsbHelper=new UsbHelper(activity);
         OwnerInit(signUp);
@@ -70,11 +73,14 @@ import java.util.List;
         return mOwner;
     }
 
-    public void addGuset(Guest guest){
-        mGuests.add(guest);
-    }
     public void addLocalKey(LocalKey localKey){
         mOwner.addLocalKey(localKey);
+    }
+    public Guest getGuest(String guestuid){
+        for(Guest guest:mOwner.getGuests())
+            if(guest.getUuid().equals(guestuid))
+                return guest;
+            return null;
     }
     public boolean VerifyRemoteKey(@NotNull RemoteKey remoteKey, @NotNull Cert cert) {
         if(remoteKey.getUuid().equals(cert.getuuid()))
@@ -82,7 +88,7 @@ import java.util.List;
                 if(remoteKey.getInfo().equals(cert.getInfo()))
                     if(remoteKey.getType()==cert.getType()){
                         Guest guest=null;
-                        for(Guest guest1:mGuests){
+                        for(Guest guest1:mOwner.getGuests()){
                             if(guest1.getUuid().equals(cert.getuuid()))
                                 guest=guest1;
                             else
@@ -136,7 +142,7 @@ import java.util.List;
         return false;
     }
     @Nullable
-    public LocalKey LocalKeyGen(int type){
+    private LocalKey LocalKeyGen(int type){
         if(type==Defin_crypto.ROOT)
             return null;
         LocalKey localKey=null;
@@ -275,11 +281,11 @@ import java.util.List;
     }
 
     public boolean AccreqVerfi(Accreq accreq, Friend friend){
-        for(Guest guest:mGuests){
+        for(Guest guest:mOwner.getGuests()){
             if(guest.getUuid().equals(friend.getGuestid())) {
                 for(RemoteKey remoteKey:guest.getRemoteKey()){
                     if(remoteKey.getType()==Defin_crypto.SIGN){
-                        byte[] src=(accreq.getInfo()+accreq.getTime()+accreq.getAccsee()+accreq.getAccsee()).getBytes();
+                        byte[] src=(accreq.getInfo()+accreq.getTime()+accreq.getAccsee()+accreq.getAccsee()+ Arrays.toString(accreq.getPub())).getBytes();
                         byte[]pub=remoteKey.getPubkey();
                         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
                         int ret=gm_sm2_3.GM_SM2VerifySig(accreq.getsigndata(),src,src.length,guest.getUuid().toCharArray(),guest.getUuid().toCharArray().length,pub);
@@ -290,6 +296,16 @@ import java.util.List;
         }
         return false;
     }
+    public RemoteKey GenRemoteKey(@NotNull LocalKey localKey){
+        RemoteKey remoteKey=new RemoteKey();
+        remoteKey.setType(localKey.getType());
+        remoteKey.setInfo(localKey.getInfo());
+        remoteKey.setPubkey(localKey.getPubkey());
+        remoteKey.setUuid(mOwner.getUuid());
+        return remoteKey;
+    }
+
+
     @Override
     public byte[] getSM3() {
         return new byte[0];

@@ -20,17 +20,12 @@ public class Owner implements Serializable {
     private LinkedList<LocalKey> Localkey;
     private LinkedList<Hub>      Hub;
     private LinkedList<Guest>    Guests;
-    private LinkedList<Tocken>   Tockens;
     private LinkedList<Audit>    Audits;
     private RemoteKey PIK;
     private Cert PIK_cert;
 
     public List<Guest> getGuests() {
         return Guests;
-    }
-
-    public List<Tocken> getTockens() {
-        return Tockens;
     }
 
     public List<Audit> getAudits() {
@@ -77,7 +72,6 @@ public class Owner implements Serializable {
         Localkey=new LinkedList<>();
         Hub=new LinkedList<>();
         Guests=new LinkedList<>();
-        Tockens=new LinkedList<>();
         Audits=new LinkedList<>();
     }
     public void addGuest(Guest guest){
@@ -85,9 +79,6 @@ public class Owner implements Serializable {
     }
     public void addHub(Hub hub){
         Hub.add(hub);
-    }
-    public void addTocken(Tocken tocken){
-        Tockens.add(tocken);
     }
     public void addLocalKey(LocalKey localKey){
         Localkey.add(localKey);

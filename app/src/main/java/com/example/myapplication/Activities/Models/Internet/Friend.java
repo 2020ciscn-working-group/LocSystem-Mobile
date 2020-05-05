@@ -12,12 +12,23 @@ import java.util.List;
     private String        Guestid;
     private String        firend_uid;
     private String username;
+    private String phnum;
     private List<Message> MessagehashList;
     private String sm4key;
+    private String sm4iv;
     public Friend(){}
-    public Friend(String uid,String firend_uid){
+    public Friend(String firend_uid,String phnum,String uname){
         this.firend_uid=firend_uid;
-        Guestid=uid;
+        this.phnum=phnum;
+        username=uname;
+    }
+
+    public String getPhnum() {
+        return phnum;
+    }
+
+    public void setPhnum(String phnum) {
+        this.phnum = phnum;
     }
 
     public List<Message> getMessagehashList() {
@@ -57,6 +68,14 @@ import java.util.List;
 
     public void setSm4key(String sm4key) {
         this.sm4key = sm4key;
+    }
+
+    public String getSm4iv() {
+        return sm4iv;
+    }
+
+    public void setSm4iv(String sm4iv) {
+        this.sm4iv = sm4iv;
     }
 
     @Override

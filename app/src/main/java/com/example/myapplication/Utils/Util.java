@@ -6,6 +6,7 @@ import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.DateStract.Loc;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.Defin.Defin_crypto;
+import com.example.myapplication.Utils.utils.sm4.SM4Utils;
 import com.example.myapplication.owner_date;
 
 import java.io.File;
@@ -1355,5 +1356,38 @@ public class Util {
         gm.GM_SM2Sign( bind_sign_cert,buf_bind_cert,buf_bind_cert.length,id.toCharArray(),id.toCharArray().length,pik_pri);
         bind.setCertdata(sign_sign_cert);
     }
-
+    public static byte[] sm4inc(byte[] src,String sm4k,String sm4iv){
+        SM4Utils sm4=new SM4Utils();
+        sm4.iv = sm4iv;
+        sm4.secretKey=sm4k;
+        sm4.hexString=true;
+        return sm4.encryptData_CBC(src);
+    }
+    public static byte[] sm4dec(byte[] src,String sm4k,String sm4iv){
+        SM4Utils sm4=new SM4Utils();
+        sm4.iv = sm4iv;
+        sm4.secretKey=sm4k;
+        sm4.hexString=true;
+        return sm4.decryptData_CBC(src);
+    }
+    public static String sm2inc(String src_str,byte[] pub){
+        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+        byte[] src= src_str.getBytes();
+        int len=gm_sm2_3.GetEncLen(src,src.length,pub);
+        byte[]src_inc=new byte[len];
+        int ret= gm_sm2_3.GM_SM2Encrypt(src_inc,len,src,src.length,pub);
+        if(ret==0)
+            Log.d("encrpty","success");
+        return Util.byteToHex(src_inc);
+    }
+    public static String sm2dec(String src_str,byte[] pri){
+        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+        byte[] src=Util.hexStringToBytes(src_str);
+        int len=gm_sm2_3.GetDecLen(src,src.length,pri);
+        byte[]src_dec=new byte[len];
+        int ret= gm_sm2_3.GM_SM2Decrypt(src_dec,len,src,src.length,pri);
+        if(ret==0)
+            Log.d("decrpty","success");
+        return new String(src_dec);
+    }
 }

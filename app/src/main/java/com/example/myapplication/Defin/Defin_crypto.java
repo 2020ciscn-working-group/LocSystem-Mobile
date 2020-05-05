@@ -15,5 +15,6 @@ package com.example.myapplication.Defin;
     }
     public static final byte[] CApub={};
     public static final int time_shot=1;
+    public static final String iv="31313131313131313131313131313131";
 
 }

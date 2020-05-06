@@ -5,10 +5,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.Serializable;
+
 /*
  *作者：zyc14588
  *github地址：https://github.com/zyc14588
- */public class DatabaseHelper extends SQLiteOpenHelper {
+ */public class DatabaseHelper extends SQLiteOpenHelper implements Serializable {
      private static final String DB_NAME="LocSystem.db";
      public static int version=1;
 

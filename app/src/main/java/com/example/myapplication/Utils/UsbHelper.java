@@ -11,6 +11,7 @@ import android.hardware.usb.UsbManager;
 import android.hardware.usb.UsbRequest;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import java.util.List;
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class UsbHelper {
+*/public class UsbHelper implements Serializable {
     private UsbManager   usbManager;
     private UsbDevice    usbDevice;
     private UsbInterface mUsbInterface;

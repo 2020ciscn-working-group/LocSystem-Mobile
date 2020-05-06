@@ -3,6 +3,8 @@
  */
 package com.example.myapplication.DateStract;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 
 /**
@@ -50,5 +52,9 @@ public class RemoteKey implements Serializable {
     }
     public String getInfo() {
         return info;
+    }
+    public String toJson(){
+        Gson gson=new Gson();
+        return gson.toJson(this,RemoteKey.class);
     }
 }

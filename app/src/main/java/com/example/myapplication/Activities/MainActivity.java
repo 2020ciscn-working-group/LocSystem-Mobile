@@ -140,12 +140,14 @@ public class MainActivity extends AppCompatActivity {
         ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.setWebViewClient(new WebViewClient());
         //添加jsp的安卓接口内部类,VUE使用$APP符号即可调用给jsp的按安卓方法接口了
-        webView.addJavascriptInterface(new JavaScriptInterface(),"$APP");
+        JavaScriptInterface javaScriptInterface=new JavaScriptInterface();
+        webView.addJavascriptInterface(javaScriptInterface,"$APP");
         //dist文件夹
         //webView.loadUrl("file:////android_asset/dist/index.html");
         //vue调试的页面
         webView.loadUrl("http://10.0.2.2:8081");
 /*
+
 
         Gm_sm2_3 gm=Gm_sm2_3.getInstance();
         byte []pub=new byte[64];
@@ -265,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 */
+
     }
     @Override
     protected void onResume() {
@@ -274,43 +277,52 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        String name_c="/Model/Crypto/"+mModel_user.getUser().getUid();
-        String name_u="/Model/User/"+mModel_user.getUser().getUid();
-        File Model_Crypto_file=new File(MainActivity.path+name_c);
-        File Model_user_file=new File(MainActivity.path+name_u);
-        File cr_dir=Model_Crypto_file.getParentFile();
-        File us_dir=Model_user_file.getParentFile();
-        if(cr_dir!=null&&!cr_dir.exists())
-            cr_dir.mkdirs();
-        if(us_dir!=null&&!us_dir.exists())
-            us_dir.mkdirs();
-        if(!Model_Crypto_file.exists()){
-            try {
-                Model_Crypto_file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
+    }
+    public void save(){
+        Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                String name_c="/Model/Crypto/"+mModel_user.getUser().getUid();
+                String name_u="/Model/User/"+mModel_user.getUser().getUid();
+                File Model_Crypto_file=new File(MainActivity.path+name_c);
+                File Model_user_file=new File(MainActivity.path+name_u);
+                File cr_dir=Model_Crypto_file.getParentFile();
+                File us_dir=Model_user_file.getParentFile();
+                if(cr_dir!=null&&!cr_dir.exists())
+                    cr_dir.mkdirs();
+                if(us_dir!=null&&!us_dir.exists())
+                    us_dir.mkdirs();
+                if(!Model_Crypto_file.exists()){
+                    try {
+                        Model_Crypto_file.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(!Model_user_file.exists()){
+                    try {
+                        Model_user_file.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                FileOutputStream fileOutputStream;
+                try{
+                    fileOutputStream=new FileOutputStream(Model_Crypto_file);
+                    fileOutputStream.write(ByteUtils.objectToByteArray(mModel_crypto));
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                    fileOutputStream=new FileOutputStream(Model_user_file);
+                    fileOutputStream.write(ByteUtils.objectToByteArray(mModel_user));
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }
-        if(!Model_user_file.exists()){
-            try {
-                Model_user_file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        FileOutputStream fileOutputStream;
-        try{
-            fileOutputStream=new FileOutputStream(Model_Crypto_file);
-            fileOutputStream.write(ByteUtils.objectToByteArray(mModel_crypto));
-            fileOutputStream.flush();
-            fileOutputStream.close();
-            fileOutputStream=new FileOutputStream(Model_user_file);
-            fileOutputStream.write(ByteUtils.objectToByteArray(mModel_user));
-            fileOutputStream.flush();
-            fileOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        };
+        Thread thread=new Thread(runnable);
+        thread.start();
     }
 //安卓调用vue的jsp函数用的方法
     private void androidJSBridge(String methodName) {
@@ -333,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 //    super.onBackPressed();
-        androidJSBridge("back");
+        //androidJSBridge("back");
     }
 
     //jsp的安卓接口
@@ -407,6 +419,7 @@ public class MainActivity extends AppCompatActivity {
                     Defin_crypto.changeInfo(phnum);
                     mModel_crypto=new Model_Crypto(MainActivity.this,signUp);
                     mModel_user=new Model_User(MainActivity.this,signUp);
+                    save();
                     androidJSBridge("signup_success");
                 }
 
@@ -569,6 +582,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     //TODO:添加查询成功后需要执行的的代码
+                    save();
                     androidJSBridge("pullmessage_success");
                 }
 
@@ -598,12 +612,33 @@ public class MainActivity extends AppCompatActivity {
                     //TODO:添加注册成功后需要执行的的代码
                     Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerQueryFriend, new PushCallBackListener() {
                         @Override
-                        public void onPushSuccessfully(String data) {
+                        public void onPushSuccessfully(String data) throws Exception {
                             Gson gson=new Gson();
                             FriendQuery friendQuery=gson.fromJson(data,FriendQuery.class);
                             Friend friend=new Friend(friendQuery.getFriend_uid(),friendQuery.getPhoneNum(),friendQuery.getUsername());
                             mModel_user.getUser().addFriend(friend);
+                            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                if(localKey.getType()==Defin_crypto.ROOT){
+                                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
+                                    Cert cert=mModel_crypto.GenCert(localKey);
+                                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                                }
+                                if(localKey.getType()==Defin_crypto.SIGN){
+                                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
+                                    Cert cert=mModel_crypto.GenCert(localKey);
+                                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                                }
+                                if(localKey.getType()==Defin_crypto.BIND){
+                                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
+                                    Cert cert=mModel_crypto.GenCert(localKey);
+                                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                                }
+                            }
                             androidJSBridge("addFriend_success");
+                            save();
                         }
 
                         @Override
@@ -686,6 +721,8 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public String getFriends(){
             StringBuffer friends= new StringBuffer("[");
+            if(mModel_user.getUser().getFriendUidList()==null)
+                return null;
             List<Friend> Friendlist=mModel_user.getUser().getFriendUidList();
             for(Friend ff:Friendlist){
                 friends.append(ff.toJson()).append(",");

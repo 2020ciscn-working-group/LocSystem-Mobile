@@ -5,10 +5,12 @@ import android.content.Context;
 import com.example.myapplication.Dao.Secret.Sql.DatabaseHelper;
 import com.example.myapplication.Dao.Secret.Sql.SqlBase;
 
+import java.io.Serializable;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class MessageDataBase extends SqlBase {
+*/public class MessageDataBase extends SqlBase implements Serializable {
     private MessageDataBaseHelper mMessageDataBaseHelper;
     public MessageDataBase(Context context){
         mMessageDataBaseHelper=new MessageDataBaseHelper(context);

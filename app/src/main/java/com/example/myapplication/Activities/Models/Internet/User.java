@@ -73,7 +73,7 @@ public class User extends InternetBase implements Serializable {
     }
 
     public User(){
-        friendList= null;
+        friendList= new LinkedList<>();
         password=null;
         phoneNum=null;
         uid=null;

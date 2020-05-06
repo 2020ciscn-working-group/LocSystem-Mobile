@@ -1,5 +1,7 @@
 package com.example.myapplication.DateStract;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 
 /*
@@ -77,5 +79,9 @@ import java.io.Serializable;
 
     public void setcertdata(byte[] certdata) {
         this.certdata = certdata;
+    }
+    public String toJson(){
+        Gson gson=new Gson();
+        return gson.toJson(this,Cert.class);
     }
 }

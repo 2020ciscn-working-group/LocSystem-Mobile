@@ -6,10 +6,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.example.myapplication.Dao.Secret.Sql.DatabaseHelper;
 
+import java.io.Serializable;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class MessageDataBaseHelper extends DatabaseHelper {
+*/public class MessageDataBaseHelper extends DatabaseHelper implements Serializable {
     private static final String DB_NAME="LocSystem.db";
     public static int version=1;
 

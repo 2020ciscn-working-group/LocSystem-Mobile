@@ -3,6 +3,8 @@
  */
 package com.example.myapplication.DateStract;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 
 /**
@@ -44,5 +46,8 @@ public class Tocken implements Serializable {//授权令牌
     public long getSingdatalen() {
         return singdatalen;
     }
-
+    public String toJson(){
+        Gson gson=new Gson();
+        return gson.toJson(this,Tocken.class);
+    }
 }

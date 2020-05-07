@@ -1,19 +1,15 @@
 package com.example.myapplication.Activities.Models;
 
 import android.app.Activity;
-import android.graphics.Paint;
 import android.hardware.usb.UsbDevice;
-import android.util.Log;
-
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Dao.Secret.Sql.AppSql;
-import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.DateStract.Hub;
-import com.example.myapplication.DateStract.Loc;
+import com.example.myapplication.DateStract.LocalHub;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Owner;
 import com.example.myapplication.DateStract.RemoteKey;
@@ -21,28 +17,19 @@ import com.example.myapplication.DateStract.RootReq;
 import com.example.myapplication.Defin.Defin_crypto;
 import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.UsbHelper;
-import com.example.myapplication.Utils.Util;
-import com.example.myapplication.Utils.utils.sm4.SM4Utils;
-import com.example.myapplication.errs.NoSuchGuestException;
-import com.example.myapplication.errs.NoSuchKeyException;
 import com.google.gson.Gson;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 
 /*
     作者：zyc14588
-    github地址:https://github.com/zyc14588
-*/public class Model_Crypto extends Model_Basic implements Serializable {
+    gitLocalHub地址:https://gitHub.com/zyc14588
+*/public class Model_Crypto extends Model_Basic  {
     private       Owner             mOwner;
-    private       AppSql            mAppSql;
+    private       AppSql           mAppSql;
     private       UsbHelper         mUsbHelper;
 
     public Model_Crypto(Activity activity,SignUp signUp)  {
@@ -51,14 +38,19 @@ import java.util.List;
         mUsbHelper=new UsbHelper(activity);
         OwnerInit(signUp);
     }
-    public void addOwHub(Hub hub){
-        mOwner.addHub(hub);
+    public Model_Crypto(Activity activity,Owner owner){
+        mOwner=owner;
+        mAppSql=new AppSql(activity);
+        mUsbHelper=new UsbHelper(activity);
     }
-    public void addGuestHub(Hub hub,String uuid){
+    public void addOwLocalHub(LocalHub LocalHub){
+        mOwner.addLocalHub(LocalHub);
+    }
+    public void addGuestLocalHub(Hub Hub, String uuid){
         List<Guest>guests=mOwner.getGuests();
         for(Guest guest:guests){
             if(guest.getUuid().equals(uuid))
-                guest.getHubs().add(hub);
+                guest.getHubs().add(Hub);
         }
     }
     public void addRemoteKey(RemoteKey remoteKey,String uuid){

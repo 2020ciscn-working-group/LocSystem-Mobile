@@ -15,6 +15,7 @@ package com.example.myapplication.Defin;
     public static final String AppServerQueryFriend="/queryFriend";
     public static final int    str            =100;
     public static final int    friendreq=101;
+    public static final int    remotehub=112;
     public static final int    tocken       =200;
     public static final int    accreq       =180;
     public static final int    cert           =150;

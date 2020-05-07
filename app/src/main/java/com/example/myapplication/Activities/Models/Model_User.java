@@ -25,7 +25,7 @@ import java.util.LinkedList;
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
-*/public class Model_User extends Model_Basic implements Serializable {
+*/public class Model_User extends Model_Basic  {
     private String             UUID=null;
     private User               mUser;
     private MessageDataBase    mMessageDataBase;
@@ -37,7 +37,11 @@ import java.util.LinkedList;
         mMessageDataBase=new MessageDataBase(mActivity);
         Model_userInit(signUp);
     }
-
+    public Model_User(Activity activity, User user){
+        mActivity=activity;
+        mMessageDataBase=new MessageDataBase(mActivity);
+        mUser=user;
+    }
     @Override
     public byte[] getSM3() {
         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();

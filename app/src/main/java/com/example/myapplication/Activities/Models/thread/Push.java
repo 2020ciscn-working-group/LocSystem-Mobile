@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 */public class Push extends AsyncTask <String, Void, String>{
     private String       url;
     private PushCallBackListener mPushCallBackListener;
-    private boolean success=false;
+    private boolean success=true;
     private int code;
     private String msg=null;
 
@@ -71,8 +71,8 @@ import java.nio.charset.StandardCharsets;
                 message.close();
                 // 返回字符串
                 msg = new String(message.toByteArray());
-                if(msg.equals("200"))
-                    success=true;
+                if(msg.equals("404")||msg.equals("406")||msg.equals("NOT FOUND")||msg.contains("Empty"))
+                    success=false;
             }else{
                 success=false;
                 msg=conn.getResponseMessage();

@@ -18,7 +18,7 @@ public class Owner implements Serializable {
     private String               uuid;
     private String               info;
     private LinkedList<LocalKey> Localkey;
-    private LinkedList<Hub>      Hub;
+    private LinkedList<LocalHub> mLocalHubs;
     private LinkedList<Guest>    Guests;
     private LinkedList<Audit>    Audits;
     private RemoteKey PIK;
@@ -48,8 +48,8 @@ public class Owner implements Serializable {
     public List<LocalKey> getLocalkey() {
         return Localkey;
     }
-    public List<Hub> getHub() {
-        return Hub;
+    public List<LocalHub> getLocalHub() {
+        return mLocalHubs;
     }
 
     public RemoteKey getPIK() {
@@ -70,15 +70,15 @@ public class Owner implements Serializable {
 
     public Owner(){
         Localkey=new LinkedList<>();
-        Hub=new LinkedList<>();
+        mLocalHubs=new LinkedList<>();
         Guests=new LinkedList<>();
         Audits=new LinkedList<>();
     }
     public void addGuest(Guest guest){
         Guests.add(guest);
     }
-    public void addHub(Hub hub){
-        Hub.add(hub);
+    public void addLocalHub(LocalHub LocalHub){
+        mLocalHubs.add(LocalHub);
     }
     public void addLocalKey(LocalKey localKey){
         Localkey.add(localKey);

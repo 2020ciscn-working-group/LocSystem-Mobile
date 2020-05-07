@@ -22,6 +22,7 @@ import com.example.myapplication.Activities.Models.Internet.Login;
 import com.example.myapplication.Activities.Models.Internet.Message;
 import com.example.myapplication.Activities.Models.Internet.NewFriend;
 import com.example.myapplication.Activities.Models.Internet.PullMessage;
+import com.example.myapplication.Activities.Models.Internet.QueryFriend;
 import com.example.myapplication.Activities.Models.Internet.SendMessage;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Activities.Models.Internet.Sm4ex;
@@ -37,11 +38,13 @@ import com.example.myapplication.Dao.Secret.Sql.AppSql;
 import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.Audit;
+import com.example.myapplication.DateStract.Auditexp;
 import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.DateStract.Hub;
 import com.example.myapplication.DateStract.Loc;
 import com.example.myapplication.DateStract.LocalKey;
+import com.example.myapplication.DateStract.Owner;
 import com.example.myapplication.DateStract.RemoteKey;
 import com.example.myapplication.DateStract.Tocken;
 import com.example.myapplication.Defin.Defin_crypto;
@@ -56,6 +59,9 @@ import com.example.myapplication.Utils.Util;
 import com.example.myapplication.Utils.jsontrans;
 import com.example.myapplication.owner_date;
 import com.google.gson.Gson;
+
+import org.bouncycastle.crypto.prng.X931RNG;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -70,6 +76,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     public static String path;
@@ -146,11 +153,8 @@ public class MainActivity extends AppCompatActivity {
         //webView.loadUrl("file:////android_asset/dist/index.html");
         //vue调试的页面
         webView.loadUrl("http://10.0.2.2:8081");
-/*
 
-
-        Gm_sm2_3 gm=Gm_sm2_3.getInstance();
-        byte []pub=new byte[64];
+   /*     byte []pub=new byte[64];
         byte []pri=new byte[32];
         byte []sigd=new byte[64];
         byte []sm3=new byte[32];
@@ -214,44 +218,72 @@ public class MainActivity extends AppCompatActivity {
             Log.e("save error",e.getMessage());
         }
          sql=new AppSql(this);
+*/      Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                Gm_sm2_3 gm=Gm_sm2_3.getInstance();
+                Tocken tocken=new Tocken();
+                Accexp accexp=new Accexp();
+                Accreq accreq=new Accreq();
+                byte[] sign_pub=new byte[64];
+                byte[] sign_pri=new byte[32];
+                gm.GM_GenSM2keypair(sign_pub,sign_pri);
+                byte[] pub=new byte[64];
+                byte[] pri=new byte[32];
+                gm.GM_GenSM2keypair(pub,pri);
 
-        Tocken tocken=new Tocken();
-        Accexp accexp=new Accexp();
-        Accreq accreq=new Accreq();
-        byte[] sign_pub=new byte[64];
-        byte[] sign_pri=new byte[32];
-        gm.GM_GenSM2keypair(sign_pub,sign_pri);
-        byte[] pik_pub=new byte[64];
-        byte[] pik_pri=new byte[32];
-        gm.GM_GenSM2keypair(pik_pub,pik_pri);
+                byte[]sigd=new byte[64];
+                accreq.setAccsee("一号门");
+                accreq.setInfo("北京市通州区xx镇xxx街道xxx号" );
+                Calendar calendar= Calendar.getInstance();
+                calendar.add(Calendar.MONTH,1);
+                //SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
+                accreq.setTime(String.valueOf(calendar.getTimeInMillis()));
+                accreq.setInfolen(accreq.getInfo().length());
+                accreq.setsigndatalen(0);
+                accreq.setsigndata(null);
+                accreq.setHubuuid("ACCDCBAEFFAAV");
+                byte[] src_=ByteUtils.objectToByteArray(accreq);
+                gm.GM_SM2Sign(sigd,src_,src_.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray().length ,sign_pri);
+                accreq.setsigndata(sigd);
+                accreq.setsigndatalen(sigd.length);
 
-        accreq.setAccsee("一号门");
-        accreq.setInfo("北京市通州区xx镇xxx街道xxx号" );
-        Calendar calendar= Calendar.getInstance();
-        SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
-        accreq.setTime(dateFormat.format(calendar.getTime()));
-        accreq.setInfolen(accreq.getInfo().length());
-        accreq.setsigndatalen(0);
-        accreq.setsigndata(null);
-        byte[] src_=ByteUtils.objectToByteArray(accreq);
-        gm.GM_SM2Sign(sigd,src_,src_.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray().length ,sign_pri);
-        accreq.setsigndata(sigd);
-        accreq.setsigndatalen(sigd.length);
+                accexp.setAccreq(accreq);
+                //accexp.setAccendtime(dateFormat.format(calendar.getTime()) );
+                calendar.add(Calendar.MONTH,1);
+                accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
+                accexp.setAccess("一号门" );
+                accexp.setInfo("北京市通州区xxx镇xx01街道xx号" );
+                accexp.setRootKey(pub);
+                accexp.setSignkey(sign_pub);
+                Gson gson=new Gson();
+                byte[]src__=ByteUtils.objectToByteArray(accexp);
+                tocken.setAccexp(accexp);
+                tocken.setUuid(gm.GM_SM2Sign(sigd,src__,src__.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray() .length,pri).substring(0,16) );
+                tocken.setSigndata(sigd);
+                tocken.setSingdatalen(sigd.length);
+                Audit audit=new Audit();
+                Auditexp auditexp=new Auditexp();
+                auditexp.setAccexp(accexp);
+                Random random=new Random();
+                auditexp.setRNG(String.valueOf(random.nextLong()));
+                auditexp.setUuid_Tocken(tocken.getUuid());
+                auditexp.setTime(String.valueOf(calendar.getTimeInMillis()));
+                audit.setAuditexp(auditexp);
+                byte[]src=ByteUtils.objectToByteArray(auditexp);
+                audit.setUuid(gm.GM_SM2Sign(sigd,src,src.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray() .length,pri).substring(0,16));
+                audit.setsigndata(src);
+                audit.setsigndatalen(64);
+                Log.d("tocken:",tocken.toJson());
+                Log.d("Audit:",audit.toJson().substring(0,2048));
+                Log.d("Audit:",audit.toJson().substring(2048));
+            }
+        };
+        Thread thread=new Thread(runnable);
+        thread.start();
 
-        accexp.setAccreq(accreq);
-        accexp.setAccendtime(dateFormat.format(calendar.getTime()) );
-        accexp.setAccendtime("2020-12-12 :10:10:10" );
-        accexp.setAccess("一号门" );
-        accexp.setInfo("北京市通州区xxx镇xx01街道xx号" );
-        accexp.setRootKey(pik_pub);
-        accexp.setSignkey(sign_pub);
 
-        byte[]src__=ByteUtils.objectToByteArray(accexp);
-        tocken.setAccexp(accexp);
-        tocken.setUuid(gm.GM_SM2Sign(sigd,src__,src__.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray() .length,pri).substring(0,16) );
-        tocken.setSigndata(sigd);
-        tocken.setSingdatalen(sigd.length);
-
+/*
         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
         try {
             dao_tocken.InsertTocken(tocken);
@@ -282,6 +314,7 @@ public class MainActivity extends AppCompatActivity {
         Runnable runnable=new Runnable() {
             @Override
             public void run() {
+                Gson gson=new Gson();
                 String name_c="/Model/Crypto/"+mModel_user.getUser().getUid();
                 String name_u="/Model/User/"+mModel_user.getUser().getUid();
                 File Model_Crypto_file=new File(MainActivity.path+name_c);
@@ -309,15 +342,48 @@ public class MainActivity extends AppCompatActivity {
                 FileOutputStream fileOutputStream;
                 try{
                     fileOutputStream=new FileOutputStream(Model_Crypto_file);
-                    fileOutputStream.write(ByteUtils.objectToByteArray(mModel_crypto));
+                    fileOutputStream.write(gson.toJson(mModel_crypto.getOwner(), Owner.class).getBytes());
                     fileOutputStream.flush();
                     fileOutputStream.close();
                     fileOutputStream=new FileOutputStream(Model_user_file);
-                    fileOutputStream.write(ByteUtils.objectToByteArray(mModel_user));
+                    fileOutputStream.write(gson.toJson(mModel_user.getUser(),User.class).getBytes());
                     fileOutputStream.flush();
                     fileOutputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            }
+        };
+        Thread thread=new Thread(runnable);
+        thread.start();
+    }
+    private void load(final String uid, final String passwd){
+        Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                //TODO:添加登陆成功后需要执行的的代码
+                Gson gson = new Gson();
+                String name_c = "/Model/Crypto/" + uid;
+                String name_u = "/Model/User/" + uid;
+                File Model_Crypto_file = new File(MainActivity.path + name_c);
+                File Model_user_file = new File(MainActivity.path + name_u);
+                if (Model_Crypto_file.exists() && Model_user_file.exists()) {
+                    try {
+                        FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
+                        byte[] Model_Crypto_bytes = new byte[fileInputStream.available()];
+                        fileInputStream.read(Model_Crypto_bytes);
+                        Owner owner = gson.fromJson(new String(Model_Crypto_bytes), Owner.class);
+                        mModel_crypto = new Model_Crypto(MainActivity.this, owner);
+                        Log.d("owner:",new String(Model_Crypto_bytes));
+                        fileInputStream = new FileInputStream(Model_user_file);
+                        byte[] Model_User_bytes = new byte[fileInputStream.available()];
+                        fileInputStream.read(Model_User_bytes);
+                        User user = gson.fromJson(new String(Model_User_bytes), User.class);
+                        mModel_user = new Model_User(MainActivity.this, user);
+                        Log.d("user:",new String(Model_User_bytes));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -350,6 +416,31 @@ public class MainActivity extends AppCompatActivity {
 
     //jsp的安卓接口
     private class JavaScriptInterface{
+        private void sendRemoteKey(String friuenduid){
+            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                if(localKey.getType()==Defin_crypto.ROOT){
+                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                    sendMessage(remoteKey.toJson(), Defin_internet.remotekey,friuenduid);
+                    Cert cert=mModel_crypto.GenCert(localKey);
+                    Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
+                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                }
+                if(localKey.getType()==Defin_crypto.SIGN){
+                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
+                    Cert cert=mModel_crypto.GenCert(localKey);
+                    Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
+                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                }
+                if(localKey.getType()==Defin_crypto.BIND){
+                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
+                    Cert cert=mModel_crypto.GenCert(localKey);
+                    Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
+                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                }
+            }
+        }
         @JavascriptInterface
         public void callAndroidMethod(int a, float b, String c, boolean d) {
             if (d) {
@@ -358,33 +449,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         @JavascriptInterface
-        public void login(final String uid, String passwd){
+        public void login(final String uid, final String passwd){
             Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerLogin, new PushCallBackListener() {
                 @Override
                 public void onPushSuccessfully(String data) {
                     Log.d("POST",data);
                     loginret=data;
-                    //TODO:添加登陆成功后需要执行的的代码
-                    String name_c="/Model/Crypto/"+uid;
-                    String name_u="/Model/User/"+uid;
-                    File Model_Crypto_file=new File(MainActivity.path+name_c);
-                    File Model_user_file=new File(MainActivity.path+name_u);
-                    if(Model_Crypto_file.exists()&&Model_user_file.exists()){
-                        try {
-                            FileInputStream fileInputStream = new FileInputStream(Model_Crypto_file);
-                            byte[] Model_Crypto_bytes=new byte[fileInputStream.available()];
-                            fileInputStream.read(Model_Crypto_bytes);
-                            mModel_crypto=(Model_Crypto) ByteUtils.byteArrayToObject(Model_Crypto_bytes);
-
-                            fileInputStream=new FileInputStream(Model_user_file);
-                            byte[] Model_User_bytes=new byte[fileInputStream.available()];
-                            fileInputStream.read(Model_User_bytes);
-                            mModel_user=(Model_User)ByteUtils.byteArrayToObject(Model_User_bytes);
-                            androidJSBridge("signin_success");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    load(uid, passwd);
                     androidJSBridge("signin_success");
                 }
 
@@ -497,7 +568,7 @@ public class MainActivity extends AppCompatActivity {
                             List<Guest> guests=mModel_crypto.getOwner().getGuests();
                             for(Guest guest1:guests){
                                 if(guest1.getUuid().equals(friend.getGuestid())) {
-                                    guest1.getRemoteKey().add(gson.fromJson(message.getMessage(),RemoteKey.class));
+                                    guest1.setCatch_remotekey(gson.fromJson(message.getMessage(),RemoteKey.class));
                                 }
                             }
                             break;
@@ -506,7 +577,23 @@ public class MainActivity extends AppCompatActivity {
                             List<Guest> guests=mModel_crypto.getOwner().getGuests();
                             for(Guest guest1:guests){
                                 if(guest1.getUuid().equals(friend.getGuestid())) {
-                                    guest1.getCerts().add(gson.fromJson(message.getMessage(), Cert.class));
+                                    guest1.setCath_remotecert(gson.fromJson(message.getMessage(), Cert.class));
+                                    if(guest1.getCatch_remotekey()!=null&&guest1.getCath_remotecert()!=null){
+                                        if(mModel_crypto.VerifyRemoteKey(guest1.getCatch_remotekey(),guest1.getCath_remotecert())){
+                                            guest1.getRemoteKey().add(guest1.getCatch_remotekey());
+                                            guest1.getCerts().add(guest1.getCath_remotecert());
+                                            guest1.setCath_remotecert(null);
+                                            guest1.setCatch_remotekey(null);
+                                        }
+                                        else{
+                                            guest1.setCath_remotecert(null);
+                                            guest1.setCatch_remotekey(null);
+                                        }
+                                    }
+                                    else{
+                                        guest1.setCath_remotecert(null);
+                                        guest1.setCatch_remotekey(null);
+                                    }
                                 }
                             }
                             break;
@@ -580,6 +667,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                             break;
                         }
+                        case Defin_internet.remotehub:{
+
+                            break;
+                        }
                     }
                     //TODO:添加查询成功后需要执行的的代码
                     save();
@@ -603,50 +694,41 @@ public class MainActivity extends AppCompatActivity {
         }
         @JavascriptInterface
         public void addFriend(final String friuenduid){
-            NewFriend newFriend=new NewFriend(mModel_user.getUUID(),friuenduid);
+            final NewFriend newFriend=new NewFriend(mModel_user.getUser().getUid(),friuenduid);
             final Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerFindFriend, new PushCallBackListener() {
                 @Override
                 public void onPushSuccessfully(String data) {
-                    Log.d("POST",data);
+                    Log.d("POSTDATA ",data);
                     loginret=data;
                     //TODO:添加注册成功后需要执行的的代码
                     Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerQueryFriend, new PushCallBackListener() {
                         @Override
                         public void onPushSuccessfully(String data) throws Exception {
+                            Log.d("POSTDATA ",data);
                             Gson gson=new Gson();
-                            FriendQuery friendQuery=gson.fromJson(data,FriendQuery.class);
-                            Friend friend=new Friend(friendQuery.getFriend_uid(),friendQuery.getPhoneNum(),friendQuery.getUsername());
+                            FriendQuery[] friendQuery=gson.fromJson(data,FriendQuery[].class);
+                            Friend friend=new Friend(friendQuery[0].getFriend_uid(),friendQuery[0].getPhoneNum(),friendQuery[0].getUsername());
                             mModel_user.getUser().addFriend(friend);
-                            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
-                                if(localKey.getType()==Defin_crypto.ROOT){
-                                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
-                                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
-                                    Cert cert=mModel_crypto.GenCert(localKey);
-                                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
-                                }
-                                if(localKey.getType()==Defin_crypto.SIGN){
-                                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
-                                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
-                                    Cert cert=mModel_crypto.GenCert(localKey);
-                                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
-                                }
-                                if(localKey.getType()==Defin_crypto.BIND){
-                                    RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
-                                    sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
-                                    Cert cert=mModel_crypto.GenCert(localKey);
-                                    sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
-                                }
-                            }
+                            Guest guest=new Guest();
+                            guest.setDesc(friend.getPhnum());
+                            guest.setId(friend.getUsername());
+                            guest.setInfo(friend.getFirend_uid());
+                            guest.setUuid(friend.getSM3str().substring(0,16));
+                            friend.setGuestid(guest.getUuid());
+                            mModel_crypto.getOwner().getGuests().add(guest);
+                            sendRemoteKey(friuenduid);
                             androidJSBridge("addFriend_success");
                             save();
                         }
-
                         @Override
                         public void onPushFailed(int code, String message) {
 
                         }
                     });
-                    push1.execute("{\"friend_uid\":\""+friuenduid+"\"}");
+                    QueryFriend queryFriend=new QueryFriend();
+                    queryFriend.setFriend_uid(friuenduid);
+                    Log.d("queryfriend:",queryFriend.toJson());
+                    push1.execute(queryFriend.toJson());
                 }
 
                 @Override
@@ -661,6 +743,7 @@ public class MainActivity extends AppCompatActivity {
                     alertDialog1.show();
                 }
             });
+            Log.d("addfriend:",newFriend.toJson());
             push.execute(newFriend.toJson());
         }
         @JavascriptInterface
@@ -681,13 +764,14 @@ public class MainActivity extends AppCompatActivity {
                     //TODO：查询失败的代码
                     Log.d("POST ERROR CODE", message+code);
                     AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("获取消息失败")//标题
+                            .setTitle("推送消息失败")//标题
                             .setMessage(message+code)//内容
                             .setIcon(R.mipmap.ic_launcher)//图标
                             .create();
                     alertDialog1.show();
                 }
             });
+            Log.d("push:",sendMessage.toJson());
             push1.execute(sendMessage.toJson());
         }
         @JavascriptInterface
@@ -721,8 +805,10 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public String getFriends(){
             StringBuffer friends= new StringBuffer("[");
-            if(mModel_user.getUser().getFriendUidList()==null)
+            if(mModel_user.getUser().getFriendUidList()==null||mModel_user.getUser().getFriendUidList().isEmpty()){
+                Log.d("getfriend","faild");
                 return null;
+            }
             List<Friend> Friendlist=mModel_user.getUser().getFriendUidList();
             for(Friend ff:Friendlist){
                 friends.append(ff.toJson()).append(",");

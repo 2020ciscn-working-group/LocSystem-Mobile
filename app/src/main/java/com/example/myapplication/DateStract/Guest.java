@@ -4,6 +4,7 @@
 package com.example.myapplication.DateStract;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,13 +24,42 @@ public class Guest implements Serializable {
     private List<Audit>mAudits;
     private List<Cert>mCerts;
     private List<Tocken>mTockens;
+    private RemoteKey catch_remotekey=null;
+    private Cert cath_remotecert=null;
+    public Guest(){
+        uuid=null;
+        id=null;
+        info=null;
+        desc=null;
+        mRemoteKey=new LinkedList<>();
+        mHubs=new LinkedList<>();
+        mAudits=new LinkedList<>();
+        mCerts=new LinkedList<>();
+        mTockens=new LinkedList<>();
 
+    }
     public List<Tocken> getTockens() {
         return mTockens;
     }
 
     public void setTockens(List<Tocken> tockens) {
         mTockens = tockens;
+    }
+
+    public RemoteKey getCatch_remotekey() {
+        return catch_remotekey;
+    }
+
+    public void setCatch_remotekey(RemoteKey catch_remotekey) {
+        this.catch_remotekey = catch_remotekey;
+    }
+
+    public Cert getCath_remotecert() {
+        return cath_remotecert;
+    }
+
+    public void setCath_remotecert(Cert cath_remotecert) {
+        this.cath_remotecert = cath_remotecert;
     }
 
     public List<Cert> getCerts() {

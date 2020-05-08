@@ -3,6 +3,8 @@
  */
 package com.example.myapplication.DateStract;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -61,6 +63,9 @@ public class Hub implements Serializable {
     public List<Loc> getLocs() {
         return locs;
     }
-
+    public String toJson(){
+        Gson gson=new Gson();
+        return gson.toJson(this,Hub.class);
+    }
 
 }

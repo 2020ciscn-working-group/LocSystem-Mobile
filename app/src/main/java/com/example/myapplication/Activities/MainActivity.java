@@ -29,6 +29,7 @@ import com.example.myapplication.Activities.Models.Internet.Sm4ex;
 import com.example.myapplication.Activities.Models.Internet.User;
 import com.example.myapplication.Activities.Models.Model_Crypto;
 import com.example.myapplication.Activities.Models.Model_User;
+import com.example.myapplication.Activities.Models.thread.PullScheduledThreadPoolExecutor;
 import com.example.myapplication.Activities.Models.thread.Push;
 import com.example.myapplication.Dao.Secret.Dao_Audit;
 import com.example.myapplication.Dao.Secret.Dao_Hub;
@@ -43,6 +44,7 @@ import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.DateStract.Hub;
 import com.example.myapplication.DateStract.Loc;
+import com.example.myapplication.DateStract.LocalHub;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Owner;
 import com.example.myapplication.DateStract.RemoteKey;
@@ -87,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConnection mServiceConnection;
     private PullService       mService;
     private String loginret;
+    private PullScheduledThreadPoolExecutor mPullScheduledThreadPoolExecutor;
 
 
     // Used to load the 'native-lib' library on application startup.
@@ -407,6 +410,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    private void androidJSBridge(String methodName,String data) {
+        String url = "javascript:window." + methodName + "("+data+")";
+        switch(methodName){
+            case"back":
+            case"signin_success":
+            case"signup_success":{
+                webView.evaluateJavascript(url, new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        //此处为 js 返回的结果
+                    }
+                });
+                break;
+            }
+        }
+    }
     //调用vue的返回
     @Override
     public void onBackPressed() {
@@ -416,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
 
     //jsp的安卓接口
     private class JavaScriptInterface{
-        private void sendRemoteKey(String friuenduid){
+        private void sendRemoteKey(String friuenduid) throws Exception {
             for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
                 if(localKey.getType()==Defin_crypto.ROOT){
                     RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
@@ -440,6 +459,9 @@ public class MainActivity extends AppCompatActivity {
                     sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
                 }
             }
+            Sm4ex sm4ex=new Sm4ex();
+            sm4ex.keygen();
+            sendMessage(sm4ex.toJson(),Defin_internet.nego_req,friuenduid);
         }
         @JavascriptInterface
         public void callAndroidMethod(int a, float b, String c, boolean d) {
@@ -456,6 +478,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("POST",data);
                     loginret=data;
                     load(uid, passwd);
+
                     androidJSBridge("signin_success");
                 }
 
@@ -507,7 +530,6 @@ public class MainActivity extends AppCompatActivity {
                     alertDialog1.show();
                 }
             });
-
             push.execute(signUp.toJson());
         }
         @JavascriptInterface
@@ -526,13 +548,14 @@ public class MainActivity extends AppCompatActivity {
                             friend=friend1;
                         }
                     }
-                    if(friend==null&&message.getmsg_type()==Defin_internet.friendreq)
+                    if(friend==null)
                         return;
                     switch (message.getmsg_type()){
                         case Defin_internet.friendreq:{
                             break;
                         }
                         case Defin_internet.str:{
+                            androidJSBridge("record_receive",message.getMessage());
                             break;
                         }
                         case Defin_internet.nego_req:{
@@ -603,11 +626,18 @@ public class MainActivity extends AppCompatActivity {
                         }
                         case Defin_internet.accreq:{
                             final Accreq accreq=gson.fromJson(message.getMessage(),Accreq.class);
+                            List<LocalHub> localHubs=mModel_crypto.getOwner().getLocalHub();
+                            LocalHub localHub = null;
+                            for(LocalHub localHub1:localHubs){
+                                if(localHub1.getUuid().equals(accreq.getHubuuid()))
+                                    localHub=localHub1;
+                            }
+                            if(localHub==null)break;//这里暂时丢弃了该申请，未来返回申请错误的信息
                             if(mModel_crypto.AccreqVerfi(accreq,friend)) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                                 builder.setTitle("门禁授权申请");// 设置标题
                                 // builder.setIcon(R.drawable.ic_launcher);//设置图标
-                                builder.setMessage(friend.getFirend_uid()+"("+accreq.getInfo()+")"+"正在申请"+accreq.getAccsee()+"于北京时间"+accreq.getTime());// 为对话框设置内容
+                                builder.setMessage(friend.getFirend_uid()+"("+accreq.getInfo()+")"+"正在申请"+localHub.getId()+"的"+accreq.getAccsee()+"权限于北京时间"+accreq.getTime());// 为对话框设置内容
                                 // 为对话框设置取消按钮
                                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                                     @Override
@@ -621,46 +651,53 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface arg0, int arg1) {
                                         // TODO Auto-generated method stub
-                                        Accexp accexp=new Accexp();
-                                        accexp.setAccreq(accreq);
-                                        Calendar calendar= Calendar.getInstance();
-                                        calendar.add(Calendar.MONTH,1);
-                                        accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
-                                        calendar.add(Calendar.DATE,Defin_crypto.time_shot);
-                                        accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
-                                        accexp.setInfo(mModel_crypto.getOwner().getInfo());
-                                        accexp.setAccess(accreq.getAccsee());
-                                        byte[] sign=null;
-                                        for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
-                                            if(localKey.getType()==Defin_crypto.ROOT)
-                                                accexp.setRootKey(localKey.getPubkey());
-                                        }
-                                        for(LocalKey localkey2:mModel_crypto.getOwner().getLocalkey()){
-                                            if(localkey2.getType()==Defin_crypto.SIGN){
-                                                accexp.setRootKey(localkey2.getPubkey());
-                                                sign=localkey2.getPrikey();
+                                        Runnable runnable=new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Accexp accexp=new Accexp();
+                                                accexp.setAccreq(accreq);
+                                                Calendar calendar= Calendar.getInstance();
+                                                calendar.add(Calendar.MONTH,1);
+                                                accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
+                                                calendar.add(Calendar.DATE,Defin_crypto.time_shot);
+                                                accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
+                                                accexp.setInfo(mModel_crypto.getOwner().getInfo());
+                                                accexp.setAccess(accreq.getAccsee());
+                                                byte[] sign=null;
+                                                for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                                    if(localKey.getType()==Defin_crypto.ROOT)
+                                                        accexp.setRootKey(localKey.getPubkey());
+                                                }
+                                                for(LocalKey localkey2:mModel_crypto.getOwner().getLocalkey()){
+                                                    if(localkey2.getType()==Defin_crypto.SIGN){
+                                                        accexp.setRootKey(localkey2.getPubkey());
+                                                        sign=localkey2.getPrikey();
+                                                    }
+                                                }
+                                                Tocken tocken=new Tocken();
+                                                tocken.setAccexp(accexp);
+                                                Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+                                                byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
+                                                tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
+                                                byte[]signd=new byte[32];
+                                                if(sign==null)throw new NoSuchElementException();
+                                                gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
+                                                tocken.setSigndata(signd);
+                                                tocken.setSingdatalen(64);
+                                                //TODO:添加发送令牌的代码
+                                                String json=gson.toJson(tocken,Tocken.class);
+                                                byte[] enc=Util.sm4inc(json.getBytes(),finalFriend.getSm4key(),finalFriend.getSm4iv());
+                                                sendMessage(Util.byteToHex(enc),Defin_internet.tocken,finalFriend.getFirend_uid());
+                                                Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+                                                try {
+                                                    dao_tocken.InsertTocken(tocken);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
-                                        }
-                                        Tocken tocken=new Tocken();
-                                        tocken.setAccexp(accexp);
-                                        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
-                                        byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
-                                        tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
-                                        byte[]signd=new byte[32];
-                                        if(sign==null)throw new NoSuchElementException();
-                                        gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
-                                        tocken.setSigndata(signd);
-                                        tocken.setSingdatalen(64);
-                                        //TODO:添加发送令牌的代码
-                                        String json=gson.toJson(tocken,Tocken.class);
-                                        byte[] enc=Util.sm4inc(json.getBytes(),finalFriend.getSm4key(),finalFriend.getSm4iv());
-                                        sendMessage(Util.byteToHex(enc),Defin_internet.tocken,finalFriend.getFirend_uid());
-                                        Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
-                                        try {
-                                            dao_tocken.InsertTocken(tocken);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
+                                        };
+                                        Thread thread=new Thread(runnable);
+                                        thread.start();
                                     }
                                 });
                                 builder.create().show();// 使用show()方法显示对话框
@@ -818,6 +855,23 @@ public class MainActivity extends AppCompatActivity {
             return friends.toString();
         }
         @JavascriptInterface
+        public String getHub(String frienduid){
+            for(Friend friend:mModel_user.getUser().getFriendUidList()){
+                if(friend.getFirend_uid().equals(frienduid)){
+                    Guest guest=mModel_crypto.getGuest(friend.getGuestid());
+                    List<Hub> list=guest.getHubs();
+                    StringBuffer hubs= new StringBuffer("[");
+                    for(Hub hub:list){
+                        hubs.append(hub.toJson()).append(",");
+                    }
+                    hubs=new StringBuffer(hubs.substring(0,hubs.length()+1));
+                    hubs.append("]");
+                    return hubs.toString();
+                }
+            }
+            return null;
+        }
+        @JavascriptInterface
         public String getTocken(String uuid) throws IOException {
             Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
             Tocken tocken=dao_tocken.SelectTocken(uuid);
@@ -832,13 +886,6 @@ public class MainActivity extends AppCompatActivity {
             return gson.toJson(audit,Audit.class);
         }
         @JavascriptInterface
-        public String getHub(String uuid) throws IOException {
-            Dao_Hub dao_hub=Dao_Hub.getInstance(sql);
-            Hub hub=dao_hub.SelectHub(uuid);
-            Gson gson=new Gson();
-            return gson.toJson(hub,Hub.class);
-        }
-        @JavascriptInterface
         public String getRemoteKey(String uuid) throws IOException {
             Dao_Remotekey dao_remotekey=Dao_Remotekey.getInstance(sql);
             RemoteKey remoteKey=dao_remotekey.SelectRemotekey(uuid);
@@ -846,7 +893,7 @@ public class MainActivity extends AppCompatActivity {
             return gson.toJson(remoteKey,RemoteKey.class);
         }
         @JavascriptInterface
-        public String getAudit(){
+        public String getAudits(){
             List<Audit>audits=mModel_crypto.getOwner().getAudits();
             StringBuffer ret=new StringBuffer("[");
             for(Audit ff:audits){
@@ -862,6 +909,21 @@ public class MainActivity extends AppCompatActivity {
         Friend friend=mModel_user.getUser().getFriend(frienduid);
 
     }
+@JavascriptInterface
+    public void deleteTocken(String tockenuuid) throws IOException {
+    Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+    Tocken tocken=dao_tocken.SelectTocken(tockenuuid);
+    dao_tocken.DeleteTocken(tockenuuid);
+    mModel_crypto.getGuest(
+            mModel_user.getUser()
+                .getFriend(
+                        tocken.getAccexp()
+                                .getAccreq()
+                                    .getFrienduid())
+                    .getGuestid())
+                        .getTockens()
+                            .remove(tocken);
+}
 
 
 

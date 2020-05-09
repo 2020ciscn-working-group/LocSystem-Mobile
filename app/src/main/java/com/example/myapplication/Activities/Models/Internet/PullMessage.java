@@ -1,5 +1,7 @@
 package com.example.myapplication.Activities.Models.Internet;
 
+import android.util.Log;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
@@ -21,6 +23,7 @@ package com.example.myapplication.Activities.Models.Internet;
         return guest_id;
     }
     public PullMessage(String host,String guset){
+        Log.d("pullmessageinit:",host+guset);
         host_id=host;
         guest_id=guset;
     }

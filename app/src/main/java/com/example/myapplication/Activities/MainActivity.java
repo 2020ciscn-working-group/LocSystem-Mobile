@@ -399,6 +399,7 @@ public class MainActivity extends AppCompatActivity {
         switch(methodName){
             case"back":
             case"signin_success":
+            case"pullmessage_success":
             case"signup_success":{
                 webView.evaluateJavascript(url, new ValueCallback<String>() {
                     @Override
@@ -411,10 +412,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void androidJSBridge(String methodName,String data) {
-        String url = "javascript:window." + methodName + "("+data+")";
+        String url = "javascript:window." + methodName + "(\'"+data+"\')";
         switch(methodName){
             case"back":
             case"signin_success":
+            case"addFriend_success":
+            case"pullmessage_success":
             case"signup_success":{
                 webView.evaluateJavascript(url, new ValueCallback<String>() {
                     @Override
@@ -462,6 +465,211 @@ public class MainActivity extends AppCompatActivity {
             Sm4ex sm4ex=new Sm4ex();
             sm4ex.keygen();
             sendMessage(sm4ex.toJson(),Defin_internet.nego_req,friuenduid);
+        }
+
+        private void accreqact(Message message,Friend friend){
+            final Gson gson=new Gson();
+            final Accreq accreq=gson.fromJson(message.getMessage(),Accreq.class);
+            List<LocalHub> localHubs=mModel_crypto.getOwner().getLocalHub();
+            LocalHub localHub = null;
+            for(LocalHub localHub1:localHubs){
+                if(localHub1.getUuid().equals(accreq.getHubuuid()))
+                    localHub=localHub1;
+            }
+            if(localHub==null)return;//这里暂时丢弃了该申请，未来返回申请错误的信息
+            if(mModel_crypto.AccreqVerfi(accreq,friend)) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("门禁授权申请");// 设置标题
+                // builder.setIcon(R.drawable.ic_launcher);//设置图标
+                builder.setMessage(friend.getFirend_uid()+"("+accreq.getInfo()+")"+"正在申请"+localHub.getId()+"的"+accreq.getAccsee()+"权限于北京时间"+accreq.getTime());// 为对话框设置内容
+                // 为对话框设置取消按钮
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        // TODO Auto-generated method stub
+                    }
+                });
+                // 为对话框设置确定按钮
+                final Friend finalFriend = friend;
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        // TODO Auto-generated method stub
+                        Runnable runnable=new Runnable() {
+                            @Override
+                            public void run() {
+                                Accexp accexp=new Accexp();
+                                accexp.setAccreq(accreq);
+                                Calendar calendar= Calendar.getInstance();
+                                calendar.add(Calendar.MONTH,1);
+                                accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
+                                calendar.add(Calendar.DATE,Defin_crypto.time_shot);
+                                accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
+                                accexp.setInfo(mModel_crypto.getOwner().getInfo());
+                                accexp.setAccess(accreq.getAccsee());
+                                byte[] sign=null;
+                                for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                    if(localKey.getType()==Defin_crypto.ROOT)
+                                        accexp.setRootKey(localKey.getPubkey());
+                                }
+                                for(LocalKey localkey2:mModel_crypto.getOwner().getLocalkey()){
+                                    if(localkey2.getType()==Defin_crypto.SIGN){
+                                        accexp.setRootKey(localkey2.getPubkey());
+                                        sign=localkey2.getPrikey();
+                                    }
+                                }
+                                Tocken tocken=new Tocken();
+                                tocken.setAccexp(accexp);
+                                Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+                                byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
+                                tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
+                                byte[]signd=new byte[32];
+                                if(sign==null)throw new NoSuchElementException();
+                                gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
+                                tocken.setSigndata(signd);
+                                tocken.setSingdatalen(64);
+                                //TODO:添加发送令牌的代码
+                                String json=gson.toJson(tocken,Tocken.class);
+                                byte[] enc=Util.sm4inc(json.getBytes(),finalFriend.getSm4key(),finalFriend.getSm4iv());
+                                sendMessage(Util.byteToHex(enc),Defin_internet.tocken,finalFriend.getFirend_uid());
+                                Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+                                try {
+                                    dao_tocken.InsertTocken(tocken);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        };
+                        Thread thread=new Thread(runnable);
+                        thread.start();
+                    }
+                });
+                builder.create().show();// 使用show()方法显示对话框
+            }
+        }
+        private void messageapl(final String data){
+            Log.d("POST",data);
+            final Gson gson=new Gson();
+            Runnable runnable=new Runnable() {
+                @Override
+                public void run() {
+                    Message[] messages=gson.fromJson(data,Message[].class);
+                    for(Message message:messages){
+                        Friend friend=null;
+                        for(Friend friend1:mModel_user.getUser().getFriendUidList()){
+                            if(friend1.getFirend_uid().equals(message.gethost_id())){
+                                friend1.getMessagehashList().add(message);
+                                friend=friend1;
+                            }
+                        }
+                        if(friend==null)
+                            return;
+                        switch (message.getmsg_type()){
+                            case Defin_internet.friendreq:{
+
+                                break;
+                            }
+                            case Defin_internet.friendapl:{
+                                break;
+                            }
+                            case Defin_internet.str:{
+                                androidJSBridge("record_receive",message.getMessage());
+                                break;
+                            }
+                            case Defin_internet.nego_req:{
+                                byte[] pri=null;
+                                for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                    if(localKey.getType()==Defin_crypto.BIND)
+                                        pri=localKey.getPrikey();
+                                }
+                                Sm4ex sm4ex=gson.fromJson(Util.sm2dec(message.getMessage(),pri),Sm4ex.class);
+                                friend.setSm4key(sm4ex.getSm4k());
+                                friend.setSm4iv(sm4ex.getSm4iv());
+                                message.setmsg_type(Defin_internet.nego_apl);
+                                byte[]pub=null;
+                                for(RemoteKey remoteKey:mModel_crypto.getGuest(friend.getGuestid()).getRemoteKey())
+                                    if(remoteKey.getType()==Defin_crypto.BIND)
+                                        pub=remoteKey.getPubkey();
+                                message.setMessage(Util.sm2inc(Util.sm2dec(message.getMessage(),pri),pub));
+                                sendMessage(message.toJson(),Defin_internet.nego_apl,friend.getFirend_uid());
+                                break;
+                            }
+                            case Defin_internet.nego_apl:{
+                                byte[] pri=null;
+                                for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                                    if(localKey.getType()==Defin_crypto.BIND)
+                                        pri=localKey.getPrikey();
+                                }
+                                Sm4ex sm4ex=gson.fromJson(Util.sm2dec(message.getMessage(),pri),Sm4ex.class);
+                                friend.setSm4key(sm4ex.getSm4k());
+                                friend.setSm4iv(sm4ex.getSm4iv());
+                                break;
+                            }
+                            case Defin_internet.remotekey:{
+                                List<Guest> guests=mModel_crypto.getOwner().getGuests();
+                                for(Guest guest1:guests){
+                                    if(guest1.getUuid().equals(friend.getGuestid())) {
+                                        guest1.setCatch_remotekey(gson.fromJson(message.getMessage(),RemoteKey.class));
+                                    }
+                                }
+                                break;
+                            }
+                            case Defin_internet.cert:{
+                                List<Guest> guests=mModel_crypto.getOwner().getGuests();
+                                for(Guest guest1:guests){
+                                    if(guest1.getUuid().equals(friend.getGuestid())) {
+                                        guest1.setCath_remotecert(gson.fromJson(message.getMessage(), Cert.class));
+                                        if(guest1.getCatch_remotekey()!=null&&guest1.getCath_remotecert()!=null){
+                                            if(mModel_crypto.VerifyRemoteKey(guest1.getCatch_remotekey(),guest1.getCath_remotecert())){
+                                                guest1.getRemoteKey().add(guest1.getCatch_remotekey());
+                                                guest1.getCerts().add(guest1.getCath_remotecert());
+                                                guest1.setCath_remotecert(null);
+                                                guest1.setCatch_remotekey(null);
+                                            }
+                                            else{
+                                                guest1.setCath_remotecert(null);
+                                                guest1.setCatch_remotekey(null);
+                                            }
+                                        }
+                                        else{
+                                            guest1.setCath_remotecert(null);
+                                            guest1.setCatch_remotekey(null);
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case Defin_internet.tocken:{
+                                String mes=message.getMessage();
+                                byte[] enc=Util.sm4dec(mes.getBytes(),friend.getSm4key(),friend.getSm4iv());
+                                mes=Util.byteToHex(enc);
+                                Tocken tocken=gson.fromJson(mes,Tocken.class);
+                                if(mModel_crypto.TockenVerify(tocken,friend)) {
+                                    mModel_crypto.getGuest(friend.getGuestid()).getTockens().add(tocken);
+                                    Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+                                    try {
+                                        dao_tocken.InsertTocken(tocken);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                break;
+                            }
+                            case Defin_internet.accreq:{
+                                accreqact(message,friend);
+                                break;
+                            }
+                            case Defin_internet.remotehub:{
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            };
+            Thread thread=new Thread(runnable);
+            thread.start();
+
         }
         @JavascriptInterface
         public void callAndroidMethod(int a, float b, String c, boolean d) {
@@ -534,181 +742,10 @@ public class MainActivity extends AppCompatActivity {
         }
         @JavascriptInterface
         public void pullmessage(String hostid, final String guestid){
-            PullMessage pullMessage=new PullMessage(hostid,guestid);
             Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerGetMsg, new PushCallBackListener() {
                 @Override
                 public void onPushSuccessfully(String data) {
-                    Log.d("POST",data);
-                    final Gson gson=new Gson();
-                    Message message=gson.fromJson(data,Message.class);
-                    Friend friend=null;
-                    for(Friend friend1:mModel_user.getUser().getFriendUidList()){
-                        if(friend1.getFirend_uid().equals(message.gethost_id())){
-                            friend1.getMessagehashList().add(message);
-                            friend=friend1;
-                        }
-                    }
-                    if(friend==null)
-                        return;
-                    switch (message.getmsg_type()){
-                        case Defin_internet.friendreq:{
-                            break;
-                        }
-                        case Defin_internet.str:{
-                            androidJSBridge("record_receive",message.getMessage());
-                            break;
-                        }
-                        case Defin_internet.nego_req:{
-                            byte[] pri=null;
-                            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
-                                if(localKey.getType()==Defin_crypto.BIND)
-                                    pri=localKey.getPrikey();
-                            }
-                            Sm4ex sm4ex=gson.fromJson(Util.sm2dec(message.getMessage(),pri),Sm4ex.class);
-                            friend.setSm4key(sm4ex.getSm4k());
-                            friend.setSm4iv(sm4ex.getSm4iv());
-                            message.setmsg_type(Defin_internet.nego_apl);
-                            byte[]pub=null;
-                            for(RemoteKey remoteKey:mModel_crypto.getGuest(friend.getGuestid()).getRemoteKey())
-                                if(remoteKey.getType()==Defin_crypto.BIND)
-                                    pub=remoteKey.getPubkey();
-                            message.setMessage(Util.sm2inc(Util.sm2dec(message.getMessage(),pri),pub));
-                            sendMessage(message.toJson(),Defin_internet.nego_apl,friend.getFirend_uid());
-                            break;
-                        }
-                        case Defin_internet.nego_apl:{
-                            byte[] pri=null;
-                            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
-                                if(localKey.getType()==Defin_crypto.BIND)
-                                    pri=localKey.getPrikey();
-                            }
-                            Sm4ex sm4ex=gson.fromJson(Util.sm2dec(message.getMessage(),pri),Sm4ex.class);
-                            friend.setSm4key(sm4ex.getSm4k());
-                            friend.setSm4iv(sm4ex.getSm4iv());
-                            break;
-                        }
-                        case Defin_internet.remotekey:{
-                            List<Guest> guests=mModel_crypto.getOwner().getGuests();
-                            for(Guest guest1:guests){
-                                if(guest1.getUuid().equals(friend.getGuestid())) {
-                                    guest1.setCatch_remotekey(gson.fromJson(message.getMessage(),RemoteKey.class));
-                                }
-                            }
-                            break;
-                        }
-                        case Defin_internet.cert:{
-                            List<Guest> guests=mModel_crypto.getOwner().getGuests();
-                            for(Guest guest1:guests){
-                                if(guest1.getUuid().equals(friend.getGuestid())) {
-                                    guest1.setCath_remotecert(gson.fromJson(message.getMessage(), Cert.class));
-                                    if(guest1.getCatch_remotekey()!=null&&guest1.getCath_remotecert()!=null){
-                                        if(mModel_crypto.VerifyRemoteKey(guest1.getCatch_remotekey(),guest1.getCath_remotecert())){
-                                            guest1.getRemoteKey().add(guest1.getCatch_remotekey());
-                                            guest1.getCerts().add(guest1.getCath_remotecert());
-                                            guest1.setCath_remotecert(null);
-                                            guest1.setCatch_remotekey(null);
-                                        }
-                                        else{
-                                            guest1.setCath_remotecert(null);
-                                            guest1.setCatch_remotekey(null);
-                                        }
-                                    }
-                                    else{
-                                        guest1.setCath_remotecert(null);
-                                        guest1.setCatch_remotekey(null);
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                        case Defin_internet.tocken:{
-                            break;
-                        }
-                        case Defin_internet.accreq:{
-                            final Accreq accreq=gson.fromJson(message.getMessage(),Accreq.class);
-                            List<LocalHub> localHubs=mModel_crypto.getOwner().getLocalHub();
-                            LocalHub localHub = null;
-                            for(LocalHub localHub1:localHubs){
-                                if(localHub1.getUuid().equals(accreq.getHubuuid()))
-                                    localHub=localHub1;
-                            }
-                            if(localHub==null)break;//这里暂时丢弃了该申请，未来返回申请错误的信息
-                            if(mModel_crypto.AccreqVerfi(accreq,friend)) {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                builder.setTitle("门禁授权申请");// 设置标题
-                                // builder.setIcon(R.drawable.ic_launcher);//设置图标
-                                builder.setMessage(friend.getFirend_uid()+"("+accreq.getInfo()+")"+"正在申请"+localHub.getId()+"的"+accreq.getAccsee()+"权限于北京时间"+accreq.getTime());// 为对话框设置内容
-                                // 为对话框设置取消按钮
-                                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface arg0, int arg1) {
-                                        // TODO Auto-generated method stub
-                                    }
-                                });
-                                // 为对话框设置确定按钮
-                                final Friend finalFriend = friend;
-                                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface arg0, int arg1) {
-                                        // TODO Auto-generated method stub
-                                        Runnable runnable=new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Accexp accexp=new Accexp();
-                                                accexp.setAccreq(accreq);
-                                                Calendar calendar= Calendar.getInstance();
-                                                calendar.add(Calendar.MONTH,1);
-                                                accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
-                                                calendar.add(Calendar.DATE,Defin_crypto.time_shot);
-                                                accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
-                                                accexp.setInfo(mModel_crypto.getOwner().getInfo());
-                                                accexp.setAccess(accreq.getAccsee());
-                                                byte[] sign=null;
-                                                for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
-                                                    if(localKey.getType()==Defin_crypto.ROOT)
-                                                        accexp.setRootKey(localKey.getPubkey());
-                                                }
-                                                for(LocalKey localkey2:mModel_crypto.getOwner().getLocalkey()){
-                                                    if(localkey2.getType()==Defin_crypto.SIGN){
-                                                        accexp.setRootKey(localkey2.getPubkey());
-                                                        sign=localkey2.getPrikey();
-                                                    }
-                                                }
-                                                Tocken tocken=new Tocken();
-                                                tocken.setAccexp(accexp);
-                                                Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
-                                                byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
-                                                tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
-                                                byte[]signd=new byte[32];
-                                                if(sign==null)throw new NoSuchElementException();
-                                                gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
-                                                tocken.setSigndata(signd);
-                                                tocken.setSingdatalen(64);
-                                                //TODO:添加发送令牌的代码
-                                                String json=gson.toJson(tocken,Tocken.class);
-                                                byte[] enc=Util.sm4inc(json.getBytes(),finalFriend.getSm4key(),finalFriend.getSm4iv());
-                                                sendMessage(Util.byteToHex(enc),Defin_internet.tocken,finalFriend.getFirend_uid());
-                                                Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
-                                                try {
-                                                    dao_tocken.InsertTocken(tocken);
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        };
-                                        Thread thread=new Thread(runnable);
-                                        thread.start();
-                                    }
-                                });
-                                builder.create().show();// 使用show()方法显示对话框
-                            }
-                            break;
-                        }
-                        case Defin_internet.remotehub:{
-
-                            break;
-                        }
-                    }
+                    messageapl(data);
                     //TODO:添加查询成功后需要执行的的代码
                     save();
                     androidJSBridge("pullmessage_success");
@@ -727,6 +764,9 @@ public class MainActivity extends AppCompatActivity {
                     alertDialog1.show();
                 }
             });
+            Log.d("pull:",hostid+guestid);
+            PullMessage pullMessage=new PullMessage(hostid,guestid);
+            Log.d("pullmessage:",pullMessage.toJson());
             push.execute(pullMessage.toJson());
         }
         @JavascriptInterface
@@ -753,8 +793,9 @@ public class MainActivity extends AppCompatActivity {
                             guest.setUuid(friend.getSM3str().substring(0,16));
                             friend.setGuestid(guest.getUuid());
                             mModel_crypto.getOwner().getGuests().add(guest);
-                            sendRemoteKey(friuenduid);
-                            androidJSBridge("addFriend_success");
+                            //sendRemoteKey(friuenduid);
+                            Log.d("to vue:",friend.toJson());
+                            androidJSBridge("addFriend_success",friend.toJson());
                             save();
                         }
                         @Override
@@ -852,6 +893,7 @@ public class MainActivity extends AppCompatActivity {
             }
             friends = new StringBuffer(friends.substring(0, friends.length() - 1));
             friends.append("]");
+            Log.d("vue friends:",friends.toString());
             return friends.toString();
         }
         @JavascriptInterface

@@ -5,6 +5,7 @@ import android.hardware.usb.UsbDevice;
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Dao.Secret.Sql.AppSql;
+import com.example.myapplication.DateStract.Accexp;
 import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
@@ -14,6 +15,7 @@ import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Owner;
 import com.example.myapplication.DateStract.RemoteKey;
 import com.example.myapplication.DateStract.RootReq;
+import com.example.myapplication.DateStract.Tocken;
 import com.example.myapplication.Defin.Defin_crypto;
 import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.UsbHelper;
@@ -22,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 /*
@@ -270,6 +273,20 @@ import java.util.List;
         rootkeytest();
         mOwner.addLocalKey(LocalKeyGen(Defin_crypto.SIGN));
         mOwner.addLocalKey(LocalKeyGen(Defin_crypto.BIND));
+    }
+    public boolean TockenVerify(Tocken tocken,Friend friend){
+        Gson gson=new Gson();
+        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+        byte[] src=(gson.toJson(tocken.getAccexp(), Accexp.class).getBytes());
+        byte[]signd=tocken.getsigndata();
+        byte[] pub=null;
+        for(RemoteKey remoteKey:getGuest(friend.getGuestid()).getRemoteKey()) {
+            if (remoteKey.getType() == Defin_crypto.SIGN)
+                pub = remoteKey.getPubkey();
+        }
+        if(pub==null)return false;
+        int ret=gm_sm2_3.GM_SM2VerifySig(signd,src,src.length,friend.getUsername().toCharArray(),friend.getUsername().toCharArray().length,pub);
+        return ret == 0;
     }
 
     public boolean AccreqVerfi(Accreq accreq, Friend friend){

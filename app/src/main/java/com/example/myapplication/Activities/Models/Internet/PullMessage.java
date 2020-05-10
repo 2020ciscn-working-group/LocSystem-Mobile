@@ -2,6 +2,8 @@ package com.example.myapplication.Activities.Models.Internet;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 /*
     作者：zyc14588
     github地址:https://github.com/zyc14588
@@ -29,7 +31,7 @@ import android.util.Log;
     }
     @Override
     public String toJson() {
-
-        return null;
+        Gson gson=new Gson();
+        return gson.toJson(this,PullMessage.class);
     }
 }

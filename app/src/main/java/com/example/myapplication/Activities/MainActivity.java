@@ -461,10 +461,20 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
                     sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
                 }
+                Sm4ex sm4ex=new Sm4ex();
+                sm4ex.keygen();
+                sendMessage(sm4ex.toJson(),Defin_internet.nego_req,friuenduid);
             }
             Sm4ex sm4ex=new Sm4ex();
             sm4ex.keygen();
             sendMessage(sm4ex.toJson(),Defin_internet.nego_req,friuenduid);
+            Gson gson=new Gson();
+            String hubs="[";
+            for(LocalHub localHub:mModel_crypto.getOwner().getLocalHub()) {
+                hubs=hubs+gson.toJson(localHub.genhub(),Hub.class)+",";
+            }
+            hubs=hubs.substring(0,hubs.length()-1)+"]";
+            sendMessage(hubs,Defin_internet.remotehub,friuenduid);
         }
 
         private void accreqact(Message message,Friend friend){
@@ -660,7 +670,8 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             }
                             case Defin_internet.remotehub:{
-
+                                Hub hub=gson.fromJson(message.getMessage(),Hub.class);
+                                mModel_crypto.getGuest(friend.getGuestid()).getHubs().add(hub);
                                 break;
                             }
                         }
@@ -745,6 +756,7 @@ public class MainActivity extends AppCompatActivity {
             Push push=new Push(Defin_internet.SeverAddress+Defin_internet.AppServerPort+Defin_internet.AppServerGetMsg, new PushCallBackListener() {
                 @Override
                 public void onPushSuccessfully(String data) {
+                    Log.d("data:",data);
                     messageapl(data);
                     //TODO:添加查询成功后需要执行的的代码
                     save();
@@ -828,7 +840,7 @@ public class MainActivity extends AppCompatActivity {
         public void sendMessage(String mess,int type,String frienduid){
             SendMessage sendMessage=new SendMessage();
             sendMessage.setGuest_id(frienduid);
-            sendMessage.setHost_id(mModel_user.getUUID());
+            sendMessage.setHost_id(mModel_user.getUser().getUid());
             sendMessage.setMessage(mess);
             sendMessage.setMsg_type(type);
             Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerSend, new PushCallBackListener() {

@@ -72,4 +72,14 @@ import java.util.List;
     public List<Loc> getLocs() {
         return locs;
     }
+    public Hub genhub(){
+        Hub hub=new Hub();
+        hub.setDesc(desc);
+        hub.setId(id);
+        hub.setInfo(info);
+        hub.setLocs(locs);
+        hub.setUuid(uuid);
+        hub.setUuid_ow(uuid_ow);
+        return hub;
+    }
 }

@@ -42,6 +42,11 @@ import java.util.LinkedList;
         mMessageDataBase=new MessageDataBase(mActivity);
         mUser=user;
     }
+
+    public MessageDataBase getMessageDataBase() {
+        return mMessageDataBase;
+    }
+
     @Override
     public byte[] getSM3() {
         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
@@ -57,7 +62,7 @@ import java.util.LinkedList;
         mSession = session;
     }
 
-    public String getUUID() {
+    public final String getUUID() {
         return UUID;
     }
 
@@ -65,7 +70,7 @@ import java.util.LinkedList;
         this.UUID = UUID;
     }
 
-    public User getUser() {
+    public final User getUser() {
         return mUser;
     }
 

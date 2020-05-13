@@ -27,7 +27,12 @@ import java.io.Serializable;
     //数据加密后通过文件形式存储，数据库存sm4密钥
     public void onCreate(SQLiteDatabase db) {
         //创建数据库sql语句 并 执行
-        String sql = "";
+        String sql = "create table Message(" +
+                "guest_id  varchar(32) primary key  not null," +
+                "host_id vchar(32)  not null," +
+                "message vchar(1024000)  not null,"+
+                "msg_type varchar(5) not null"+
+                ");";
         db.execSQL(sql);
     }
     @Override

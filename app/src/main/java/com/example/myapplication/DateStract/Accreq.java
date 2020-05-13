@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class Accreq implements Serializable {
 
     private String frienduid;
-    private String accsee;//授权范围
+    private int accsee;//授权范围
     private String time;//授权时间
     private String info;//个人信息
     private String hubuuid;
@@ -47,11 +47,12 @@ public class Accreq implements Serializable {
         this.pub = pub;
     }
 
-    public void setAccsee(String accsee) {
-        this.accsee = accsee;
-    }
-    public String getAccsee() {
+    public int getAccsee() {
         return accsee;
+    }
+
+    public void setAccsee(int accsee) {
+        this.accsee = accsee;
     }
 
     public void setTime(String time) {

@@ -3,6 +3,8 @@
  */
 package com.example.myapplication.DateStract;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 
 /**
@@ -60,5 +62,8 @@ public class LocalKey implements Serializable {
     public byte[] getCertdata() {
         return certdata;
     }
-
+    public String toJson(){
+        Gson gson=new Gson();
+        return gson.toJson(this,LocalKey.class);
+    }
 }

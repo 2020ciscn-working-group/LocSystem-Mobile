@@ -17,7 +17,7 @@ public class Accexp implements Serializable {//授权申请实例
     private byte[] RootKey;//RootKey公钥
     private byte[] signkey;//签名密钥
     private String info;//个人信息
-    private String access;//授权范围
+    private int access;//授权范围
     private String acctime;//授权时间
     private String accendtime;//授权终止时间
     public void setAccreq(Accreq accreq) {
@@ -48,11 +48,12 @@ public class Accexp implements Serializable {//授权申请实例
         return info;
     }
 
-    public void setAccess(String access) {
-        this.access = access;
-    }
-    public String getAccess() {
+    public int getAccess() {
         return access;
+    }
+
+    public void setAccess(int access) {
+        this.access = access;
     }
 
     public void setAcctime(String acctime) {

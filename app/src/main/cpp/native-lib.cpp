@@ -104,7 +104,8 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1GenSM2keypair(JNIEnv *env, j
     // TODO: implement GM_GenSM2keypair()
     unsigned char*pri;
     unsigned char pub[65];
-    unsigned long len=200;
+    unsigned long len;
+    static long add=1;
     unsigned char pri_sm3[32];
     char* pri_sm3_ret;
     //char*path_pri;
@@ -112,6 +113,8 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1GenSM2keypair(JNIEnv *env, j
     //FILE*pubf;
     //FILE* prif;
     int ret=0;
+    //srand(static_cast<unsigned int>(time(0)));
+    len=(unsigned long)32+(add++);
     //執行SM2密钥生成
     pri=(unsigned char *)calloc(200,sizeof(unsigned char));
     ret=GM_GenSM2keypair(pri,&len,pub);
@@ -121,30 +124,10 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1GenSM2keypair(JNIEnv *env, j
         return NULL;
     }
     int i;
-    LOGD("pub");
-    for (i = 0; i<64; i++)
-    {
-        if (i % 4 ==0)
-        {
-            printf(" ");
-        }
-        LOGD("%02X", pub[i]);
-    }
-    LOGD("pri");
-    for (i = 0; i<len; i++)
-    {
-        if (i % 4 ==0)
-		{
-			printf(" ");
-		}
-        LOGD("%02X", pri[i]);
-    }
-    printf("\n");
     //将生成的公钥返回java层
 
     env->SetByteArrayRegion(prikey,0,64,(jbyte*)pub);
 
-    sm3(pri,len,pri_sm3);
     env->SetByteArrayRegion(pri_re,0,(jsize)len,(jbyte*)pri);
     pri_sm3_ret=(char*)calloc(len*2+1,sizeof(char));
     ByteToHexStr(pri_sm3,pri_sm3_ret,(int)len);

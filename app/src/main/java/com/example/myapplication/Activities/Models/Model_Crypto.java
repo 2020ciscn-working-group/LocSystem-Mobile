@@ -2,6 +2,8 @@ package com.example.myapplication.Activities.Models;
 
 import android.app.Activity;
 import android.hardware.usb.UsbDevice;
+import android.util.Log;
+
 import com.example.myapplication.Activities.Models.Internet.Friend;
 import com.example.myapplication.Activities.Models.Internet.SignUp;
 import com.example.myapplication.Dao.Secret.Sql.AppSql;
@@ -10,6 +12,7 @@ import com.example.myapplication.DateStract.Accreq;
 import com.example.myapplication.DateStract.Cert;
 import com.example.myapplication.DateStract.Guest;
 import com.example.myapplication.DateStract.Hub;
+import com.example.myapplication.DateStract.Loc;
 import com.example.myapplication.DateStract.LocalHub;
 import com.example.myapplication.DateStract.LocalKey;
 import com.example.myapplication.DateStract.Owner;
@@ -35,7 +38,7 @@ import java.util.NoSuchElementException;
     private       AppSql           mAppSql;
     private       UsbHelper         mUsbHelper;
 
-    public Model_Crypto(Activity activity,SignUp signUp)  {
+    public Model_Crypto(Activity activity,SignUp signUp) throws InterruptedException {
         mOwner=new Owner();
         mAppSql=new AppSql(activity);
         mUsbHelper=new UsbHelper(activity);
@@ -104,11 +107,12 @@ import java.util.NoSuchElementException;
                                 expub=Defin_crypto.CApub;break;
                             }
                             case Defin_crypto.ROOT:{
-                                assert guest != null;
+                                /*assert guest != null;
                                 for(RemoteKey remoteKey1:guest.getRemoteKey()){
                                         if(remoteKey1.getType()==Defin_crypto.PIK)
                                             expub=remoteKey1.getPubkey();
-                                    }
+                                    }*/
+                                expub=remoteKey.getPubkey();
                                 break;
                             }
                             case Defin_crypto.SIGN:
@@ -136,23 +140,20 @@ import java.util.NoSuchElementException;
                     }
         return false;
     }
-    @Nullable
     private LocalKey LocalKeyGen(int type){
         if(type==Defin_crypto.ROOT)
             return null;
-        LocalKey localKey=null;
         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
-        localKey=new LocalKey();
         byte[]pub=new byte[64];
         byte[]pri=new byte[32];
         gm_sm2_3.GM_GenSM2keypair(pub,pri);
-        localKey=new LocalKey();
-        localKey.setPrikey(pri);
-        localKey.setPubkey(pub);
-        localKey.setType(type);
-        localKey.setInfo(Defin_crypto.info);
-        byte[]src_info=(localKey.getInfo()+localKey.getType()).getBytes();
-        byte[]src=new byte[localKey.getPubkey().length+src_info.length];
+        LocalKey localKeys=new LocalKey();
+        localKeys.setPrikey(pri);
+        localKeys.setPubkey(pub);
+        localKeys.setType(type);
+        localKeys.setInfo(Defin_crypto.info);
+        byte[]src_info=(localKeys.getInfo()+localKeys.getType()).getBytes();
+        byte[]src=new byte[localKeys.getPubkey().length+src_info.length];
         for(int i=0;i<pub.length+src_info.length;i++){
             if(i<pub.length)
                 src[i]=pub[i];
@@ -164,7 +165,7 @@ import java.util.NoSuchElementException;
                 expri=localKey1.getPrikey();
             byte[]signdata=new byte[64];
             gm_sm2_3.GM_SM2Sign(signdata,src,src.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,expri);
-            localKey.setSigndata(signdata);
+            localKeys.setSigndata(signdata);
             byte[]src_cert=new byte[src.length+signdata.length];
             for(int i=0;i<src_cert.length;i++){
                 if(i<src.length)
@@ -174,8 +175,8 @@ import java.util.NoSuchElementException;
             }
             byte[] certdata=new byte[64];
             gm_sm2_3.GM_SM2Sign(certdata,src_cert,src_cert.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,pri);
-            localKey.setCertdata(certdata);
-            return localKey;
+            localKeys.setCertdata(certdata);
+            return localKeys;
     }
     public Cert GenCert(@NotNull LocalKey localKey){
         Cert cert=new Cert();
@@ -265,14 +266,23 @@ import java.util.NoSuchElementException;
         byte[] certdata=new byte[64];
         gm_sm2_3.GM_SM2Sign(certdata,src_cert,src_cert.length,mOwner.getUuid().toCharArray(),mOwner.getUuid().toCharArray().length,pri);
         localKey.setCertdata(certdata);
-        mOwner.addLocalKey(localKey);
+        Log.d("roottest",localKey.toJson());
+        mOwner.getLocalkey().add(localKey);
     }
-    private void OwnerInit(@NotNull SignUp signUp){
+    private void OwnerInit(@NotNull SignUp signUp) throws InterruptedException {
         mOwner.setUuid(signUp.getUid());
         //RootKeyGen();
         rootkeytest();
-        mOwner.addLocalKey(LocalKeyGen(Defin_crypto.SIGN));
-        mOwner.addLocalKey(LocalKeyGen(Defin_crypto.BIND));
+        Thread.sleep(10);
+        LocalKey sign=LocalKeyGen(Defin_crypto.SIGN);
+        Thread.sleep(10);
+        LocalKey bind=LocalKeyGen(Defin_crypto.BIND);
+        assert sign != null;
+        Log.d("singgen",sign.toJson());
+        mOwner.getLocalkey().add(sign);
+        assert bind != null;
+        Log.d("bindgen",bind.toJson());
+        mOwner.getLocalkey().add(bind);
     }
     public boolean TockenVerify(Tocken tocken,Friend friend){
         Gson gson=new Gson();
@@ -294,7 +304,18 @@ import java.util.NoSuchElementException;
             if(guest.getUuid().equals(friend.getGuestid())) {
                 for(RemoteKey remoteKey:guest.getRemoteKey()){
                     if(remoteKey.getType()==Defin_crypto.SIGN){
-                        byte[] src=(accreq.getInfo()+accreq.getTime()+accreq.getAccsee()+accreq.getAccsee()+ Arrays.toString(accreq.getPub())).getBytes();
+                        Gson gson=new Gson();
+                        Accreq accreq1=new Accreq();
+                        accreq1.setsigndatalen(64);
+                        accreq1.setPub(accreq.getPub());
+                        accreq1.setInfo(accreq.getInfo());
+                        accreq1.setTime(accreq.getTime());
+                        accreq1.setFrienduid(friend.getFirend_uid());
+                        accreq1.setAccsee(accreq.getAccsee());
+                        accreq1.setHubuuid(accreq.getHubuuid());
+                        accreq1.setsigndata(null);
+                        accreq1.setInfolen(accreq.getInfolen());
+                        byte[] src=gson.toJson(accreq1,Accreq.class).getBytes();
                         byte[]pub=remoteKey.getPubkey();
                         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
                         int ret=gm_sm2_3.GM_SM2VerifySig(accreq.getsigndata(),src,src.length,guest.getUuid().toCharArray(),guest.getUuid().toCharArray().length,pub);

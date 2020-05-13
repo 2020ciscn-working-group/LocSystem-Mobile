@@ -83,5 +83,11 @@ public class Owner implements Serializable {
     public void addLocalKey(LocalKey localKey){
         Localkey.add(localKey);
     }
-
+    public LocalKey getlocalkey(int def){
+        for(LocalKey localKey:this.Localkey){
+            if(localKey.getType()==def)
+                return localKey;
+        }
+        return null;
+    }
 }

@@ -16,6 +16,7 @@ public class Loc implements Serializable {
     private String Hub_uuid;
     private int Lock_id;
     private String desc;
+    private int acctype;
     public void setHub_uuid(String Hub_uuid) {
          this.Hub_uuid = Hub_uuid;
      }
@@ -29,6 +30,14 @@ public class Loc implements Serializable {
      public int getLock_id() {
          return Lock_id;
      }
+
+    public int getAcctype() {
+        return acctype;
+    }
+
+    public void setAcctype(int acctype) {
+        this.acctype = acctype;
+    }
 
     public void setDesc(String Lock_name) {
          desc = Lock_name;

@@ -15,17 +15,17 @@ import java.util.List;
  */
 public class Guest implements Serializable {
 
-    private String uuid;
-    private String id;
-    private String info;
-    private String desc;
+    private String          uuid;
+    private String          id;
+    private String          info;
+    private String          desc;
     private List<RemoteKey> mRemoteKey;
-    private List<Hub> mHubs;
-    private List<Audit>mAudits;
-    private List<Cert>mCerts;
-    private List<Tocken>mTockens;
-    private RemoteKey catch_remotekey=null;
-    private Cert cath_remotecert=null;
+    private List<Hub>       mHubs;
+    private List<Audit>     mAudits;
+    private List<Cert>      mCerts;
+    private List<Tocken>    mTockens;
+    private RemoteKey       catch_remotekey =null;
+    private Cert            cath_remotecert =null;
     public Guest(){
         uuid=null;
         id=null;
@@ -38,87 +38,105 @@ public class Guest implements Serializable {
         mTockens=new LinkedList<>();
 
     }
-    public List<Tocken> getTockens() {
+    public    List<Tocken> getTockens() {
         return mTockens;
     }
 
-    public void setTockens(List<Tocken> tockens) {
+    public   void setTockens(List<Tocken> tockens) {
         mTockens = tockens;
     }
 
-    public RemoteKey getCatch_remotekey() {
+    public    RemoteKey getCatch_remotekey() {
         return catch_remotekey;
     }
 
-    public void setCatch_remotekey(RemoteKey catch_remotekey) {
+    public   void setCatch_remotekey(RemoteKey catch_remotekey) {
         this.catch_remotekey = catch_remotekey;
     }
 
-    public Cert getCath_remotecert() {
+    public    Cert getCath_remotecert() {
         return cath_remotecert;
     }
 
-    public void setCath_remotecert(Cert cath_remotecert) {
+    public   void setCath_remotecert(Cert cath_remotecert) {
         this.cath_remotecert = cath_remotecert;
     }
 
-    public List<Cert> getCerts() {
+    public    List<Cert> getCerts() {
         return mCerts;
     }
 
-    public void setCerts(List<Cert> certs) {
+    public   void setCerts(List<Cert> certs) {
         mCerts = certs;
     }
 
-    public List<Audit> getAudits() {
+    public      List<Audit> getAudits() {
         return mAudits;
     }
 
-    public void setAudits(List<Audit> audits) {
+    public   void setAudits(List<Audit> audits) {
         mAudits = audits;
     }
 
-    public List<Hub> getHubs() {
+    public    List<Hub> getHubs() {
         return mHubs;
     }
 
-    public void setHubs(List<Hub> hubs) {
+    public     void setHubs(List<Hub> hubs) {
         mHubs = hubs;
     }
 
-    public void setUuid(String uuid) {
+    public   void setUuid(String uuid) {
         this.uuid = uuid;
     }
-    public String getUuid() {
+    public    String getUuid() {
         return uuid;
     }
 
-    public void setId(String id) {
+    public   void setId(String id) {
         this.id = id;
     }
-    public String getId() {
+    public      String getId() {
         return id;
     }
 
-    public void setInfo(String info) {
+    public   void setInfo(String info) {
         this.info = info;
     }
-    public String getInfo() {
+    public    String getInfo() {
         return info;
     }
 
-    public void setDesc(String desc) {
+    public   void setDesc(String desc) {
         this.desc = desc;
     }
-    public String getDesc() {
+    public    String getDesc() {
         return desc;
     }
 
-    public void setRemoteKey(List<RemoteKey> RemoteKey) {
+    public   void setRemoteKey(List<RemoteKey> RemoteKey) {
         mRemoteKey = RemoteKey;
     }
-    public List<RemoteKey> getRemoteKey() {
+    public    List<RemoteKey> getRemoteKey() {
         return mRemoteKey;
     }
-
+    public   void addHub(Hub hub){
+        mHubs.add(hub);
+    }
+    public   void addAudit(Audit audit){
+        mAudits.add(audit);
+    }
+    public   void addCert(Cert cert){
+        mCerts.add(cert);
+    }
+    public   void addTocken(Tocken tocken){
+        mTockens.add(tocken);
+    }
+    public RemoteKey getremotekey(int def){
+        for(RemoteKey remoteKey:this.mRemoteKey){
+            if(remoteKey.getType()==def)
+                return remoteKey;
+        }
+        return null;
+    }
 }

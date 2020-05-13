@@ -2,7 +2,10 @@ package com.example.myapplication.Activities.Models.Internet;
 
 import com.google.gson.Gson;
 
+import org.jetbrains.annotations.Contract;
+
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /*
@@ -21,60 +24,61 @@ import java.util.List;
         this.firend_uid=firend_uid;
         this.phnum=phnum;
         username=uname;
+        MessagehashList=new LinkedList<>();
     }
 
-    public String getPhnum() {
+    public final String getPhnum() {
         return phnum;
     }
 
-    public void setPhnum(String phnum) {
+    public synchronized void setPhnum(String phnum) {
         this.phnum = phnum;
     }
 
-    public List<Message> getMessagehashList() {
+    public final List<Message> getMessagehashList() {
         return MessagehashList;
     }
 
-    public String getUsername() {
+    public final String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public synchronized void setUsername(String username) {
         this.username = username;
     }
 
-    public void setMessagehashList(List<Message> messageList) {
+    public synchronized void setMessagehashList(List<Message> messageList) {
         MessagehashList = messageList;
     }
-    public String getGuestid() {
+    public final String getGuestid() {
         return Guestid;
     }
 
-    public void setGuestid(String uid) {
+    public synchronized void setGuestid(String uid) {
         Guestid = uid;
     }
 
-    public String getFirend_uid() {
+    public final String getFirend_uid() {
         return firend_uid;
     }
 
-    public void setFirend_uid(String firend_uid) {
+    public synchronized void setFirend_uid(String firend_uid) {
         this.firend_uid = firend_uid;
     }
 
-    public String getSm4key() {
+    public final String getSm4key() {
         return sm4key;
     }
 
-    public void setSm4key(String sm4key) {
+    public synchronized void setSm4key(String sm4key) {
         this.sm4key = sm4key;
     }
 
-    public String getSm4iv() {
+    public final String getSm4iv() {
         return sm4iv;
     }
 
-    public void setSm4iv(String sm4iv) {
+    public synchronized void setSm4iv(String sm4iv) {
         this.sm4iv = sm4iv;
     }
 

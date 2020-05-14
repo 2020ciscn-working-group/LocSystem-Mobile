@@ -494,6 +494,7 @@ public class MainActivity extends AppCompatActivity {
         }
         @JavascriptInterface
         public void accreq( final String json,final String frienduid){
+
             /*Runnable runnable=new Runnable() {
                 @Override
                 public void run() {
@@ -506,6 +507,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("accreq","remotekey not found");
                 return;
             }
+            if(json==null){
+                Log.d("vue err","vue json null");
+                return;
+            }
+            Log.d("vue insetr",json);
             Gson gson=new Gson();
             Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
             Vue_Accreq vue_accreq=gson.fromJson(json, Vue_Accreq.class);
@@ -1082,6 +1088,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     hubs=new StringBuffer(hubs.substring(0,hubs.length()+1));
                     hubs.append("]");
+                    Log.d("hub to vue",hubs.toString());
                     return hubs.toString();
                 }
             }

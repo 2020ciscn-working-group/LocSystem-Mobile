@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class Owner implements Serializable {
 
-    private String               uuid;
-    private String               info;
+    private String               uuid=null;
+    private String               info=null;
     private LinkedList<LocalKey> Localkey;
     private LinkedList<LocalHub> mLocalHubs;
     private LinkedList<Guest>    Guests;

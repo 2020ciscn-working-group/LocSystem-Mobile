@@ -20,12 +20,15 @@ import com.example.myapplication.DateStract.RemoteKey;
 import com.example.myapplication.DateStract.RootReq;
 import com.example.myapplication.DateStract.Tocken;
 import com.example.myapplication.Defin.Defin_crypto;
+import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.UsbHelper;
+import com.example.myapplication.Utils.Util;
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -134,6 +137,43 @@ import java.util.NoSuchElementException;
                         return ret == 0&&ret_cert==0;
                     }
         return false;
+    }
+    private void hubtest(){
+        Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+        LocalHub localHub=new LocalHub();
+        localHub.setDesc("这是个测试用的hub");
+        localHub.setId("sdfawsdf");
+        localHub.setInfo(mOwner.getInfo());
+        localHub.setUuid(gm_sm2_3.sm3(ByteUtils.objectToByteArray(mOwner),ByteUtils.objectToByteArray(mOwner).length,new byte[32]).substring(0,16));
+        localHub.setUuid_ow(mOwner.getUuid());
+        localHub.setRemoteKey(null);
+        localHub.setCerts(null);
+        LinkedList<Loc>locs=new LinkedList<>();
+        for(int i=1;i<6;i++){
+            Loc loc1=new Loc();
+            loc1.setLock_id(i);
+            loc1.setHub_uuid(localHub.getUuid());
+            loc1.setDesc("测试锁1");
+            loc1.setAcctype(6-i);
+            locs.add(loc1);
+        }
+        localHub.setLocs(locs);
+        mOwner.getLocalHub().add(localHub);
+    }
+    public Hub Genhub( String uuid){
+        for(LocalHub localHub:mOwner.getLocalHub()){
+            if(localHub.getUuid().equals(uuid)){
+                Hub hub=new Hub();
+                hub.setLocs(localHub.getLocs());
+                hub.setDesc(localHub.getDesc());
+                hub.setId(localHub.getId());
+                hub.setInfo(localHub.getInfo());
+                hub.setUuid(uuid);
+                hub.setUuid_ow(localHub.getUuid_ow());
+                return hub;
+            }
+        }
+        return null;
     }
     private LocalKey LocalKeyGen(int type){
         if(type==Defin_crypto.ROOT)
@@ -266,6 +306,7 @@ import java.util.NoSuchElementException;
     }
     private void OwnerInit(@NotNull SignUp signUp) throws InterruptedException {
         mOwner.setUuid(signUp.getUid());
+        mOwner.setInfo(signUp.getPhoneNum());
         //RootKeyGen();
         rootkeytest();
         LocalKey sign=LocalKeyGen(Defin_crypto.SIGN);
@@ -276,6 +317,7 @@ import java.util.NoSuchElementException;
         assert bind != null;
         Log.d("bindgen",bind.toJson());
         mOwner.getLocalkey().add(bind);
+        hubtest();
     }
     public boolean TockenVerify(Tocken tocken,Friend friend){
         Gson gson=new Gson();

@@ -129,13 +129,6 @@ public class MainActivity extends AppCompatActivity {
         };
         final Intent intent = new Intent(this,PullService.class);
         bindService(intent,mServiceConnection, Service.BIND_AUTO_CREATE);*/
-
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         webView=findViewById(R.id.webview);
         webView.setWebChromeClient(new WebChromeClient());
         WebSettings ws= webView.getSettings();
@@ -159,6 +152,13 @@ public class MainActivity extends AppCompatActivity {
         //webView.loadUrl("file:////android_asset/dist/index.html");
         //vue调试的页面
         webView.loadUrl("http://10.0.2.2:8081");
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
 
    /*     byte []pub=new byte[64];
         byte []pri=new byte[32];
@@ -224,7 +224,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e("save error",e.getMessage());
         }
          sql=new AppSql(this);
-*/      Runnable runnable=new Runnable() {
+*/
+   /*Runnable runnable=new Runnable() {
             @Override
             public void run() {
                 Gm_sm2_3 gm=Gm_sm2_3.getInstance();
@@ -308,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         };
         Thread thread=new Thread(runnable);
         thread.start();
-
+*/
 
 /*
         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
@@ -336,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        save();
     }
     public void save(){
         Runnable runnable=new Runnable() {
@@ -492,95 +494,91 @@ public class MainActivity extends AppCompatActivity {
         }
         @JavascriptInterface
         public void accreq( final String json,final String frienduid){
-            Runnable runnable=new Runnable() {
+            /*Runnable runnable=new Runnable() {
                 @Override
                 public void run() {
-                    RemoteKey remoteKey=mModel_crypto.getGuest(mModel_user.getUser().getFriend(frienduid).getGuestid()).getremotekey(Defin_crypto.BIND);
-                    if(remoteKey==null) {
-                        AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
-                                .setTitle("获取绑定密钥失败")//标题
-                                .setMessage("请先行交换远程密钥")//内容
-                                .setIcon(R.mipmap.ic_launcher)//图标
-                                .create();
-                        alertDialog1.show();
-                        return;
                     }
-                    Gson gson=new Gson();
-                    Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
-                    Vue_Accreq vue_accreq=gson.fromJson(json, Vue_Accreq.class);
-                    Accreq accreq=new Accreq();
-                    accreq.setHubuuid(vue_accreq.getHubuuid());
-                    accreq.setAccsee(vue_accreq.getAccsee());
-                    accreq.setFrienduid(frienduid);
-                    accreq.setTime(String.valueOf(Calendar.getInstance().getTimeInMillis()));
-                    accreq.setInfo(mModel_crypto.getOwner().getInfo());
-                    accreq.setPub(mModel_crypto.getOwner().getlocalkey(Defin_crypto.SIGN).getPubkey());
-                    accreq.setsigndatalen(64);
-                    accreq.setsigndata(null);
-                    accreq.setInfolen(mModel_crypto.getOwner().getInfo().length());
-                    byte[]src=gson.toJson(accreq,Accreq.class).getBytes();
-                    byte[]sigd=new byte[64];
-                    gm_sm2_3.GM_SM2Sign(sigd,src,src.length,mModel_user.getUser().getUid().toCharArray() ,mModel_user.getUser().getUid().toCharArray().length ,mModel_crypto.getOwner().getlocalkey(Defin_crypto.SIGN).getPrikey());
-                    accreq.setsigndata(sigd);
-                    sendMessage(Util.sm2inc(gson.toJson(accreq,Accreq.class),remoteKey.getPubkey()),Defin_internet.accreq,frienduid);
-                }
             };
             Thread thread=new Thread(runnable);
-            thread.start();
+            thread.start();*/
+            RemoteKey remoteKey=mModel_crypto.getGuest(mModel_user.getUser().getFriend(frienduid).getGuestid()).getremotekey(Defin_crypto.BIND);
+            if(remoteKey==null) {
+                Log.d("accreq","remotekey not found");
+                return;
+            }
+            Gson gson=new Gson();
+            Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+            Vue_Accreq vue_accreq=gson.fromJson(json, Vue_Accreq.class);
+            Accreq accreq=new Accreq();
+            accreq.setHubuuid(vue_accreq.getHubuuid());
+            accreq.setAccsee(vue_accreq.getAccsee());
+            accreq.setFrienduid(frienduid);
+            accreq.setTime(String.valueOf(Calendar.getInstance().getTimeInMillis()));
+            accreq.setInfo(mModel_crypto.getOwner().getInfo());
+            accreq.setPub(mModel_crypto.getOwner().getlocalkey(Defin_crypto.SIGN).getPubkey());
+            accreq.setsigndatalen(64);
+            accreq.setsigndata(null);
+            accreq.setInfolen(mModel_crypto.getOwner().getInfo().length());
+            byte[]src=gson.toJson(accreq,Accreq.class).getBytes();
+            byte[]sigd=new byte[64];
+            gm_sm2_3.GM_SM2Sign(sigd,src,src.length,mModel_user.getUser().getUid().toCharArray() ,mModel_user.getUser().getUid().toCharArray().length ,mModel_crypto.getOwner().getlocalkey(Defin_crypto.SIGN).getPrikey());
+            accreq.setsigndata(sigd);
+            sendMessage(Util.sm2inc(gson.toJson(accreq,Accreq.class),remoteKey.getPubkey()),Defin_internet.accreq,frienduid);
+
         }
         private void sendRemoteKey(final String friuenduid) throws Exception {
-            Runnable runnable=new Runnable() {
+            /*Runnable runnable=new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
-                            if(localKey.getType()==Defin_crypto.ROOT){
-                                RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
-                                sendMessage(remoteKey.toJson(), Defin_internet.remotekey,friuenduid);
-                                Thread.sleep(1000);
-                                Cert cert=mModel_crypto.GenCert(localKey);
-                                Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
-                                sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
-                                Thread.sleep(1000);
-                            }
-                            if(localKey.getType()==Defin_crypto.SIGN){
-                                RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
-                                sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
-                                Thread.sleep(1000);
-                                Cert cert=mModel_crypto.GenCert(localKey);
-                                Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
-                                sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
-                                Thread.sleep(1000);
-                            }
-                            if(localKey.getType()==Defin_crypto.BIND){
-                                RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
-                                sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
-                                Thread.sleep(1000);
-                                Cert cert=mModel_crypto.GenCert(localKey);
-                                Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
-                                sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
-                                Thread.sleep(1000);
-                            }
-                        }
-                        /*
-                        Thread.sleep(1000);*/
-                        Gson gson=new Gson();
-                        if(!mModel_crypto.getOwner().getLocalkey().isEmpty()){
-                            StringBuilder hubs= new StringBuilder("[ ");
-                            for(LocalHub localHub:mModel_crypto.getOwner().getLocalHub()) {
-                                hubs.append(gson.toJson(localHub.genhub(), Hub.class)).append(",");
-                            }
-                            hubs = new StringBuilder(hubs.substring(0, hubs.length() - 1) + "]");
-                            sendMessage(hubs.toString(),Defin_internet.remotehub,friuenduid);
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+
                 }
             };
             Thread thread=new Thread(runnable);
-            thread.start();
-
+            thread.start();*/
+            try {
+                for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                    if(localKey.getType()==Defin_crypto.ROOT){
+                        RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                        sendMessage(remoteKey.toJson(), Defin_internet.remotekey,friuenduid);
+                        //Thread.sleep(1000);
+                        Cert cert=mModel_crypto.GenCert(localKey);
+                        Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
+                        sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                        //Thread.sleep(1000);
+                    }
+                    if(localKey.getType()==Defin_crypto.SIGN){
+                        RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                        sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
+                        //Thread.sleep(1000);
+                        Cert cert=mModel_crypto.GenCert(localKey);
+                        Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
+                        sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                        //Thread.sleep(1000);
+                    }
+                    if(localKey.getType()==Defin_crypto.BIND){
+                        RemoteKey remoteKey=mModel_crypto.GenRemoteKey(localKey);
+                        sendMessage(remoteKey.toJson(),Defin_internet.remotekey,friuenduid);
+                        //Thread.sleep(1000);
+                        Cert cert=mModel_crypto.GenCert(localKey);
+                        Log.d("pushremotekey:",remoteKey.toJson()+cert.toJson());
+                        sendMessage(cert.toJson(),Defin_internet.cert,friuenduid);
+                        //Thread.sleep(1000);
+                    }
+                }
+                        /*
+                        Thread.sleep(1000);*/
+                Gson gson=new Gson();
+                if(!mModel_crypto.getOwner().getLocalkey().isEmpty()){
+                    StringBuilder hubs= new StringBuilder("[ ");
+                    for(LocalHub localHub:mModel_crypto.getOwner().getLocalHub()) {
+                        hubs.append(gson.toJson(localHub.genhub(), Hub.class)).append(",");
+                    }
+                    hubs = new StringBuilder(hubs.substring(0, hubs.length() - 1) + "]");
+                    sendMessage(hubs.toString(),Defin_internet.remotehub,friuenduid);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
         private void accreqact(Message message,Friend friend){
@@ -664,133 +662,165 @@ public class MainActivity extends AppCompatActivity {
                 builder.create().show();// 使用show()方法显示对话框
             }
         }
-        private void messageapl(final Message[] messages){
-            final Gson gson=new Gson();
-            Runnable runnable=new Runnable() {
+        private void  messageapl(final Message[] messages){
+            /*Runnable runnable=new Runnable() {
                 @Override
                 public void run() {
-                    for (Message message : messages) {
-                        Friend friend = null;
-                        for (Friend friend1 : mModel_user.getUser().getFriendUidList()) {
-                            if (friend1.getFirend_uid().equals(message.gethost_id())) {
-                                friend1.getMessagehashList().add(message);
-                                friend = friend1;
-                            }
-                        }
-                        if (friend == null)
-                            return;
 
-                            switch (message.getmsg_type()) {
-                                case Defin_internet.friendreq: {
-                                    break;
-                                }
-                                case Defin_internet.friendapl: {
-                                    break;
-                                }
-                                case Defin_internet.nego_req: {
-                                    byte[] pri = null;
-                                    for (LocalKey localKey : mModel_crypto.getOwner().getLocalkey()) {
-                                        if (localKey.getType() == Defin_crypto.BIND)
-                                            pri = localKey.getPrikey();
-                                    }
-                                    Sm4ex sm4ex = gson.fromJson(Util.sm2dec(message.getMessage(), pri), Sm4ex.class);
-                                    //Sm4ex sm4ex=gson.fromJson(message.getMessage(),Sm4ex.class);
-                                    friend.setSm4key(sm4ex.getSm4k());
-                                    friend.setSm4iv(sm4ex.getSm4iv());
-                                    message.setmsg_type(Defin_internet.nego_apl);
-                                    byte[] pub = null;
-                                    for (RemoteKey remoteKey : mModel_crypto.getGuest(friend.getGuestid()).getRemoteKey())
-                                        if (remoteKey.getType() == Defin_crypto.BIND)
-                                            pub = remoteKey.getPubkey();
-                                    message.setMessage(Util.sm2inc(Util.sm2dec(message.getMessage(), pri), pub));
-                                    //message.setMessage(Util.sm2inc(message.getMessage(),pub));
-                                    sendMessage(message.toJson(), Defin_internet.nego_apl, friend.getFirend_uid());
-                                    break;
-                                }
-                                case Defin_internet.nego_apl: {
-                                    byte[] pri = null;
-                                    for (LocalKey localKey : mModel_crypto.getOwner().getLocalkey()) {
-                                        if (localKey.getType() == Defin_crypto.BIND)
-                                            pri = localKey.getPrikey();
-                                    }
-                                    Sm4ex sm4ex = gson.fromJson(Util.sm2dec(message.getMessage(), pri), Sm4ex.class);
-                                    //Sm4ex sm4ex=gson.fromJson(message.getMessage(),Sm4ex.class);
-                                    friend.setSm4key(sm4ex.getSm4k());
-                                    friend.setSm4iv(sm4ex.getSm4iv());
-                                    break;
-                                }
-                                case Defin_internet.remotekey: {
-                                    List<Guest> guests = mModel_crypto.getOwner().getGuests();
-                                    for (Guest guest1 : guests) {
-                                        if (guest1.getUuid().equals(friend.getGuestid())) {
-                                            Log.d("remotekey",message.getMessage());
-                                            guest1.setCatch_remotekey(gson.fromJson(message.getMessage(), RemoteKey.class));
-                                        }
-                                    }
-                                    break;
-                                }
-                                case Defin_internet.cert: {
-                                    List<Guest> guests = mModel_crypto.getOwner().getGuests();
-                                    Log.d("cert:",message.getMessage());
-                                    for (Guest guest1 : guests) {
-                                        if (guest1.getUuid().equals(friend.getGuestid())) {
-                                            guest1.setCath_remotecert(gson.fromJson(message.getMessage(), Cert.class));
-                                            if (guest1.getCatch_remotekey() != null && guest1.getCath_remotecert() != null) {
-                                                if (mModel_crypto.VerifyRemoteKey(guest1.getCatch_remotekey(), guest1.getCath_remotecert())) {
-                                                    guest1.getRemoteKey().add(guest1.getCatch_remotekey());
-                                                    guest1.getCerts().add(guest1.getCath_remotecert());
-                                                    guest1.setCath_remotecert(null);
-                                                    guest1.setCatch_remotekey(null);
-                                                } else {
-                                                    guest1.setCath_remotecert(null);
-                                                    guest1.setCatch_remotekey(null);
-                                                }
-                                            } else {
-                                                guest1.setCath_remotecert(null);
-                                                guest1.setCatch_remotekey(null);
-                                            }
-                                        }
-                                    }
-                                    break;
-                                }
-                                case Defin_internet.tocken: {
-                                    String mes = message.getMessage();
-                                    byte[] enc = Util.sm4dec(mes.getBytes(), friend.getSm4key(), friend.getSm4iv());
-                                    mes = Util.byteToHex(enc);
-                                    Tocken tocken = gson.fromJson(mes, Tocken.class);
-                                    if (mModel_crypto.TockenVerify(tocken, friend)) {
-                                        mModel_crypto.getGuest(friend.getGuestid()).getTockens().add(tocken);
-                                        Dao_Tocken dao_tocken = Dao_Tocken.getInstance(sql);
-                                        try {
-                                            dao_tocken.InsertTocken(tocken);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    break;
-                                }
-                                case Defin_internet.accreq: {
-                                    accreqact(message, friend);
-                                    break;
-                                }
-                                case Defin_internet.remotehub: {
-                                    Hub[] hub = gson.fromJson(message.getMessage(), Hub[].class);
-                                    mModel_crypto.getGuest(friend.getGuestid()).getHubs().addAll(Arrays.asList(hub));
-                                    break;
-                                }
-                                default:{break;}
-                            }
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
                 }
             };
             Thread thread=new Thread(runnable);
-            thread.start();
-
+            thread.start();*/
+            Gson gson=new Gson();
+            for (Message message : messages) {
+                //message.setMessage(new String(Base64.decode(message.getMessage(),Base64.DEFAULT)));
+                Friend friend = null;
+                for (Friend friend1 : mModel_user.getUser().getFriendUidList()) {
+                    if (friend1.getFirend_uid().equals(message.gethost_id())) {
+                        friend1.getMessagehashList().add(message);
+                        friend = friend1;
+                    }
+                }
+                if (friend == null)
+                    return;
+                switch (message.getmsg_type()) {
+                    case Defin_internet.friendreq: {
+                        break;
+                    }
+                    case Defin_internet.friendapl: {
+                        break;
+                    }
+                    case Defin_internet.nego_req: {
+                        byte[] pri = null;
+                        for (LocalKey localKey : mModel_crypto.getOwner().getLocalkey()) {
+                            if (localKey.getType() == Defin_crypto.BIND)
+                                pri = localKey.getPrikey();
+                        }
+                        if(pri==null)break;
+                        byte[] pub = null;
+                        for (RemoteKey remoteKey : mModel_crypto.getGuest(friend.getGuestid()).getRemoteKey()){
+                            if (remoteKey.getType() == Defin_crypto.BIND)
+                                pub = remoteKey.getPubkey();
+                        }
+                        if(pub==null){
+                            break;
+                        }
+                        String json=Util.sm2dec(message.getMessage(), pri);
+                        Sm4ex sm4ex = gson.fromJson(json, Sm4ex.class);
+                        //Sm4ex sm4ex=gson.fromJson(message.getMessage(),Sm4ex.class);
+                        friend.setSm4key(sm4ex.getSm4k());
+                        friend.setSm4iv(sm4ex.getSm4iv());
+                        message.setmsg_type(Defin_internet.nego_apl);
+                        message.setMessage(Util.sm2inc(json, pub));//message.setMessage(Util.sm2inc(message.getMessage(),pub));
+                        sendMessage(message.toJson(), Defin_internet.nego_apl, friend.getFirend_uid());
+                        break;
+                    }
+                    case Defin_internet.nego_apl: {
+                        byte[] pri = null;
+                        for (LocalKey localKey : mModel_crypto.getOwner().getLocalkey()) {
+                            if (localKey.getType() == Defin_crypto.BIND)
+                                pri = localKey.getPrikey();
+                        }
+                        if(pri==null)break;
+                        Sm4ex sm4ex = gson.fromJson(Util.sm2dec(message.getMessage(), pri), Sm4ex.class);
+                        //Sm4ex sm4ex=gson.fromJson(message.getMessage(),Sm4ex.class);
+                        friend.setSm4key(sm4ex.getSm4k());
+                        friend.setSm4iv(sm4ex.getSm4iv());
+                        break;
+                    }
+                    case Defin_internet.remotekey: {
+                        boolean flag=false;
+                        Cert cert_=null;
+                        Guest guest=mModel_crypto.getGuest(friend.getGuestid());
+                        RemoteKey remoteKey=gson.fromJson(message.getMessage(), RemoteKey.class);
+                        Log.d("remotekey",message.getMessage());
+                        List<Cert> certs=guest.getCath_remotecert();
+                        if(certs.isEmpty()){
+                            Log.d("remotekey ","certs is null save to catch");
+                            guest.getCatch_remotekey().add(remoteKey);
+                            break;
+                        }
+                        for(Cert cert:certs){
+                            if (mModel_crypto.VerifyRemoteKey(remoteKey,cert,mModel_user.getUser().getFriend(cert.getuuid()))) {
+                                guest.getRemoteKey().add(remoteKey);
+                                guest.getCerts().add(cert);
+                                Log.d("remotecerify success",remoteKey.toJson()+cert.toJson());
+                                flag=true;
+                                cert_=cert;
+                                break;
+                            }
+                        }
+                        if(!flag){
+                            Log.d("remotekey ","verify field save to catch");
+                            guest.getCatch_remotekey().add(remoteKey);
+                            break;
+                        }
+                        if(cert_!=null)
+                            if(guest.getCath_remotecert().contains(cert_))
+                                guest.getCath_remotecert().remove(cert_);
+                        break;
+                    }
+                    case Defin_internet.cert: {
+                        boolean flag=false;
+                        RemoteKey remoteKey_=null;
+                        Guest guest=mModel_crypto.getGuest(friend.getGuestid());
+                        Log.d("message cert",message.toJson());
+                        Cert cert=gson.fromJson(message.getMessage(), Cert.class);
+                        Log.d("cert:",message.getMessage());
+                        List<RemoteKey>remoteKeys=guest.getCatch_remotekey();
+                        if(remoteKeys.isEmpty()){
+                            Log.d("cert ","remotes is null save to catch");
+                            guest.getCath_remotecert().add(cert);
+                            break;
+                        }
+                        for(RemoteKey remoteKey:remoteKeys){
+                            if (mModel_crypto.VerifyRemoteKey(remoteKey,cert,mModel_user.getUser().getFriend(cert.getuuid()))) {
+                                guest.getRemoteKey().add(remoteKey);
+                                guest.getCerts().add(cert);
+                                Log.d("remotecerify success",remoteKey.toJson()+cert.toJson());
+                                flag=true;
+                                remoteKey_=remoteKey;
+                                break;
+                            }
+                        }
+                        if(!flag){
+                            Log.d("cert ","verify field save to catch");
+                            guest.getCath_remotecert().add(cert);
+                            break;
+                        }
+                        if(remoteKey_ !=null)
+                            if(guest.getCatch_remotekey().contains(remoteKey_))
+                                guest.getCatch_remotekey().remove(remoteKey_);
+                        break;
+                    }
+                    case Defin_internet.tocken: {
+                        String mes = message.getMessage();
+                        byte[] enc = Util.sm4dec(mes.getBytes(), friend.getSm4key(), friend.getSm4iv());
+                        mes = Util.byteToHex(enc);
+                        Tocken tocken = gson.fromJson(mes, Tocken.class);
+                        if (mModel_crypto.TockenVerify(tocken, friend)) {
+                            mModel_crypto.getGuest(friend.getGuestid()).getTockens().add(tocken);
+                            Dao_Tocken dao_tocken = Dao_Tocken.getInstance(sql);
+                            try {
+                                dao_tocken.InsertTocken(tocken);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        break;
+                    }
+                    case Defin_internet.accreq: {
+                        accreqact(message, friend);
+                        break;
+                    }
+                    case Defin_internet.remotehub: {
+                        Hub[] hub = gson.fromJson(message.getMessage(), Hub[].class);
+                        mModel_crypto.getGuest(friend.getGuestid()).getHubs().addAll(Arrays.asList(hub));
+                        break;
+                    }
+                    default:{break;}
+                }
+            }
         }
         @JavascriptInterface
         public void callAndroidMethod(int a, float b, String c, boolean d) {
@@ -844,7 +874,6 @@ public class MainActivity extends AppCompatActivity {
                     save();
                     androidJSBridge("signup_success");
                 }
-
                 @Override
                 public void onPushFailed(int code,String message) {
                     //TODO：注册失败的代码
@@ -886,8 +915,8 @@ public class MainActivity extends AppCompatActivity {
                             Dao_Message dao_message=Dao_Message.getInstance(mModel_user.getMessageDataBase());
                             dao_message.InsertMessage(message);
                         }
-                        messageapl(messages);
                     }
+                    messageapl(messages);
 
 
                     //TODO:添加查询成功后需要执行的的代码
@@ -925,7 +954,7 @@ public class MainActivity extends AppCompatActivity {
                     Push push1=new Push(Defin_internet.SeverAddress + Defin_internet.AppServerPort + Defin_internet.AppServerQueryFriend, new PushCallBackListener() {
                         @Override
                         public void onPushSuccessfully(String data) throws Exception {
-                            pullmessage(friuenduid,mModel_user.getUser().getUid());
+                            //pullmessage(friuenduid,mModel_user.getUser().getUid());
                             Log.d("POSTDATA ",data);
                             Gson gson=new Gson();
                             FriendQuery[] friendQuery=gson.fromJson(data,FriendQuery[].class);

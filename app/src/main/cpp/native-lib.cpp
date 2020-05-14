@@ -264,15 +264,8 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2VerifySig(JNIEnv *env, jo
     memcpy(pubkey,buf_b,(size_t)64);
     env->ReleaseByteArrayElements(sz_pubkey__xy,buf_b,0);
     //验证签名
-    ret=GM_SM2VerifySig(sigd,64,src,(unsigned long)src_len,uid,(unsigned long)len_uid,pubkey,64);
-    //验证不成功
-    if(ret){
-        (env)->ThrowNew((env)->FindClass( "java/lang/NullPointerException"),
-                        "Verify Error");
-        return ret;
-    }
-    //验证成功
-    return ret;
+    return GM_SM2VerifySig(sigd,64,src,(unsigned long)src_len,uid,(unsigned long)len_uid,pubkey,64);
+
 }extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2Encrypt(JNIEnv *env, jobject thiz,
@@ -338,16 +331,9 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2Decrypt(JNIEnv *env, jobj
     //
     dec=(unsigned char*)calloc((size_t)ul_dec_data_len,sizeof(unsigned char));
     ret=GM_SM2Decrypt(dec,&len,src,(unsigned long)inlen,prikey,32);
-
-    if(ret){
-        (env)->ThrowNew((env)->FindClass( "java/lang/NullPointerException"),
-                        "Decrypt Error");
-        return 1;
-    }
-
     env->SetByteArrayRegion(dec_data,0,(jsize)len,(jbyte*)dec);
 
-    return 0;
+    return ret;
 }extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_example_myapplication_Utils_Gm_1sm2_13_sm3(JNIEnv *env, jobject thiz, jbyteArray input,

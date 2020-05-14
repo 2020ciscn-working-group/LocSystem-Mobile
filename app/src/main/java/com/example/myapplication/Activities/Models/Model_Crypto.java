@@ -80,18 +80,13 @@ import java.util.NoSuchElementException;
                 return guest;
             return null;
     }
-    public boolean VerifyRemoteKey(@NotNull RemoteKey remoteKey, @NotNull Cert cert) {
+    public boolean VerifyRemoteKey(@NotNull RemoteKey remoteKey, @NotNull Cert cert,Friend friend) {
         if(remoteKey.getUuid().equals(cert.getuuid()))
-            if(remoteKey.getPubkey()==cert.getPubkey())
+            if(Arrays.toString(remoteKey.getPubkey()).equals(Arrays.toString( cert.getPubkey())))
                 if(remoteKey.getInfo().equals(cert.getInfo()))
                     if(remoteKey.getType()==cert.getType()){
-                        Guest guest=null;
-                        for(Guest guest1:mOwner.getGuests()){
-                            if(guest1.getUuid().equals(cert.getuuid()))
-                                guest=guest1;
-                            else
-                                return false;
-                        }
+                        Guest guest=getGuest(friend.getGuestid());
+                        if(guest==null)return false;
                         byte[] src_info=(remoteKey.getInfo()+remoteKey.getType()).getBytes();
                         byte[]src=new byte[remoteKey.getPubkey().length+src_info.length];
                         byte[]pub=remoteKey.getPubkey();
@@ -273,9 +268,7 @@ import java.util.NoSuchElementException;
         mOwner.setUuid(signUp.getUid());
         //RootKeyGen();
         rootkeytest();
-        Thread.sleep(10);
         LocalKey sign=LocalKeyGen(Defin_crypto.SIGN);
-        Thread.sleep(10);
         LocalKey bind=LocalKeyGen(Defin_crypto.BIND);
         assert sign != null;
         Log.d("singgen",sign.toJson());

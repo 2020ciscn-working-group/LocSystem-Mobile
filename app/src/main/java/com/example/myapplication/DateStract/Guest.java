@@ -24,8 +24,8 @@ public class Guest implements Serializable {
     private List<Audit>     mAudits;
     private List<Cert>      mCerts;
     private List<Tocken>    mTockens;
-    private RemoteKey       catch_remotekey =null;
-    private Cert            cath_remotecert =null;
+    private List<RemoteKey>       catch_remotekey =null;
+    private List<Cert>            cath_remotecert =null;
     public Guest(){
         uuid=null;
         id=null;
@@ -36,6 +36,8 @@ public class Guest implements Serializable {
         mAudits=new LinkedList<>();
         mCerts=new LinkedList<>();
         mTockens=new LinkedList<>();
+        catch_remotekey=new LinkedList<>();
+        cath_remotecert=new LinkedList<>();
 
     }
     public    List<Tocken> getTockens() {
@@ -46,19 +48,19 @@ public class Guest implements Serializable {
         mTockens = tockens;
     }
 
-    public    RemoteKey getCatch_remotekey() {
+    public List<RemoteKey> getCatch_remotekey() {
         return catch_remotekey;
     }
 
-    public   void setCatch_remotekey(RemoteKey catch_remotekey) {
+    public void setCatch_remotekey(List<RemoteKey> catch_remotekey) {
         this.catch_remotekey = catch_remotekey;
     }
 
-    public    Cert getCath_remotecert() {
+    public List<Cert> getCath_remotecert() {
         return cath_remotecert;
     }
 
-    public   void setCath_remotecert(Cert cath_remotecert) {
+    public void setCath_remotecert(List<Cert> cath_remotecert) {
         this.cath_remotecert = cath_remotecert;
     }
 

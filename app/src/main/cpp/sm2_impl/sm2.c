@@ -1067,7 +1067,7 @@ int genRand_k(mp_int * rand_k, mp_int * mp_n)
 {
 	int i;
 	int ret = 0;
-	srand( (unsigned)time( NULL ));
+	//srand( (unsigned)time( NULL ));
 	mp_set(rand_k, 1);
     for (i = 0; i < 9; i ++) {
         ret = mp_mul_d(rand_k, rand(), rand_k);

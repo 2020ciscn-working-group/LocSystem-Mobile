@@ -23,6 +23,7 @@ package com.example.myapplication.Defin;
     public static final int    remotekey      =151;
     public static final int    nego_req       =110;
     public static final int    nego_apl       =111;
+    public static final int    accdenied=500;
     public static       String CApub          ="3cca45608914bd0b63e6c0b22116b632ccc555085037a9648e7bb428b2a90aa16a4107330c9f4cfe650c29c410112d7637be458f8cd93245ed97810c4a3ae5d1";
     public static final int loctype1=1001;
     public static final int loctype2=1002;

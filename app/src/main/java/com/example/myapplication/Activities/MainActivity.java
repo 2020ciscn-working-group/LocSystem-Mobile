@@ -61,12 +61,7 @@ import com.example.myapplication.Utils.ByteUtils;
 import com.example.myapplication.Utils.Gm_sm2_3;
 import com.example.myapplication.Utils.UsbHelper;
 import com.example.myapplication.Utils.Util;
-import com.example.myapplication.Utils.jsontrans;
-import com.example.myapplication.owner_date;
 import com.google.gson.Gson;
-
-import org.bouncycastle.crypto.prng.X931RNG;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -75,8 +70,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -225,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         }
          sql=new AppSql(this);
 */
-   /*Runnable runnable=new Runnable() {
+   Runnable runnable=new Runnable() {
             @Override
             public void run() {
                 Gm_sm2_3 gm=Gm_sm2_3.getInstance();
@@ -250,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 accreq.setsigndatalen(0);
                 accreq.setsigndata(null);
                 accreq.setHubuuid("ACCDCBAEFFAAV");
+                accreq.setPub(sign_pub);
                 byte[] src_=ByteUtils.objectToByteArray(accreq);
                 gm.GM_SM2Sign(sigd,src_,src_.length,"zyc14588".toCharArray() ,"zyc14588".toCharArray().length ,sign_pri);
                 accreq.setsigndata(sigd);
@@ -297,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                 hub.setInfo("dfhsedhsedrh");
                 hub.setId("sdfsdfgearf");
                 hub.setDesc("xxxxx");
-                LinkedList<Loc>locs=new LinkedList<>();
+                LinkedList<Loc> locs=new LinkedList<>();
                 Loc loc=new Loc();
                 loc.setDesc("xxx");
                 loc.setHub_uuid(hub.getUuid());
@@ -309,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
         };
         Thread thread=new Thread(runnable);
         thread.start();
-*/
+
 
 /*
         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
@@ -382,6 +376,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                Log.d("save","complete");
             }
         };
         Thread thread=new Thread(runnable);
@@ -586,7 +581,56 @@ public class MainActivity extends AppCompatActivity {
                 ex.printStackTrace();
             }
         }
-
+        @JavascriptInterface
+        public void acceptaccreq(String accreq_json,String frienduid){
+            Gson gson=new Gson();
+            Accreq accreq=gson.fromJson(accreq_json,Accreq.class);
+            Accexp accexp=new Accexp();
+            accexp.setAccreq(accreq);
+            Calendar calendar= Calendar.getInstance();
+            calendar.add(Calendar.MONTH,1);
+            accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
+            calendar.add(Calendar.DATE,Defin_crypto.time_shot);
+            accexp.setAccendtime(String.valueOf(calendar.getTimeInMillis()));
+            accexp.setInfo(mModel_crypto.getOwner().getInfo());
+            accexp.setAccess(accreq.getAccsee());
+            byte[] sign=null;
+            for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                if(localKey.getType()==Defin_crypto.ROOT)
+                    accexp.setRootKey(localKey.getPubkey());
+            }
+            for(LocalKey localkey2:mModel_crypto.getOwner().getLocalkey()){
+                if(localkey2.getType()==Defin_crypto.SIGN){
+                    accexp.setRootKey(localkey2.getPubkey());
+                    sign=localkey2.getPrikey();
+                }
+            }
+            Tocken tocken=new Tocken();
+            tocken.setAccexp(accexp);
+            Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
+            byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
+            tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
+            byte[]signd=new byte[32];
+            if(sign==null)throw new NoSuchElementException();
+            gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
+            tocken.setSigndata(signd);
+            tocken.setSingdatalen(64);
+            //TODO:添加发送令牌的代码
+            String json=gson.toJson(tocken,Tocken.class);
+            Friend friend=mModel_user.getUser().getFriend(frienduid);
+            byte[] enc=Util.sm4inc(json.getBytes(),friend.getSm4key(),friend.getSm4iv());
+            sendMessage(Util.byteToHex(enc),Defin_internet.tocken,friend.getFirend_uid());
+            Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+            try {
+                dao_tocken.InsertTocken(tocken);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        @JavascriptInterface
+        public void denide(String accreq_json,String frienduid){
+            sendMessage(accreq_json,Defin_internet.accdenied,frienduid);
+        }
         private void accreqact(Message message,Friend friend){
             final Gson gson=new Gson();
             String json=Util.sm2dec(message.getMessage(),mModel_crypto.getOwner().getlocalkey(Defin_crypto.BIND).getPrikey());
@@ -599,6 +643,8 @@ public class MainActivity extends AppCompatActivity {
             }
             if(localHub==null)return;//这里暂时丢弃了该申请，未来返回申请错误的信息
             if(mModel_crypto.AccreqVerfi(accreq,friend)) {
+                androidJSBridge("accreq",gson.toJson(accreq,Accreq.class));
+/*
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("门禁授权申请");// 设置标题
                 // builder.setIcon(R.drawable.ic_launcher);//设置图标
@@ -616,9 +662,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
                         // TODO Auto-generated method stub
-                        Runnable runnable=new Runnable() {
-                            @Override
-                            public void run() {
                                 Accexp accexp=new Accexp();
                                 accexp.setAccreq(accreq);
                                 Calendar calendar= Calendar.getInstance();
@@ -659,13 +702,10 @@ public class MainActivity extends AppCompatActivity {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            }
-                        };
-                        Thread thread=new Thread(runnable);
-                        thread.start();
                     }
                 });
                 builder.create().show();// 使用show()方法显示对话框
+                */
             }
         }
         private void  messageapl(final Message[] messages){
@@ -695,6 +735,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                     case Defin_internet.friendapl: {
                         break;
+                    }
+                    case Defin_internet.accdenied:{
+                        Accreq accreq=gson.fromJson(message.getMessage(),Accreq.class);
+                        AlertDialog alertDialog1 = new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("申请授权失败")//标题
+                                .setMessage("好友："+friend.getFirend_uid()+"\nhub:"+accreq.getHubuuid()+"\n描述："+accreq.getInfo()+"\n权限："+accreq.getAccsee())//内容
+                                .setIcon(R.mipmap.ic_launcher)//图标
+                                .create();
+                        alertDialog1.show();
                     }
                     case Defin_internet.nego_req: {
                         byte[] pri = null;
@@ -728,7 +777,9 @@ public class MainActivity extends AppCompatActivity {
                                 pri = localKey.getPrikey();
                         }
                         if(pri==null)break;
-                        Sm4ex sm4ex = gson.fromJson(Util.sm2dec(message.getMessage(), pri), Sm4ex.class);
+                        String json=Util.sm2dec(message.getMessage(), pri);
+                        Log.d("negoreq",json);
+                        Sm4ex sm4ex = gson.fromJson(json, Sm4ex.class);
                         //Sm4ex sm4ex=gson.fromJson(message.getMessage(),Sm4ex.class);
                         friend.setSm4key(sm4ex.getSm4k());
                         friend.setSm4iv(sm4ex.getSm4iv());
@@ -923,8 +974,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     messageapl(messages);
-
-
                     //TODO:添加查询成功后需要执行的的代码
                     save();
                     androidJSBridge("pullmessage_success");
@@ -1071,7 +1120,7 @@ public class MainActivity extends AppCompatActivity {
             for(Friend ff:Friendlist){
                 friends.append(ff.toJson()).append(",");
             }
-            friends = new StringBuffer(friends.substring(0, friends.length() - 1));
+            friends = friends.delete(friends.length()-1,friends.length());
             friends.append("]");
             Log.d("vue friends:",friends.toString());
             return friends.toString();
@@ -1082,11 +1131,12 @@ public class MainActivity extends AppCompatActivity {
                 if(friend.getFirend_uid().equals(frienduid)){
                     Guest guest=mModel_crypto.getGuest(friend.getGuestid());
                     List<Hub> list=guest.getHubs();
+                    if(list.isEmpty())return null;
                     StringBuffer hubs= new StringBuffer("[");
                     for(Hub hub:list){
                         hubs.append(hub.toJson()).append(",");
                     }
-                    hubs=new StringBuffer(hubs.substring(0,hubs.length()+1));
+                    hubs=hubs.delete(hubs.length()-1,hubs.length());
                     hubs.append("]");
                     Log.d("hub to vue",hubs.toString());
                     return hubs.toString();
@@ -1118,11 +1168,12 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public String getAudits(){
             List<Audit>audits=mModel_crypto.getOwner().getAudits();
+            if(audits.isEmpty())return null;
             StringBuffer ret=new StringBuffer("[");
             for(Audit ff:audits){
                 ret.append(ff.toJson()).append(",");
             }
-            ret = new StringBuffer(ret.substring(0, ret.length() - 1));
+            ret = ret.delete(ret.length()-1,ret.length());
             ret.append("]");
             return ret.toString();
         }

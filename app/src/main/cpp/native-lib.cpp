@@ -131,6 +131,7 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1GenSM2keypair(JNIEnv *env, j
     env->SetByteArrayRegion(pri_re,0,(jsize)len,(jbyte*)pri);
     pri_sm3_ret=(char*)calloc(len*2+1,sizeof(char));
     ByteToHexStr(pri_sm3,pri_sm3_ret,(int)len);
+    free(pri);
     return env->NewStringUTF(pri_sm3_ret);
     //以SM3结果为索引存储私钥
     /*const char *loc="/sdcard/Android/data/com.example.myapplication/pri.key";
@@ -226,6 +227,9 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2Sign(JNIEnv *env, jobject
     env->SetByteArrayRegion(signed_data,0,64,(jbyte *)sigd);
     sigd_hex=(char*)calloc(129,sizeof(char));
     ByteToHexStr(sigd,sigd_hex,64);
+    free(uid_name);
+    free(src_in);
+
     return env->NewStringUTF(sigd_hex);
 }
 extern "C"
@@ -264,7 +268,12 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2VerifySig(JNIEnv *env, jo
     memcpy(pubkey,buf_b,(size_t)64);
     env->ReleaseByteArrayElements(sz_pubkey__xy,buf_b,0);
     //验证签名
-    return GM_SM2VerifySig(sigd,64,src,(unsigned long)src_len,uid,(unsigned long)len_uid,pubkey,64);
+    ret=GM_SM2VerifySig(sigd,64,src,(unsigned long)src_len,uid,(unsigned long)len_uid,pubkey,64);
+    free(sigd);
+    free(uid);
+    free(pubkey);
+    free(src);
+    return ret;
 
 }extern "C"
 JNIEXPORT jint JNICALL
@@ -300,6 +309,9 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2Encrypt(JNIEnv *env, jobj
     }
     //
     env->SetByteArrayRegion(enc_data,0,(jsize)ul_enc_data_len,(jbyte*)enc);
+    free(enc);
+    free(pubkey);
+    free(src);
     return ret;
 }extern "C"
 JNIEXPORT jint JNICALL
@@ -332,7 +344,9 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GM_1SM2Decrypt(JNIEnv *env, jobj
     dec=(unsigned char*)calloc((size_t)ul_dec_data_len,sizeof(unsigned char));
     ret=GM_SM2Decrypt(dec,&len,src,(unsigned long)inlen,prikey,32);
     env->SetByteArrayRegion(dec_data,0,(jsize)len,(jbyte*)dec);
-
+    free(src);
+    free(prikey);
+    free(dec);
     return ret;
 }extern "C"
 JNIEXPORT jstring JNICALL
@@ -351,6 +365,7 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_sm3(JNIEnv *env, jobject thiz, j
     env->SetByteArrayRegion(output,0,32,(jbyte *)ou);
     sigd_hex=(char*)calloc(129,sizeof(char));
     ByteToHexStr(ou,sigd_hex,64);
+    free(chars);
     return env->NewStringUTF(sigd_hex);
 }extern "C"
 JNIEXPORT jint JNICALL
@@ -377,6 +392,8 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GetEncLen(JNIEnv *env, jobject t
     enc=(unsigned char*)calloc((size_t)plain_len,sizeof(unsigned char));
     GM_SM2Encrypt(enc,&len,src,(unsigned long)plain_len,pubkey,(unsigned long)64);
     free(enc);
+    free(pubkey);
+    free(src);
     return (jint)len;
 }extern "C"
 JNIEXPORT jint JNICALL
@@ -402,6 +419,8 @@ Java_com_example_myapplication_Utils_Gm_1sm2_13_GetDecLen(JNIEnv *env, jobject t
     enc=(unsigned char*)calloc(1,sizeof(unsigned char));
     GM_SM2Decrypt(enc,&len,src,(unsigned long)plain_len,pubkey,(unsigned long)32);
     free(enc);
+    free(pubkey);
+    free(src);
     return (jint)len;
 }
 /*extern "C"

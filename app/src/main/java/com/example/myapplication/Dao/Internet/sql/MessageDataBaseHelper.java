@@ -30,7 +30,7 @@ import java.io.Serializable;
         String sql = "create table Message(" +
                 "guest_id  varchar(32) primary key  not null," +
                 "host_id vchar(32)  not null," +
-                "message vchar(1024000)  not null,"+
+                "message vchar(102400)  not null,"+
                 "msg_type varchar(5) not null"+
                 ");";
         db.execSQL(sql);

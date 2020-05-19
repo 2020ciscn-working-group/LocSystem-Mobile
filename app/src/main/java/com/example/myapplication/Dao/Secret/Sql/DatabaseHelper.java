@@ -27,7 +27,7 @@ import java.io.Serializable;
     public void onCreate(SQLiteDatabase db) {
         //创建数据库sql语句 并 执行
         String sql = "create table Tocken(" +
-                "uuid  varchar(32) primary key  not null," +
+                "uuid  varchar(200) primary key  not null," +
                 "dekey vchar(32)  not null" +
                 ");" +
                 "create table RemoteKey(" +

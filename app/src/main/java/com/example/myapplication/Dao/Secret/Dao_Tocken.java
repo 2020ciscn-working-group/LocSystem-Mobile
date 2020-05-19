@@ -100,6 +100,40 @@ import java.util.NoSuchElementException;
         byte[]Tocken_byte=sm4.decryptData_CBC(Tocken_inc);
         return (Tocken)ByteUtils.byteArrayToObject(Tocken_byte);
     }
+    public String SelectTockens() throws IOException {
+        String key = null;
+        Cursor cursor=mDatabase.query("Tocken",new String[]{"*"},null,null,null,null,null);
+        boolean fist=cursor.moveToFirst();
+        boolean isEmpty=cursor.getCount()==0;
+        if(fist && !isEmpty){
+            StringBuffer json= new StringBuffer("[ ");
+            while (cursor.moveToNext()){
+                key=cursor.getString(cursor.getColumnIndex("dekey"));
+                String uuid=cursor.getString(cursor.getColumnIndex("uuid"));
+                SM4Utils sm4=new SM4Utils();
+                sm4.iv = "31313131313131313131313131313131";
+                sm4.secretKey=key;
+                sm4.hexString=true;
+                String name="/Tocken/"+uuid.substring(0,16);
+                File Tocken_file=new File(MainActivity.path+name);
+                if(!Tocken_file.exists())
+                    throw new FileNotFoundException();
+                FileInputStream fileInputStream=new FileInputStream(Tocken_file);
+                byte[] Tocken_inc=new byte[fileInputStream.available()];
+                fileInputStream.read(Tocken_inc);
+                byte[]Tocken_byte=sm4.decryptData_CBC(Tocken_inc);
+                json.append(((Tocken) ByteUtils.byteArrayToObject(Tocken_byte)).toJson());
+            }
+            json=json.delete(json.length()-1,json.length());
+            json.append("]");
+            cursor.close();
+            return json.toString();
+        }
+        else {
+            cursor.close();
+            throw new NoSuchElementException();
+        }
+    }
     public void DeleteTocken(String uuid) throws IOException {
         mDatabase.delete("Tocken","uuid=?",new String[]{uuid});
         String name="/Tocken/"+uuid.substring(0,16);

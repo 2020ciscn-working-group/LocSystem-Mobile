@@ -345,7 +345,7 @@ import java.util.NoSuchElementException;
                         accreq1.setPub(accreq.getPub());
                         accreq1.setInfo(accreq.getInfo());
                         accreq1.setTime(accreq.getTime());
-                        accreq1.setFrienduid(friend.getFirend_uid());
+                        accreq1.setFrienduid(mOwner.getUuid());
                         accreq1.setAccsee(accreq.getAccsee());
                         accreq1.setHubuuid(accreq.getHubuuid());
                         accreq1.setsigndata(null);
@@ -353,7 +353,7 @@ import java.util.NoSuchElementException;
                         byte[] src=gson.toJson(accreq1,Accreq.class).getBytes();
                         byte[]pub=remoteKey.getPubkey();
                         Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
-                        int ret=gm_sm2_3.GM_SM2VerifySig(accreq.getsigndata(),src,src.length,guest.getUuid().toCharArray(),guest.getUuid().toCharArray().length,pub);
+                        int ret=gm_sm2_3.GM_SM2VerifySig(accreq.getsigndata(),src,src.length,friend.getFirend_uid().toCharArray(),friend.getFirend_uid().toCharArray().length,pub);
                         return ret==0;
                     }
                 }

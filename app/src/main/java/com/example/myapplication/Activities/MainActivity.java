@@ -70,6 +70,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -122,6 +123,13 @@ public class MainActivity extends AppCompatActivity {
         };
         final Intent intent = new Intent(this,PullService.class);
         bindService(intent,mServiceConnection, Service.BIND_AUTO_CREATE);*/
+
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         webView=findViewById(R.id.webview);
         webView.setWebChromeClient(new WebChromeClient());
         WebSettings ws= webView.getSettings();
@@ -142,16 +150,10 @@ public class MainActivity extends AppCompatActivity {
         JavaScriptInterface javaScriptInterface=new JavaScriptInterface();
         webView.addJavascriptInterface(javaScriptInterface,"$APP");
         //dist文件夹
-        //webView.loadUrl("file:////android_asset/dist/index.html");
+        webView.loadUrl("file:////android_asset/dist/index.html");
         //vue调试的页面
-        webView.loadUrl("http://10.0.2.2:8081");
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
+        //webView.loadUrl("http://192.168.0.100:8081");
+        sql=new AppSql(this);
 
    /*     byte []pub=new byte[64];
         byte []pri=new byte[32];
@@ -218,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         }
          sql=new AppSql(this);
 */
+/*
    Runnable runnable=new Runnable() {
             @Override
             public void run() {
@@ -303,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
         };
         Thread thread=new Thread(runnable);
         thread.start();
-
+*/
 
 /*
         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
@@ -409,6 +412,7 @@ public class MainActivity extends AppCompatActivity {
             case"addFriend_success":
             case"pullmessage_success":
             case "chatItem_receieve":
+            case "accreq":
             case"signup_success":{
                 webView.evaluateJavascript(url, new ValueCallback<String>() {
                     @Override
@@ -609,17 +613,25 @@ public class MainActivity extends AppCompatActivity {
             tocken.setAccexp(accexp);
             Gm_sm2_3 gm_sm2_3=Gm_sm2_3.getInstance();
             byte[] src=(gson.toJson(accexp,Accexp.class).getBytes());
-            tocken.setUuid(gm_sm2_3.sm3(src,src.length,new byte[32]).substring(0,16));
-            byte[]signd=new byte[32];
+            tocken.setUuid(frienduid+" "+(new Date().getTime()));
+            byte[]signd=new byte[64];
             if(sign==null)throw new NoSuchElementException();
             gm_sm2_3.GM_SM2Sign(signd,src,src.length,mModel_user.getUser().getUsername().toCharArray(),mModel_user.getUser().getUsername().toCharArray().length,sign);
             tocken.setSigndata(signd);
             tocken.setSingdatalen(64);
             //TODO:添加发送令牌的代码
-            String json=gson.toJson(tocken,Tocken.class);
+            String json=tocken.toJson();
+            Log.d("tocken to friend",tocken.toJson());
+            byte[]pub=null;
+            for(RemoteKey remoteKey:mModel_crypto.getGuest(mModel_user.getUser().getFriend(frienduid).getGuestid()).getRemoteKey()){
+                if(remoteKey.getType()==Defin_crypto.BIND){
+                    pub=remoteKey.getPubkey();
+                    break;
+                }
+            }
+            if(pub==null)throw new NullPointerException();
             Friend friend=mModel_user.getUser().getFriend(frienduid);
-            byte[] enc=Util.sm4inc(json.getBytes(),friend.getSm4key(),friend.getSm4iv());
-            sendMessage(Util.byteToHex(enc),Defin_internet.tocken,friend.getFirend_uid());
+            sendMessage(Util.sm2inc(json,pub),Defin_internet.tocken,friend.getFirend_uid());
             Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
             try {
                 dao_tocken.InsertTocken(tocken);
@@ -632,17 +644,21 @@ public class MainActivity extends AppCompatActivity {
             sendMessage(accreq_json,Defin_internet.accdenied,frienduid);
         }
         private void accreqact(Message message,Friend friend){
-            final Gson gson=new Gson();
+            Gson gson=new Gson();
             String json=Util.sm2dec(message.getMessage(),mModel_crypto.getOwner().getlocalkey(Defin_crypto.BIND).getPrikey());
-            final Accreq accreq=gson.fromJson(json,Accreq.class);
+            Accreq accreq=gson.fromJson(json,Accreq.class);
             List<LocalHub> localHubs=mModel_crypto.getOwner().getLocalHub();
             LocalHub localHub = null;
             for(LocalHub localHub1:localHubs){
-                if(localHub1.getUuid().equals(accreq.getHubuuid()))
+                if(localHub1.getUuid().equals(accreq.getHubuuid())){
                     localHub=localHub1;
+                    break;
+                }
+
             }
             if(localHub==null)return;//这里暂时丢弃了该申请，未来返回申请错误的信息
             if(mModel_crypto.AccreqVerfi(accreq,friend)) {
+                Log.d("accreq to vue",gson.toJson(accreq,Accreq.class));
                 androidJSBridge("accreq",gson.toJson(accreq,Accreq.class));
 /*
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -766,7 +782,7 @@ public class MainActivity extends AppCompatActivity {
                         friend.setSm4key(sm4ex.getSm4k());
                         friend.setSm4iv(sm4ex.getSm4iv());
                         message.setmsg_type(Defin_internet.nego_apl);
-                        message.setMessage(Util.sm2inc(json, pub));//message.setMessage(Util.sm2inc(message.getMessage(),pub));
+                        message.setMessage(Util.sm2inc(sm4ex.toJson(), pub));//message.setMessage(Util.sm2inc(message.getMessage(),pub));
                         sendMessage(message.toJson(), Defin_internet.nego_apl, friend.getFirend_uid());
                         break;
                     }
@@ -852,17 +868,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                     case Defin_internet.tocken: {
                         String mes = message.getMessage();
-                        byte[] enc = Util.sm4dec(mes.getBytes(), friend.getSm4key(), friend.getSm4iv());
-                        mes = Util.byteToHex(enc);
-                        Tocken tocken = gson.fromJson(mes, Tocken.class);
+                        byte[]pri=null;
+                        for(LocalKey localKey:mModel_crypto.getOwner().getLocalkey()){
+                            if(localKey.getType()==Defin_crypto.BIND){
+                                pri=localKey.getPrikey();
+                                break;
+                            }
+                        }
+                        if(pri==null)throw new NullPointerException();
+                        String tocken_json=Util.sm2dec(mes,pri);
+                        Log.d("acctocken",tocken_json);
+                        Tocken tocken = gson.fromJson(tocken_json, Tocken.class);
                         if (mModel_crypto.TockenVerify(tocken, friend)) {
                             mModel_crypto.getGuest(friend.getGuestid()).getTockens().add(tocken);
-                            Dao_Tocken dao_tocken = Dao_Tocken.getInstance(sql);
-                            try {
-                                dao_tocken.InsertTocken(tocken);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
                         }
                         break;
                     }
@@ -956,13 +974,7 @@ public class MainActivity extends AppCompatActivity {
                     Message[] messages=gson.fromJson(data,Message[].class);
                     //messageapl(messages);
                     for(Message message:messages) {
-                        Friend friend = null;
-                        for (Friend friend1 : mModel_user.getUser().getFriendUidList()) {
-                            if (friend1.getFirend_uid().equals(message.gethost_id())) {
-                                friend1.getMessagehashList().add(message);
-                                friend = friend1;
-                            }
-                        }
+                        Friend friend = mModel_user.getUser().getFriend(message.gethost_id());
                         if (friend == null)
                             return;
                         message.setMessage(new String(Base64.decode(message.getMessage(),Base64.DEFAULT)));
@@ -1150,6 +1162,11 @@ public class MainActivity extends AppCompatActivity {
             Tocken tocken=dao_tocken.SelectTocken(uuid);
             Gson gson=new Gson();
             return gson.toJson(tocken,tocken.getClass());
+        }
+        @JavascriptInterface
+        public String getTockens() throws IOException {
+            Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
+            return dao_tocken.SelectTockens();
         }
         @JavascriptInterface
         public String getAudit(String uuid) throws IOException {

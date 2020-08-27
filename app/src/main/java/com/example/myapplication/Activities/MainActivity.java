@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         ws.setDomStorageEnabled(true);
         ws.setAppCacheEnabled(true);
         ws.setAllowFileAccess(true);
-        ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        //ws.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.setWebViewClient(new WebViewClient());
         //添加jsp的安卓接口内部类,VUE使用$APP符号即可调用给jsp的按安卓方法接口了
         JavaScriptInterface javaScriptInterface=new JavaScriptInterface();
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         }
          sql=new AppSql(this);
 */
-/*
+
    Runnable runnable=new Runnable() {
             @Override
             public void run() {
@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
         };
         Thread thread=new Thread(runnable);
         thread.start();
-*/
+
 
 /*
         Dao_Tocken dao_tocken=Dao_Tocken.getInstance(sql);
